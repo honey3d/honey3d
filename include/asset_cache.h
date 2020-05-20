@@ -1,0 +1,10 @@
+#ifndef HONEY_ASSET_CACHE
+#define HONEY_ASSET_CACHE
+
+#ifndef HONEY_ASSET_CACHE_SIZE
+#define HONEY_ASSET_CACHE_SIZE 2048
+#endif
+
+
+
+#endif
