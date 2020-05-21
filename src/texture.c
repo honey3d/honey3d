@@ -36,3 +36,10 @@ enum honey_texture_result honey_texture_new(honey_texture* texture,
 
   return TEXTURE_OK;
 }
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+void honey_texture_use(honey_texture texture, int texture_unit) {
+  glActiveTexture(GL_TEXTURE0 + texture_unit);
+  glBindTexture(GL_TEXTURE_2D, texture.texture_id);
+}

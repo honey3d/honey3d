@@ -32,4 +32,11 @@ enum honey_texture_result honey_texture_new(honey_texture* texture,
                                             char* texture_path,
                                             bool alpha_channel);
 
+/** @brief Load a texture into a texture unit.
+ *
+ * @param[in] texture The texture to use
+ * @param[in] texture_unit The texture unit to put the texture in
+ */
+void honey_texture_use(honey_texture texture, int texture_unit);
+
 #endif

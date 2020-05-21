@@ -132,10 +132,8 @@ void draw() {
     
   honey_shader_set_matrix_4fv(shader, "model", (float*) model);
     
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, container.texture_id);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, happy_face.texture_id);
+  honey_texture_use(container, 0);
+  honey_texture_use(happy_face, 1);
 
   honey_mesh_draw(cube, shader);
     
@@ -164,43 +162,13 @@ int main() {
     return 1;
   }
 
-  /* create triangle */
-  /*float vertices[] = {
-    /* positions           colors          tex coords /
-    -0.5, -0.5,  0.5,     1.0, 0.0, 0.0,    0.0, 0.0,
-    0.5,  -0.5,  0.5,     0.0, 1.0, 0.0,    1.0, 0.0,
-    -0.5,  0.5,  0.5,     0.0, 0.0, 1.0,    0.0, 1.0,
-    0.5,   0.5,  0.5,     1.0, 1.0, 1.0,    1.0, 1.0, 
-    -0.5, -0.5, -0.5,     1.0, 0.0, 0.0,    0.0, 0.0,
-    0.5,  -0.5, -0.5,     0.0, 1.0, 0.0,    1.0, 0.0,
-    -0.5,  0.5, -0.5,     0.0, 0.0, 1.0,    0.0, 1.0,
-    0.5,   0.5, -0.5,     1.0, 1.0, 1.0,    1.0, 1.0 };
-
-  unsigned int indices[] = { 0, 1, 2,
-                             1, 2, 3,
-                             4, 5, 6,
-                             5, 6, 7,
-                             0, 2, 4,
-                             2, 4, 6,
-                             1, 3, 5,
-                             3, 5, 7,
-                             2, 3, 6,
-                             3, 6, 7,
-                             0, 1, 4,
-                             1, 4, 5 };
-
-  unsigned int attribute_sizes[] = { 3, 3, 2 }; /* position, color, texture coordinate /
-  enum honey_mesh_result result = honey_mesh_new(&cube,
-                                                 vertices, 8, 3, attribute_sizes,
-                                                 indices,
-                                                 sizeof(indices)/sizeof(unsigned int)); */
-  if (honey_mesh_new_cube(&cube, 1, 1, 1) != MESH_OK) {
+  if (honey_mesh_new_textured_cube(&cube, 1, 1, 1) != MESH_OK) {
     fprintf(stderr, "Failed to load cube\n");
     return 1;
   }
 
-  /*honey_shader_set_int(shader, "boxTexture", 0);
-    honey_shader_set_int(shader, "happyTexture", 1);*/
+  honey_shader_set_int(shader, "box_texture", 0);
+  honey_shader_set_int(shader, "happy_texture", 1);
 
   glm_mat4_identity(model);
   glm_rotate_x(model, glm_rad(-55), model);
