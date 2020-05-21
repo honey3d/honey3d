@@ -1,7 +1,10 @@
 #ifndef HONEY_TEXTURE_H
 #define HONEY_TEXTURE_H
 
-/** @file Defines the honey_texture struct and associated functions. */
+/** @file texture.h
+ *
+ *@brief Defines the honey_texture struct and associated functions. 
+*/
 
 #include "common.h"
 

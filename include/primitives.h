@@ -1,7 +1,9 @@
 #ifndef HONEY_PRIMITIVES_H
 #define HONEY_PRIMITIVES H
 
-/** @file Define various common primitive objects.
+/** @file primitives.h
+ *
+ * @brief Define various common primitive objects.
  */
 
 #include "common.h"

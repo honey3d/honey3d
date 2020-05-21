@@ -41,10 +41,6 @@ void honey_set_draw_callback(void (*draw_callback)()) {
   honey_draw_callback = draw_callback;
 }
 
-void honey_set_fps(unsigned int fps) {
-  honey_draw_dt = 1.0f / fps;
-}
-
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 void honey_run(honey_window window) {
