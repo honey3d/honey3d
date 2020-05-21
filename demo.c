@@ -1,5 +1,7 @@
 #include "include/honey.h"
 
+honey_window window;
+
 unsigned int screen_width = 640;
 unsigned int screen_height = 480;
 
@@ -12,6 +14,13 @@ float cameraSpeed = 2.0;
 float cameraPitch = 0;
 float cameraYaw = 0;
 const float cameraMouseSensitivity = 0.1;
+
+honey_mesh cube;
+honey_shader shader;
+honey_texture container;
+honey_texture happy_face;
+
+mat4 model, view, projection;
 
 bool wireframe = false;
 bool fKeyDown = false;
@@ -56,7 +65,11 @@ void mouseCallback(GLFWwindow* window, double x, double y) {
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void processInput(GLFWwindow* window, float dt) {
+void update(float dt) {
+  glfwPollEvents();
+
+  glm_rotate_x(model, glm_rad(10*dt), model);
+  
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
@@ -96,27 +109,57 @@ void processInput(GLFWwindow* window, float dt) {
   }
 }
 
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+void draw() {
+  glClearColor(0.4f, 0.4f, 0.4f, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  if (wireframe) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+  else {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+
+  glm_perspective_default(((float)screen_width)/screen_height, projection);
+  honey_shader_set_matrix_4fv(shader, "projection", (float*) projection);
+
+  vec3 cameraDirection;
+  glm_vec3_add(cameraPosition, cameraFacing, cameraDirection);
+  glm_lookat(cameraPosition, cameraDirection, cameraUp, view);
+  honey_shader_set_matrix_4fv(shader, "view", (float*) view);
+    
+  honey_shader_set_matrix_4fv(shader, "model", (float*) model);
+    
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, container.texture_id);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, happy_face.texture_id);
+
+  honey_mesh_draw(cube, shader);
+    
+  glfwSwapBuffers(window);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int main() {
-  honey_window window = honey_setup(screen_width, screen_height, "hello, world!");
+  window = honey_setup(screen_width, screen_height, "hello, world!");
 
   honey_set_resize_callback(window, framebufferResizeCallback);
   honey_set_mouse_move_callback(window, mouseCallback);
 
-  /* load box texture */
-  honey_texture box;
-  if (honey_texture_new(&box, "container.jpg", false) != TEXTURE_OK) {
+  /* load container texture */
+  if (honey_texture_new(&container, "container.jpg", false) != TEXTURE_OK) {
     return 1;
   }
 
   /* load happy face texture */
-  honey_texture happy_face;
   if (honey_texture_new(&happy_face, "happy.png", true) != TEXTURE_OK) {
     return 1;
   }
   
-  honey_shader shader;
   if (honey_shader_load(&shader, "demo.vs", "demo.fs") != SHADER_OK) {
     return 1;
   }
@@ -146,7 +189,6 @@ int main() {
                              0, 1, 4,
                              1, 4, 5 };
 
-  honey_mesh cube;
   unsigned int attribute_sizes[] = { 3, 3, 2 }; /* position, color, texture coordinate */
   enum honey_mesh_result result = honey_mesh_new(&cube,
                                                  vertices, 8, 3, attribute_sizes,
@@ -160,7 +202,6 @@ int main() {
   honey_shader_set_int(shader, "boxTexture", 0);
   honey_shader_set_int(shader, "happyTexture", 1);
 
-  mat4 model, view, projection;
   glm_mat4_identity(model);
   glm_rotate_x(model, glm_rad(-55), model);
   honey_shader_set_matrix_4fv(shader, "model", (float*) model);
@@ -177,48 +218,10 @@ int main() {
 
   /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-  float prevTime = 0;
-  float currentTime = 0;
-  float dt = 0;
+  honey_set_update_callback(&update);
+  honey_set_draw_callback(&draw);
 
-  while(!glfwWindowShouldClose(window)) {
-    currentTime = (float) glfwGetTime();
-    dt = currentTime - prevTime;
-    prevTime = currentTime;
-
-    processInput(window, dt);
-
-    glClearColor(0.4f, 0.4f, 0.4f, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    if (wireframe) {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else {
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-
-    glm_perspective_default(((float)screen_width)/screen_height, projection);
-    honey_shader_set_matrix_4fv(shader, "projection", (float*) projection);
-
-    vec3 cameraDirection;
-    glm_vec3_add(cameraPosition, cameraFacing, cameraDirection);
-    glm_lookat(cameraPosition, cameraDirection, cameraUp, view);
-    honey_shader_set_matrix_4fv(shader, "view", (float*) view);
-    
-    glm_rotate_x(model, glm_rad(10*dt), model);
-    honey_shader_set_matrix_4fv(shader, "model", (float*) model);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, box.texture_id);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, happy_face.texture_id);
-
-    honey_mesh_draw(cube, shader);
-    
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-  }
+  honey_run(window);
 
   honey_mesh_delete(cube);
   honey_shader_delete(shader);
