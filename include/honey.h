@@ -4,6 +4,7 @@
 #include "common.h"
 #include "mesh.h"
 #include "shader.h"
+#include "texture.h"
 
 typedef GLFWwindow* honey_window;
 

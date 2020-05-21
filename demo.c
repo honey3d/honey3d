@@ -105,43 +105,16 @@ int main() {
   honey_set_mouse_move_callback(window, mouseCallback);
 
   /* load box texture */
-  unsigned int boxTex;
-  glGenTextures(1, &boxTex);
-  glBindTexture(GL_TEXTURE_2D, boxTex);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  int imgWidth, imgHeight, imgChannels;
-  unsigned char* imageData = stbi_load("container.jpg", &imgWidth, &imgHeight, &imgChannels, 0);
-  if (imageData == NULL) {
-    fprintf(stderr, "ERROR: failed to load 'container.jpg'\n");
+  honey_texture box;
+  if (honey_texture_new(&box, "container.jpg", false) != TEXTURE_OK) {
     return 1;
   }
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  stbi_image_free(imageData);
 
   /* load happy face texture */
-  unsigned int happyTex;
-  glGenTextures(1, &happyTex);
-  glBindTexture(GL_TEXTURE_2D, happyTex);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  imageData = stbi_load("happy.png", &imgWidth, &imgHeight, &imgChannels, 0);
-  if (imageData == NULL) {
-    fprintf(stderr, "ERROR: failed to load 'happy.png'\n");
+  honey_texture happy_face;
+  if (honey_texture_new(&happy_face, "happy.png", true) != TEXTURE_OK) {
     return 1;
   }
-
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  stbi_image_free(imageData);
   
   honey_shader shader;
   if (honey_shader_load(&shader, "demo.vs", "demo.fs") != SHADER_OK) {
@@ -237,9 +210,9 @@ int main() {
     honey_shader_set_matrix_4fv(shader, "model", (float*) model);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, boxTex);
+    glBindTexture(GL_TEXTURE_2D, box.texture_id);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, happyTex);
+    glBindTexture(GL_TEXTURE_2D, happy_face.texture_id);
 
     honey_mesh_draw(cube, shader);
     
