@@ -4,6 +4,7 @@
 /** @file Defines the basic loading and callback functions. */
 #include "common.h"
 #include "mesh.h"
+#include "primitives.h"
 #include "shader.h"
 #include "texture.h"
 

@@ -165,8 +165,8 @@ int main() {
   }
 
   /* create triangle */
-  float vertices[] = {
-    /* positions           colors          tex coords */
+  /*float vertices[] = {
+    /* positions           colors          tex coords /
     -0.5, -0.5,  0.5,     1.0, 0.0, 0.0,    0.0, 0.0,
     0.5,  -0.5,  0.5,     0.0, 1.0, 0.0,    1.0, 0.0,
     -0.5,  0.5,  0.5,     0.0, 0.0, 1.0,    0.0, 1.0,
@@ -189,18 +189,18 @@ int main() {
                              0, 1, 4,
                              1, 4, 5 };
 
-  unsigned int attribute_sizes[] = { 3, 3, 2 }; /* position, color, texture coordinate */
+  unsigned int attribute_sizes[] = { 3, 3, 2 }; /* position, color, texture coordinate /
   enum honey_mesh_result result = honey_mesh_new(&cube,
                                                  vertices, 8, 3, attribute_sizes,
                                                  indices,
-                                                 sizeof(indices)/sizeof(unsigned int));
-  if (result != MESH_OK) {
+                                                 sizeof(indices)/sizeof(unsigned int)); */
+  if (honey_mesh_new_cube(&cube, 1, 1, 1) != MESH_OK) {
     fprintf(stderr, "Failed to load cube\n");
     return 1;
   }
 
-  honey_shader_set_int(shader, "boxTexture", 0);
-  honey_shader_set_int(shader, "happyTexture", 1);
+  /*honey_shader_set_int(shader, "boxTexture", 0);
+    honey_shader_set_int(shader, "happyTexture", 1);*/
 
   glm_mat4_identity(model);
   glm_rotate_x(model, glm_rad(-55), model);

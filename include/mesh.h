@@ -1,4 +1,5 @@
-/** @brief Defines the honey_mesh struct and related basic mesh functions. */
+/** @file Defines the honey_mesh struct and related basic mesh functions. 
+*/
 
 #ifndef HONEY_MESH_H
 #define HONEY_MESH_H
