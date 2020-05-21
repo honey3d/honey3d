@@ -1,16 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-#include "include/stb_image.h"
-
-#include "include/glad.h"
-#include <GLFW/glfw3.h>
-
-#include <cglm/cglm.h>
-#include <cglm/call.h>
-
-#include "include/shader.h"
+#include "include/honey.h"
 
 unsigned int screen_width = 640;
 unsigned int screen_height = 480;
@@ -111,27 +99,10 @@ void processInput(GLFWwindow* window, float dt) {
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int main() {
-  glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  honey_window window = honey_setup(screen_width, screen_height, "hello, world!");
 
-  GLFWwindow* window = glfwCreateWindow(screen_width, screen_height, "hello, world!", NULL, NULL);
-  if (window == NULL) {
-    fprintf(stderr, "ERROR: failed to create GLFW window!\n");
-    glfwTerminate();
-    return 1;
-  }
-  glfwMakeContextCurrent(window);
-  glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-  glfwSetCursorPosCallback(window, mouseCallback);
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-  if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-    fprintf(stderr, "ERROR: failed to initialize GLAD!\n");
-    glfwTerminate();
-    return 2;
-  }
+  honey_set_resize_callback(window, framebufferResizeCallback);
+  honey_set_mouse_move_callback(window, mouseCallback);
 
   /* load box texture */
   unsigned int boxTex;
@@ -202,29 +173,16 @@ int main() {
                              0, 1, 4,
                              1, 4, 5 };
 
-  unsigned int vertexBufferObject, vertexArrayObject, elementBufferObject;
-  glGenVertexArrays(1, &vertexArrayObject);
-  glGenBuffers(1, &vertexBufferObject);
-  glGenBuffers(1, &elementBufferObject);
-  glBindVertexArray(vertexArrayObject);
-
-  glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-  
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
-  glEnableVertexAttribArray(1);
-
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
-  glEnableVertexAttribArray(2);
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
+  honey_mesh cube;
+  unsigned int attribute_sizes[] = { 3, 3, 2 }; /* position, color, texture coordinate */
+  enum honey_mesh_result result = honey_mesh_new(&cube,
+                                                 vertices, 8, 3, attribute_sizes,
+                                                 indices,
+                                                 sizeof(indices)/sizeof(unsigned int));
+  if (result != MESH_OK) {
+    fprintf(stderr, "Failed to load cube\n");
+    return 1;
+  }
 
   honey_shader_set_int(shader, "boxTexture", 0);
   honey_shader_set_int(shader, "happyTexture", 1);
@@ -283,20 +241,16 @@ int main() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, happyTex);
 
-    honey_shader_use(shader);
-    glBindVertexArray(vertexArrayObject);
-    glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    honey_mesh_draw(cube, shader);
     
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-  glDeleteVertexArrays(1, &vertexArrayObject);
-  glDeleteBuffers(1, &vertexArrayObject);
+  honey_mesh_delete(cube);
   honey_shader_delete(shader);
 
-  glfwTerminate();
+  honey_quit();
 
   return 0;
 }

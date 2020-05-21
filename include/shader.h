@@ -6,7 +6,7 @@
 #ifndef HONEY_SHADER_H
 #define HONEY_SHADER_H
 
-#include <cglm/cglm.h>
+#include "common.h"
 
 enum honey_shader_result {
   SHADER_OK,

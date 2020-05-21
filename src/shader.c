@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include "include/glad.h"
 #include "include/shader.h"
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

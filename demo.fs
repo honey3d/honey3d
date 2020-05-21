@@ -10,5 +10,5 @@ uniform sampler2D happyTexture;
 
 void main()
 {
-  FragColor = mix(texture(boxTexture, outTexCoord), texture(happyTexture, outTexCoord), 0.2);
+  FragColor = vec4(outColor.xyz, 1.0); //mix(texture(boxTexture, outTexCoord), texture(happyTexture, outTexCoord), 0.2);
 }
