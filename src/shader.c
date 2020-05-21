@@ -99,9 +99,9 @@ void honey_shader_set_int(honey_shader shader,
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void honey_shader_set_matrix_4fv(honey_shader shader,
-                                 char* matrix_name,
-                                 float* matrix) {
+void honey_shader_set_mat4(honey_shader shader,
+                           char* matrix_name,
+                           float* matrix) {
   glUseProgram(shader);
   unsigned int matrix_location = glGetUniformLocation(shader, matrix_name);
   glUniformMatrix4fv(matrix_location, 1, GL_FALSE, matrix);

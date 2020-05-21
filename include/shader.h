@@ -50,9 +50,9 @@ void honey_shader_set_int(honey_shader shader,
  * @param[in] int_name The name of the matrix uniform
  * @param[in] number The value of the matrix uniform
  */
-void honey_shader_set_matrix_4fv(honey_shader shader,
-                                 char* matrix_name,
-                                 float* matrix);
+void honey_shader_set_mat4(honey_shader shader,
+                           char* matrix_name,
+                           float* matrix);
 
 /** @brief Use a shader.
  */
