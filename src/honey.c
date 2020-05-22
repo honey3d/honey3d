@@ -28,6 +28,10 @@ honey_window honey_setup(int screen_width, int screen_height, char* window_title
     return NULL;
   }
 
+  // Enable blending
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  
   return window;
 }
 

@@ -52,7 +52,7 @@ void honey_shader_set_int(honey_shader shader,
  */
 void honey_shader_set_mat4(honey_shader shader,
                            char* matrix_name,
-                           float* matrix);
+                           mat4 matrix);
 
 /** @brief Use a shader.
  */

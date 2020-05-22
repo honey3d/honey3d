@@ -5,14 +5,9 @@ honey_window window;
 unsigned int screen_width = 640;
 unsigned int screen_height = 480;
 
-vec3 cameraPosition, cameraFacing, cameraUp;
-
-vec3 cameraPosition = { 0, 0, 3 };
-vec3 cameraFacing = { 0, 0, -1 };
-vec3 cameraUp = { 0, 1, 0 };
-float cameraSpeed = 2.0;
-float cameraPitch = 0;
-float cameraYaw = 0;
+honey_camera camera;
+float cameraSpeed = 3.0;
+float camera_roll_speed = 1.0;
 const float cameraMouseSensitivity = 0.1;
 
 honey_mesh cube;
@@ -51,24 +46,31 @@ void mouseCallback(GLFWwindow* window, double x, double y) {
   xOffset *= cameraMouseSensitivity;
   yOffset *= cameraMouseSensitivity;
 
-  cameraYaw += xOffset;
-  cameraPitch -= yOffset;
+  float yaw = glm_deg(camera.angle[1]) + xOffset;
+  float pitch = glm_deg(camera.angle[0]) - yOffset;
 
-  if (cameraPitch > 89) { cameraPitch = 89; }
-  if (cameraPitch < -89) { cameraPitch = -89; }
+  if (pitch > 89) { pitch = 89; }
+  if (pitch < -89) { pitch = -89; }
 
-  cameraFacing[0] = cos(glm_rad(cameraYaw))*cos(glm_rad(cameraPitch));
-  cameraFacing[1] = sin(glm_rad(cameraPitch));
-  cameraFacing[2] = sin(glm_rad(cameraYaw)) * cos(glm_rad(cameraPitch));
-  glm_vec3_normalize(cameraFacing);
+  camera.angle[0] = glm_rad(pitch);
+  camera.angle[1] = glm_rad(yaw);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+void print_vec3(vec3 v) {
+  printf("(%f, %f, %f)\n", v[0], v[1], v[2]);
+}
+
 void update(float dt) {
   glfwPollEvents();
 
-  glm_rotate_x(model, glm_rad(10*dt), model);
+  printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+  print_vec3(camera.look_direction);
+  print_vec3(camera.up);
+  print_vec3(camera.right);
+
+  //glm_rotate_x(model, glm_rad(10*dt), model);
   
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
@@ -85,28 +87,31 @@ void update(float dt) {
 
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     vec3 step;
-    glm_vec3_scale(cameraFacing, cameraSpeed*dt, step);
-    glm_vec3_add(cameraPosition, step, cameraPosition);
+    glm_vec3_scale(camera.look_direction, cameraSpeed*dt, step);
+    glm_vec3_add(camera.position, step, camera.position);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
     vec3 step;
-    glm_vec3_scale(cameraFacing, -cameraSpeed*dt, step);
-    glm_vec3_add(cameraPosition, step, cameraPosition);
+    glm_vec3_scale(camera.look_direction, -cameraSpeed*dt, step);
+    glm_vec3_add(camera.position, step, camera.position);
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    vec3 direction, step;
-    glm_vec3_cross(cameraFacing, cameraUp, direction);
-    glm_vec3_normalize(direction);
-    glm_vec3_scale(direction, -cameraSpeed*dt, step);
-    glm_vec3_add(cameraPosition, step, cameraPosition);
+    vec3 step;
+    glm_vec3_scale(camera.right, cameraSpeed*dt, step);
+    glm_vec3_add(camera.position, step, camera.position);
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    vec3 direction, step;
-    glm_vec3_cross(cameraFacing, cameraUp, direction);
-    glm_vec3_normalize(direction);
-    glm_vec3_scale(direction, cameraSpeed*dt, step);
-    glm_vec3_add(cameraPosition, step, cameraPosition);
+    vec3 step;
+    glm_vec3_scale(camera.right, -cameraSpeed*dt, step);
+    glm_vec3_add(camera.position, step, camera.position);
   }
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+    camera.angle[2] += camera_roll_speed*dt;
+  }
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+    camera.angle[2] -= camera_roll_speed*dt;
+  }
+  
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -122,19 +127,15 @@ void draw() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
-  glm_perspective_default(((float)screen_width)/screen_height, projection);
-  honey_shader_set_matrix_4fv(shader, "projection", (float*) projection);
-
-  vec3 cameraDirection;
-  glm_vec3_add(cameraPosition, cameraFacing, cameraDirection);
-  glm_lookat(cameraPosition, cameraDirection, cameraUp, view);
-  honey_shader_set_matrix_4fv(shader, "view", (float*) view);
+  honey_camera_calculate_view(&camera);
+  honey_shader_set_mat4(shader, "view", camera.view);
     
-  honey_shader_set_matrix_4fv(shader, "model", (float*) model);
+  honey_shader_set_mat4(shader, "model", model);
     
   honey_texture_use(container, 0);
   honey_texture_use(happy_face, 1);
 
+  honey_mesh_draw(cube, shader);
   honey_mesh_draw(cube, shader);
     
   glfwSwapBuffers(window);
@@ -171,16 +172,24 @@ int main() {
   honey_shader_set_int(shader, "happy_texture", 1);
 
   glm_mat4_identity(model);
-  glm_rotate_x(model, glm_rad(-55), model);
-  honey_shader_set_matrix_4fv(shader, "model", (float*) model);
+  //glm_rotate_x(model, glm_rad(-55), model);
+  honey_shader_set_mat4(shader, "model", model);
 
-  glm_lookat(cameraPosition, cameraFacing, cameraUp, view);
-  honey_shader_set_matrix_4fv(shader, "view", (float*) view);
+  vec3 camera_pos = { 4, 0, 0 };
+  vec3 camera_angle = { 0, glm_rad(180), 0 };
+  float camera_near = 0.1;
+  float camera_far = 100;
+  float camera_fov = glm_rad(45);
+  float camera_aspect_ratio = ((float) screen_width)/screen_height;
+  honey_camera_new_perspective(&camera,
+                               camera_pos,
+                               camera_angle,
+                               camera_aspect_ratio,
+                               camera_near, camera_far,
+                               camera_fov);
 
-  glm_mat4_identity(projection);
-  /* glm_perspective(glm_rad(90), float(screen_width)/screen_height, 0.1, 100); */
-  glm_perspective_default(((float)screen_width)/screen_height, projection);
-  honey_shader_set_matrix_4fv(shader, "projection", (float*) projection);
+  honey_shader_set_mat4(shader, "view", camera.view);
+  honey_shader_set_mat4(shader, "projection", camera.projection);
 
   glEnable(GL_DEPTH_TEST);
 

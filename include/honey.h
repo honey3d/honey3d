@@ -6,6 +6,7 @@
  * @brief Defines the basic loading and callback functions. 
 */
 
+#include "camera.h"
 #include "common.h"
 #include "mesh.h"
 #include "primitives.h"

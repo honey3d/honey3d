@@ -9,5 +9,7 @@ out vec4 FragColor;
 
 void main()
 {
-  FragColor = mix(texture(box_texture, texture_coordinate), texture(happy_texture, vec2(1,1)-texture_coordinate), 0.2);
+  FragColor = mix(texture(box_texture, texture_coordinate),
+                  vec4(texture(happy_texture, texture_coordinate).xyz, 1.0),
+                  0.2);
 }
