@@ -91,30 +91,40 @@ enum honey_shader_result honey_shader_load(honey_shader* shader,
 
 void honey_shader_set_int(honey_shader shader,
                           char* int_name,
-                          int number) {
+                          int value) {
   honey_shader_use(shader);
   unsigned int int_location = glGetUniformLocation(shader, int_name);
-  glUniform1i(int_location, number);
+  glUniform1i(int_location, value);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+void honey_shader_set_float(honey_shader shader,
+                            char* float_name,
+                            float value) {
+  honey_shader_use(shader);
+  unsigned int float_location = glGetUniformLocation(shader, float_name);
+  glUniform1f(float_location, value);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 void honey_shader_set_vec3(honey_shader shader,
                            char* vector_name,
-                           vec3 vector) {
+                           vec3 value) {
   honey_shader_use(shader);
   unsigned int vector_location = glGetUniformLocation(shader, vector_name);
-  glUniform3fv(vector_location, 1, (float*) vector);
+  glUniform3fv(vector_location, 1, (float*) value);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 void honey_shader_set_mat4(honey_shader shader,
                            char* matrix_name,
-                           mat4 matrix) {
+                           mat4 value) {
   glUseProgram(shader);
   unsigned int matrix_location = glGetUniformLocation(shader, matrix_name);
-  glUniformMatrix4fv(matrix_location, 1, GL_FALSE, (float*) matrix);
+  glUniformMatrix4fv(matrix_location, 1, GL_FALSE, (float*) value);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

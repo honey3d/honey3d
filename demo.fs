@@ -12,6 +12,6 @@ out vec4 FragColor;
 void main()
 {
   FragColor = mix(texture(box_texture, texture_coordinate),
-                  vec4(extra_color.xyz, 1.0),
+                  texture(happy_texture, texture_coordinate),           
                   0.2);
 }

@@ -153,8 +153,6 @@ int main() {
   honey_shader_set_int(shader, "box_texture", 0);
   honey_shader_set_int(shader, "happy_texture", 1);
 
-  honey_shader_set_vec3(shader, "extra_color", (vec3){0, 0, 1});
-
   glm_mat4_identity(model);
   //glm_rotate_x(model, glm_rad(-55), model);
   honey_shader_set_mat4(shader, "model", model);
