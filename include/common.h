@@ -14,4 +14,6 @@
 
 #include "stb_image.h"
 
+typedef GLFWwindow* honey_window;
+
 #endif

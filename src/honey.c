@@ -28,6 +28,9 @@ honey_window honey_setup(int screen_width, int screen_height, char* window_title
     return NULL;
   }
 
+  honey_setup_keyboard();
+  glfwSetKeyCallback(window, default_honey_keyboard_callback);
+
   // Enable blending
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -8,12 +8,11 @@
 
 #include "camera.h"
 #include "common.h"
+#include "input.h"
 #include "mesh.h"
 #include "primitives.h"
 #include "shader.h"
 #include "texture.h"
-
-typedef GLFWwindow* honey_window;
 
 /** @brief Initialize Honey.
  *
