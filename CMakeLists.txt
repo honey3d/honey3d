@@ -13,7 +13,7 @@ add_library(honey src/honey.c src/camera.c src/input.c src/mesh.c src/primitives
 add_library(glad src/glad.c)
 add_library(stb_image src/stb_image.c)
 
-set(LIBRARIES honey glfw GL dl m glad stb_image)
+set(LIBRARIES honey glfw GL glad stb_image dl m)
 target_link_libraries(honey_engine_demo ${LIBRARIES})
 
 
