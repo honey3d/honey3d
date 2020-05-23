@@ -1,7 +1,7 @@
 #ifndef HONEY_CAMERA_H
 #define HONEY_CAMERA_H
 
-/* @file camera.h
+/** @file camera.h
  *
  * @brief Define the basic honey_camera struct, associated functions,
  * and common camera variants.
@@ -34,13 +34,21 @@ typedef struct {
 
 /** @brief Create a new camera.
  *
+ * The full camera creation function. Most of the time, you will probably use either
+ * honey_camera_new_perspective() or honey_camera_new_projection() instead.
+ *
  * @param[out] camera Pointer to the destination honey_camera.
  * @param[in] position The position of the camera.
  * @param[in] angle The Euler angles (pitch, yaw, roll) of the camera.
- * @param[in] projection The type of projection to use.
- * @param[in] projection_parameters The parameters to use for the projection matrix.
- * Use honey_perspective_parameters for a perspective projection and
- * honey_orthographic_parameters for an orthographic projection.
+ * @param[in] projection_type The type of projection to use.
+ * @param[in] aspect_ratio The aspect ratio of the camera. Set to zero if using orthographic projection.
+ * @param[in] near The distance of the near plane.
+ * @param[in] far The distance of the far plane.
+ * @param[in] fov The field of view. Set to zero if using orthographic projection.
+ * @param[in] left The leftmost distance. Set to zero if using perspective projection.
+ * @param[in] right The rightmost distance. Set to zero if using perspective projection.
+ * @param[in] top The uppermost distance. Set to zero if using perspective projection.
+ * @param[in] bottom The lowest distance. Set to zero if using perspective projection.
  */
 void honey_camera_new(honey_camera* camera,
                       vec3 position,
@@ -51,6 +59,16 @@ void honey_camera_new(honey_camera* camera,
                       float fov,
                       float left, float right, float top, float bottom);
 
+/** @brief Create a camera with a perspective projection matrix.
+ *
+ * @param[out] camera Pointer to the destination honey_camera.
+ * @param[in] position The position of the camera.
+ * @param[in] angle The Euler angles (pitch, yaw, roll) of the camera.
+ * @param[in] aspect_ratio The aspect ratio of the camera.
+ * @param[in] near The distance of the near plane.
+ * @param[in] far The distance of the far plane.
+ * @param[in] fov The field of view. 
+ */
 void honey_camera_new_perspective(honey_camera* camera,
                                   vec3 position,
                                   vec3 angle,
@@ -58,6 +76,18 @@ void honey_camera_new_perspective(honey_camera* camera,
                                   float near, float far,
                                   float fov);
 
+/** @brief Create a camera with an orthographic projection matrix.
+ *
+ * @param[out] camera Pointer to the destination honey_camera.
+ * @param[in] position The position of the camera.
+ * @param[in] angle The Euler angles (pitch, yaw, roll) of the camera.
+ * @param[in] near The distance of the near plane.
+ * @param[in] far The distance of the far plane.
+ * @param[in] left The leftmost distance.
+ * @param[in] right The rightmost distance.
+ * @param[in] top The uppermost distance.
+ * @param[in] bottom The lowest distance.
+ */
 void honey_camera_new_orthographic(honey_camera* camera,
                                    vec3 position,
                                    vec3 angle,
@@ -70,7 +100,16 @@ void honey_camera_new_orthographic(honey_camera* camera,
  */
 void honey_camera_calculate_look_direction(honey_camera* camera);
 
+/** @brief (Re-)Calculate a camera's up vector.
+ *
+ * @param[in] Pointer to the camera to re-calculate.
+ */
 void honey_camera_calculate_up(honey_camera* camera);
+
+/** @brief (Re-)Calculate a camera's right vector.
+ *
+ * @param[in] Pointer to the camera to re-calculate.
+ */
 void honey_camera_calculate_right(honey_camera* camera);
 
 /** @brief (Re-)Calculate a camera's view matrix. 

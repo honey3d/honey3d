@@ -58,7 +58,7 @@ void mouseCallback(GLFWwindow* window, double x, double y) {
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 void toggle_wireframe(void* data, int action) {
-  if (action == HONEY_PRESS_KEY) { wireframe = !wireframe; }
+  if (action == HONEY_KEY_PRESS) { wireframe = !wireframe; }
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -92,13 +92,6 @@ void update(float dt) {
     glm_vec3_scale(camera.right, -cameraSpeed*dt, step);
     glm_vec3_add(camera.position, step, camera.position);
   }
-  if (honey_key_down(HONEY_KEY_E)) {
-    camera.angle[2] += camera_roll_speed*dt;
-  }
-  if (honey_key_down(HONEY_KEY_Q)) {
-    camera.angle[2] -= camera_roll_speed*dt;
-  }
-  
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

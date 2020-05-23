@@ -132,8 +132,8 @@
 
 #define HONEY_N_KEYS 121
 
-#define HONEY_PRESS_KEY GLFW_PRESS
-#define HONEY_RELEASE_KEY GLFW_RELEASE
+#define HONEY_KEY_PRESS GLFW_PRESS
+#define HONEY_KEY_RELEASE GLFW_RELEASE
 
 unsigned int honey_key_states[HONEY_N_KEYS];
 static void (*honey_key_callbacks[HONEY_N_KEYS])(void*, int);
