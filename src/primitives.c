@@ -13,33 +13,62 @@ enum honey_mesh_result honey_mesh_new_cube(honey_mesh* mesh,
   float z1 = depth;
 
   float vertices[] = {
-    x0, y0, z0,
-    x1, y0, z0,
-    x0, y1, z0,
-    x1, y1, z0,
-    x0, y0, z1,
-    x1, y0, z1,
-    x0, y1, z1,
-    x1, y1, z1 };
+    /* position        normal     tex coord */
+    /* back face */
+    x0, y0, z0,       0, 0, -1,
+    x1, y0, z0,       0, 0, -1,
+    x0, y1, z0,       0, 0, -1,
+    x1, y1, z0,       0, 0, -1,
 
-  unsigned int indices[] = { 0, 1, 2,
-                             1, 2, 3,
-                             4, 5, 6,
-                             5, 6, 7,
-                             0, 2, 4,
-                             2, 4, 6,
-                             1, 3, 5,
-                             3, 5, 7,
-                             2, 3, 6,
-                             3, 6, 7,
-                             0, 1, 4,
-                             1, 4, 5 };
+    /* front face */
+    x0, y0, z1,       0, 0, 1, 
+    x1, y0, z1,       0, 0, 1, 
+    x0, y1, z1,       0, 0, 1, 
+    x1, y1, z1,       0, 0, 1, 
 
-  unsigned int attrib_sizes[] = { 3 };
+    /* left face */
+    x0, y0, z0,       -1, 0, 0,
+    x0, y1, z0,       -1, 0, 0,
+    x0, y0, z1,       -1, 0, 0,
+    x0, y1, z1,       -1, 0, 0,
+
+    /* right face */
+    x1, y0, z0,        1, 0, 0,
+    x1, y1, z0,        1, 0, 0,
+    x1, y0, z1,        1, 0, 0,
+    x1, y1, z1,        1, 0, 0,
+
+    /* bottom face */
+    x0, y0, z0,       0, -1, 0,
+    x1, y0, z0,       0, -1, 0,
+    x0, y0, z1,       0, -1, 0,
+    x1, y0, z1,       0, -1, 0,
+    
+    /* top face */
+    x0, y1, z0,       0,  1, 0,
+    x1, y1, z0,       0,  1, 0,
+    x0, y1, z1,       0,  1, 0,
+    x1, y1, z1,       0,  1, 0 };
+
+    unsigned int indices[] = {
+    0, 1, 2,
+    1, 2, 3,
+    4, 5, 6,
+    5, 6, 7,
+    8, 9, 10,
+    9, 10, 11,
+    12, 13, 14,
+    13, 14, 15,
+    16, 17, 18,
+    17, 18, 19,
+    20, 21, 22,
+    21, 22, 23 };
+
+  unsigned int attrib_sizes[] = { 3, 3 };
 
   enum honey_mesh_result result = honey_mesh_new(mesh,
-                                                 vertices,
-                                                 8, 1, attrib_sizes,
+                                                 vertices, 24,
+                                                 2, attrib_sizes,
                                                  indices, 36);
 
   return result;
@@ -59,43 +88,43 @@ enum honey_mesh_result honey_mesh_new_textured_cube(honey_mesh* mesh,
   float y1 = height;
   float z1 = depth;
 
-  float vertices[] = {
-    /* position       tex coord */
+    float vertices[] = {
+    /* position        normal     tex coord */
     /* back face */
-    x0, y0, z0,       0, 0,
-    x1, y0, z0,       1, 0,
-    x0, y1, z0,       0, 1,
-    x1, y1, z0,       1, 1,
+    x0, y0, z0,       0, 0, -1,     0, 0,
+    x1, y0, z0,       0, 0, -1,     1, 0,
+    x0, y1, z0,       0, 0, -1,     0, 1,
+    x1, y1, z0,       0, 0, -1,     1, 1,
 
     /* front face */
-    x0, y0, z1,       0, 0,
-    x1, y0, z1,       1, 0,
-    x0, y1, z1,       0, 1,
-    x1, y1, z1,       1, 1,
+    x0, y0, z1,       0, 0, 1,      0, 0,
+    x1, y0, z1,       0, 0, 1,      1, 0,
+    x0, y1, z1,       0, 0, 1,      0, 1,
+    x1, y1, z1,       0, 0, 1,      1, 1,
 
     /* left face */
-    x0, y0, z0,       0, 0,
-    x0, y1, z0,       1, 0,
-    x0, y0, z1,       0, 1,
-    x0, y1, z1,       1, 1,
+    x0, y0, z0,       -1, 0, 0,     0, 0,
+    x0, y1, z0,       -1, 0, 0,     1, 0,
+    x0, y0, z1,       -1, 0, 0,     0, 1,
+    x0, y1, z1,       -1, 0, 0,     1, 1,
 
     /* right face */
-    x1, y0, z0,       0, 0,
-    x1, y1, z0,       1, 0,
-    x1, y0, z1,       0, 1,
-    x1, y1, z1,       1, 1,
+    x1, y0, z0,        1, 0, 0,     0, 0,
+    x1, y1, z0,        1, 0, 0,     1, 0,
+    x1, y0, z1,        1, 0, 0,     0, 1,
+    x1, y1, z1,        1, 0, 0,     1, 1,
 
     /* bottom face */
-    x0, y0, z0,       0, 0,
-    x1, y0, z0,       1, 0,
-    x0, y0, z1,       0, 1,
-    x1, y0, z1,       1, 1,
+    x0, y0, z0,       0, -1, 0,     0, 0,
+    x1, y0, z0,       0, -1, 0,     1, 0,
+    x0, y0, z1,       0, -1, 0,     0, 1,
+    x1, y0, z1,       0, -1, 0,     1, 1,
     
     /* top face */
-    x0, y1, z0,       0, 0,
-    x1, y1, z0,       1, 0,
-    x0, y1, z1,       0, 1,
-    x1, y1, z1,       1, 1 };
+    x0, y1, z0,       0,  1, 0,     0, 0,
+    x1, y1, z0,       0,  1, 0,     1, 0,
+    x0, y1, z1,       0,  1, 0,     0, 1,
+    x1, y1, z1,       0,  1, 0,     1, 1 };
 
   unsigned int indices[] = {
     0, 1, 2,
@@ -111,11 +140,11 @@ enum honey_mesh_result honey_mesh_new_textured_cube(honey_mesh* mesh,
     20, 21, 22,
     21, 22, 23 };
 
-  unsigned int attrib_sizes[] = { 3, 2 };
+  unsigned int attrib_sizes[] = { 3, 3, 2 };
 
   enum honey_mesh_result result;
   result = honey_mesh_new(mesh, vertices, 24,
-                          2, attrib_sizes,
+                          3, attrib_sizes,
                           indices, 36);
   return result;
 }

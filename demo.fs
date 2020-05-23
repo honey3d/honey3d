@@ -2,16 +2,14 @@
 
 in vec2 texture_coordinate;
 
-uniform vec3 extra_color;
+uniform vec3 light_color;
 
 uniform sampler2D box_texture;
 uniform sampler2D happy_texture;
 
-out vec4 FragColor;
+out vec4 fragment_color;
 
 void main()
 {
-  FragColor = mix(texture(box_texture, texture_coordinate),
-                  texture(happy_texture, texture_coordinate),           
-                  0.2);
+  fragment_color = texture(box_texture, texture_coordinate) * vec4(light_color.xyz, 1.0);
 }
