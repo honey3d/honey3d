@@ -44,11 +44,20 @@ void honey_shader_set_int(honey_shader shader,
                           char* int_name,
                           int number);
 
-/** @brief Set a mat4 uniform
+/** @brief Set a vec3 uniform.
+ * @param[in] shader The shader to which the uniform belongs
+ * @param[in] vector_name The name of the vec3 uniform
+ * @param[in] vector The value of the vector uniform
+ */
+void honey_shader_set_vec3(honey_shader shader,
+                           char* vector_name,
+                           vec3 vector);
+
+/** @brief Set a mat4 uniform.
  *
  * @param[in] shader The shader to which the uniform belongs
- * @param[in] int_name The name of the matrix uniform
- * @param[in] number The value of the matrix uniform
+ * @param[in] matrix_name The name of the matrix uniform
+ * @param[in] matrix The value of the matrix uniform
  */
 void honey_shader_set_mat4(honey_shader shader,
                            char* matrix_name,
