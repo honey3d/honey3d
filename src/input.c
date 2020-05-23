@@ -39,6 +39,15 @@ void honey_key_unbind(int key) {
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+void honey_key_unbind_all() {
+  for (int i=0; i<HONEY_N_KEYS; i++) {
+    honey_key_callbacks[i] = NULL;
+    honey_key_callbacks_data[i] = NULL;
+  }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 void default_honey_keyboard_callback(honey_window window, int key, int scancode, int action, int mods) {
   switch (key) {
   case GLFW_KEY_UNKNOWN:

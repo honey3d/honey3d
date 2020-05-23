@@ -175,6 +175,12 @@ void honey_key_bind(int key, void (*callback)(void*, int), void* data);
  */
 void honey_key_unbind(int key);
 
+/** @brief Unbind all key callbacks.
+ *
+ * THIS FUNCTION DOES NOT FREE MEMORY! If you allocated any, be sure to free it yourself!
+ */
+void honey_key_unbind_all();
+
 void default_honey_keyboard_callback(honey_window window, int key, int scancode, int action, int mods);
 
 #endif
