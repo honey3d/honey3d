@@ -19,3 +19,10 @@ To install:
 cmake .
 make
 ```
+
+To build the documentation:
+
+```
+cd doc
+doxygen
+```
