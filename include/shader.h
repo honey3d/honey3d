@@ -63,6 +63,17 @@ void honey_shader_set_vec3(honey_shader shader,
                            char* vector_name,
                            vec3 value);
 
+
+/** @brief Set a mat3 uniform.
+ *
+ * @param[in] shader The shader to which the uniform belongs
+ * @param[in] matrix_name The name of the matrix uniform
+ * @param[in] value The value of the matrix uniform
+ */
+void honey_shader_set_mat3(honey_shader shader,
+                           char* matrix_name,
+                           mat3 value);
+
 /** @brief Set a mat4 uniform.
  *
  * @param[in] shader The shader to which the uniform belongs

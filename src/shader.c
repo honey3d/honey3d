@@ -119,6 +119,16 @@ void honey_shader_set_vec3(honey_shader shader,
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+void honey_shader_set_mat3(honey_shader shader,
+                           char* matrix_name,
+                           mat3 value) {
+  glUseProgram(shader);
+  unsigned int matrix_location = glGetUniformLocation(shader, matrix_name);
+  glUniformMatrix3fv(matrix_location, 1, GL_FALSE, (float*) value);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 void honey_shader_set_mat4(honey_shader shader,
                            char* matrix_name,
                            mat4 value) {

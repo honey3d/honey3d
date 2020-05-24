@@ -17,7 +17,9 @@ honey_texture container;
 honey_texture happy_face;
 
 honey_mesh light_cube;
-vec3 light_color = { 1, 0, 0 };
+vec3 ambient_color = { 0, 0.2, 0.2 };
+vec3 light_color = { 1, 1, 1 };
+vec3 light_position = { 2, 2, 2 };
 mat4 light_model;
 honey_shader light_shader;
 
@@ -70,7 +72,7 @@ void toggle_wireframe(void* data, int action) {
 void update(float dt) {
   glfwPollEvents();
 
-  glm_rotate_x(model, glm_rad(10*dt), model);
+  //glm_rotate_x(model, glm_rad(10*dt), model);
   
   if (honey_key_down(HONEY_KEY_ESCAPE)) {
     glfwSetWindowShouldClose(window, true);
@@ -101,7 +103,7 @@ void update(float dt) {
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 void draw() {
-  glClearColor(0.4f, 0.4f, 0.4f, 1.0);
+  glClearColor(0, 0, 0, 1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   if (wireframe) {
@@ -113,8 +115,15 @@ void draw() {
 
   honey_camera_calculate_view(&camera);
   honey_shader_set_mat4(cube_shader, "view", camera.view);
-  honey_shader_set_mat4(light_shader, "view", camera.view);    
   honey_shader_set_mat4(cube_shader, "model", model);
+  mat4 normal4;
+  mat3 normal;
+  glm_mat4_copy(model, normal4);
+  glm_mat4_inv_fast(normal4, normal4);
+  glm_mat4_pick3t(normal4, normal);
+  honey_shader_set_mat3(cube_shader, "normal_mat", normal);
+
+  honey_shader_set_mat4(light_shader, "view", camera.view);    
   honey_shader_set_mat4(light_shader, "model", light_model);
     
   honey_texture_use(container, 0);
@@ -154,28 +163,19 @@ int main() {
     return 1;
   }
 
-  honey_shader_set_vec3(light_shader, "light_color", light_color);
-
   if (honey_mesh_new_textured_cube(&cube, 1, 1, 1) != MESH_OK) {
     fprintf(stderr, "Failed to load cube\n");
     return 1;
   }
 
-  if (honey_mesh_new_cube(&light_cube, 0.5, 0.5, 0.5) != MESH_OK) {
+  if (honey_mesh_new_cube(&light_cube, 0.1, 0.1, 0.1) != MESH_OK) {
     return 1;
   }
 
   glm_mat4_identity(light_model);
-  glm_translate(light_model, (vec3){4, 5, 0});
-  honey_shader_set_mat4(light_shader, "model", light_model);
-
-  honey_shader_set_int(cube_shader, "box_texture", 0);
-  honey_shader_set_int(cube_shader, "happy_texture", 1);
-  honey_shader_set_vec3(cube_shader, "light_color", light_color);
+  glm_translate(light_model, light_position);
 
   glm_mat4_identity(model);
-  //glm_rotate_x(model, glm_rad(-55), model);
-  honey_shader_set_mat4(cube_shader, "model", model);
 
   vec3 camera_pos = { -4, 0, 0 };
   vec3 camera_angle = { 0, 0, 0 };
@@ -189,9 +189,28 @@ int main() {
                                camera_aspect_ratio,
                                camera_near, camera_far,
                                camera_fov);
+  /* set cube_shader uniforms */
+  honey_shader_set_int(cube_shader, "box_texture", 0);
+  honey_shader_set_int(cube_shader, "happy_texture", 1);
+  honey_shader_set_vec3(cube_shader, "light_color", light_color);
+  honey_shader_set_vec3(cube_shader, "light_position", light_position);
+  honey_shader_set_vec3(cube_shader, "ambient_color", ambient_color);
 
+  honey_shader_set_mat4(cube_shader, "model", model);
+  mat4 normal4;
+  mat3 normal;
+  glm_mat4_copy(model, normal4);
+  glm_mat4_inv_fast(normal4, normal4);
+  glm_mat4_pick3t(normal4, normal);
+  honey_shader_set_mat3(cube_shader, "normal_mat", normal);
   honey_shader_set_mat4(cube_shader, "view", camera.view);
   honey_shader_set_mat4(cube_shader, "projection", camera.projection);
+
+  /* set light_shader uniforms */
+  honey_shader_set_vec3(light_shader, "light_color", light_color);
+
+  honey_shader_set_mat4(light_shader, "model", light_model);
+  honey_shader_set_mat4(light_shader, "view", camera.view);
   honey_shader_set_mat4(light_shader, "projection", camera.projection);
 
   glEnable(GL_DEPTH_TEST);
