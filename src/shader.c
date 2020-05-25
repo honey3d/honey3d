@@ -37,7 +37,24 @@ enum honey_shader_result honey_shader_load(honey_shader* shader,
   /* load fragment shader code */
   char* fragment_shader_code = read_file(fragment_shader_path);
 
-  /* compile shaders */
+  result = honey_shader_new(shader,
+                            vertex_shader_code,
+                            fragment_shader_code);
+
+  free(vertex_shader_code);
+  free(fragment_shader_code);
+
+  return result;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+enum honey_shader_result honey_shader_new(honey_shader* shader,
+                                          char* vertex_shader_code,
+                                          char* fragment_shader_code) {
+  enum honey_shader_result result;
+  
+    /* compile shaders */
   int success;
   char error[512];
 
@@ -79,12 +96,7 @@ enum honey_shader_result honey_shader_load(honey_shader* shader,
   glDeleteShader(vertex_shader);
   glDeleteShader(fragment_shader);
 
-  free(vertex_shader_code);
-  free(fragment_shader_code);
-
   result = SHADER_OK;
-  
-  return result;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

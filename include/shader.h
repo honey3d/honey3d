@@ -34,6 +34,18 @@ enum honey_shader_result honey_shader_load(honey_shader* shader,
                                            char* vertex_shader_path,
                                            char* fragment_shader_path);
 
+/** @brief Create a shader from code strings.
+ *
+ * @param[out] shader Pointer to the shader destination.
+ * @param[in] vertex_shader_code Zero-terminated string containing the vertex shader code to compile
+ * @param[in] fragment_shader_code Zero-terminated string containing the fragment shader code to compile
+ *
+ * @return The result of the shader creation.
+ */
+enum honey_shader_result honey_shader_new(honey_shader* shader,
+                                          char* vertex_shader_code,
+                                          char* fragment_shader_code);
+
 /** @brief Set an integer uniform.
  *
  * @param[in] shader The shader to which the uniform belongs
