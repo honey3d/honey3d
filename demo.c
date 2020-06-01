@@ -155,11 +155,15 @@ int main() {
     return 1;
   }
   
-  if (honey_shader_load(&cube_shader, "demo.vs", "demo.fs") != SHADER_OK) {
+  honey_error result = honey_shader_load(&cube_shader, "demo.vs", "demo.fs");
+  if (result != HONEY_OK) {
+    char error_message[3*HONEY_ERROR_DATA_STRING_LENGTH];
+    honey_human_readable_error(error_message, result);
+    fprintf(stderr, "%s\n", error_message);
     return 1;
   }
 
-  if (honey_shader_load(&light_shader, "light.vs", "light.fs") != SHADER_OK) {
+  if (honey_shader_load(&light_shader, "light.vs", "light.fs") != HONEY_OK) {
     return 1;
   }
 
@@ -180,8 +184,8 @@ int main() {
   vec3 camera_pos = { -4, 0, 0 };
   vec3 camera_angle = { 0, 0, 0 };
   float camera_near = 0.1;
-  float camera_far = 100;
-  float camera_fov = glm_rad(45);
+  float camera_far = 1000;
+  float camera_fov = glm_rad(100);
   float camera_aspect_ratio = ((float) screen_width)/screen_height;
   honey_camera_new_perspective(&camera,
                                camera_pos,

@@ -8,17 +8,6 @@
 
 #include "common.h"
 
-enum honey_shader_result {
-  SHADER_OK,
-  VERTEX_SHADER_NOT_FOUND,
-  VERTEX_SHADER_TOO_LARGE,
-  VERTEX_SHADER_FAILED,
-  FRAGMENT_SHADER_NOT_FOUND,
-  FRAGMENT_SHADER_TOO_LARGE,
-  FRAGMENT_SHADER_FAILED,
-  SHADER_LINK_FAILED,
-  N_SHADER_STATES };
-
 typedef int honey_shader;
 
 /** @brief Load a shader.
@@ -30,9 +19,9 @@ typedef int honey_shader;
  * 
  * @return The result of the shader load.
  */
-enum honey_shader_result honey_shader_load(honey_shader* shader,
-                                           char* vertex_shader_path,
-                                           char* fragment_shader_path);
+honey_error honey_shader_load(honey_shader* shader,
+                              char* vertex_shader_path,
+                              char* fragment_shader_path);
 
 /** @brief Create a shader from code strings.
  *
@@ -42,9 +31,9 @@ enum honey_shader_result honey_shader_load(honey_shader* shader,
  *
  * @return The result of the shader creation.
  */
-enum honey_shader_result honey_shader_new(honey_shader* shader,
-                                          char* vertex_shader_code,
-                                          char* fragment_shader_code);
+honey_error honey_shader_new(honey_shader* shader,
+                             char* vertex_shader_code,
+                             char* fragment_shader_code);
 
 /** @brief Set an integer uniform.
  *

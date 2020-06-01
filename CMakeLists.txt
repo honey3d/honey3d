@@ -9,7 +9,7 @@ add_executable(honey_engine_demo demo.c)
 
 set(CMAKE_C_FLAGS "-g")
 
-add_library(honey src/honey.c src/camera.c src/input.c src/mesh.c src/primitives.c src/shader.c src/texture.c)
+add_library(honey src/honey.c src/camera.c src/error.c src/input.c src/mesh.c src/primitives.c src/shader.c src/texture.c)
 add_library(glad src/glad.c)
 add_library(stb_image src/stb_image.c)
 
