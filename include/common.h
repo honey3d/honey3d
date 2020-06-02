@@ -36,6 +36,9 @@ typedef enum {
   /* mesh errors */
   HONEY_MESH_BAD_VERTEX_DATA,
   HONEY_MESH_BAD_INDEX_DATA,
+
+  /* model errors */
+  HONEY_MODEL_LOAD_ERROR,
   
   HONEY_N_ERRORS } honey_error;
 

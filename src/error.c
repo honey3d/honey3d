@@ -98,10 +98,20 @@ void honey_human_readable_error(char* error_string, honey_error error) {
     break;
         
   case HONEY_SHADER_LINK_ERROR:
-
+    break;
+    
   case HONEY_MESH_BAD_VERTEX_DATA:
-
+    break;
+    
   case HONEY_MESH_BAD_INDEX_DATA:
+    break;
+
+  case HONEY_MODEL_LOAD_ERROR:
+    snprintf(error_string,
+             string_size,
+             "[honey] ERROR: model '%s' contains errors",
+             honey_error_data.string1);
+    break;
 
   default:
     break;

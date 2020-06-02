@@ -23,6 +23,10 @@ vec3 light_position = { 2, 2, 2 };
 mat4 light_model;
 honey_shader light_shader;
 
+honey_model suzanne;
+mat4 suzanne_model;
+honey_texture suzanne_tex;
+
 bool wireframe = false;
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -126,10 +130,11 @@ void draw() {
   honey_shader_set_mat4(light_shader, "view", camera.view);    
   honey_shader_set_mat4(light_shader, "model", light_model);
     
-  honey_texture_use(container, 0);
+  honey_texture_use(suzanne_tex, 0);
   honey_texture_use(happy_face, 1);
 
-  honey_mesh_draw(cube, cube_shader);
+  //honey_mesh_draw(cube, cube_shader);
+  honey_model_draw(&suzanne, cube_shader);
   honey_mesh_draw(light_cube, light_shader);
     
   glfwSwapBuffers(window);
@@ -154,6 +159,8 @@ int main() {
   if (honey_texture_new(&happy_face, "happy.png", true) != TEXTURE_OK) {
     return 1;
   }
+
+  honey_texture_new(&suzanne_tex, "Suzanne-tex.png", true);
   
   honey_error result = honey_shader_load(&cube_shader, "demo.vs", "demo.fs");
   if (result != HONEY_OK) {
@@ -173,6 +180,14 @@ int main() {
   }
 
   if (honey_mesh_new_cube(&light_cube, 0.1, 0.1, 0.1) != MESH_OK) {
+    return 1;
+  }
+
+  result = honey_model_load(&suzanne, "Suzanne.obj");
+  if (result != HONEY_OK) {
+    char error_message[3*HONEY_ERROR_DATA_STRING_LENGTH];
+    honey_human_readable_error(error_message, result);
+    fprintf(stderr, "%s\n", error_message);
     return 1;
   }
 
@@ -227,6 +242,7 @@ int main() {
   honey_run(window);
 
   honey_mesh_delete(cube);
+  honey_model_delete(&suzanne);
   honey_shader_delete(cube_shader);
 
   honey_quit();

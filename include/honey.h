@@ -10,6 +10,7 @@
 #include "common.h"
 #include "input.h"
 #include "mesh.h"
+#include "model.h"
 #include "primitives.h"
 #include "shader.h"
 #include "texture.h"
