@@ -42,7 +42,7 @@ typedef enum {
   
   HONEY_N_ERRORS } honey_error;
 
-#define HONEY_ERROR_DATA_STRING_LENGTH 512
+#define HONEY_ERROR_DATA_STRING_LENGTH 4096
 
 static struct {
   char string1[HONEY_ERROR_DATA_STRING_LENGTH];

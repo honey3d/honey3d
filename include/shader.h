@@ -7,6 +7,7 @@
 #define HONEY_SHADER_H
 
 #include "common.h"
+#include "light.h"
 
 typedef int honey_shader;
 
@@ -84,6 +85,26 @@ void honey_shader_set_mat3(honey_shader shader,
 void honey_shader_set_mat4(honey_shader shader,
                            char* matrix_name,
                            mat4 value);
+
+/** @brief Set a point_light uniform.
+ *
+ * @param[in] shader The shader to which the uniform belongs
+ * @param[in] point_light_index The index of the light to set
+ * @param[in] light The honey_point_light to set
+ */
+void honey_shader_set_point_light(honey_shader shader,
+                                  int point_light_index,
+                                  honey_point_light light);
+
+/** @brief Set a directional_light uniform.
+ *
+ * @param[in] shader The shader to which the uniform belongs
+ * @param[in] directional_light_index The index of the light to set
+ * @param[in] light The honey_directional_light to set
+ */
+void honey_shader_set_directional_light(honey_shader shader,
+                                      int directional_light_index,
+                                      honey_directional_light light);
 
 /** @brief Use a shader.
  */

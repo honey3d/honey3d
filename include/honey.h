@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "common.h"
 #include "input.h"
+#include "light.h"
 #include "mesh.h"
 #include "model.h"
 #include "primitives.h"

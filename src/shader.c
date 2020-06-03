@@ -164,4 +164,61 @@ void honey_shader_set_mat4(honey_shader shader,
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+void honey_shader_set_point_light(honey_shader shader,
+                                  int point_light_index,
+                                  honey_point_light light) {
+  char name[HONEY_MAX_LIGHT_NAME_LENGTH];
+
+  snprintf(name,
+           HONEY_MAX_LIGHT_NAME_LENGTH,
+           "point_lights[%d].position",
+           point_light_index);
+  honey_shader_set_vec3(shader, name, light.position);
+  
+  snprintf(name,
+           HONEY_MAX_LIGHT_NAME_LENGTH,
+           "point_lights[%d].color",
+           point_light_index);
+  honey_shader_set_vec3(shader, name, light.color);
+    
+  snprintf(name,
+           HONEY_MAX_LIGHT_NAME_LENGTH,
+           "point_lights[%d].constant",
+           point_light_index);
+  honey_shader_set_float(shader, name, light.constant);
+
+  snprintf(name,
+           HONEY_MAX_LIGHT_NAME_LENGTH,
+           "point_lights[%d].linear",
+           point_light_index);
+  honey_shader_set_float(shader, name, light.linear);
+
+  snprintf(name,
+           HONEY_MAX_LIGHT_NAME_LENGTH,
+           "point_lights[%d].quadratic",
+           point_light_index);
+  honey_shader_set_float(shader, name, light.quadratic);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+void honey_shader_set_directional_light(honey_shader shader,
+                                        int directional_light_index,
+                                        honey_directional_light light) {
+  char name[HONEY_MAX_LIGHT_NAME_LENGTH];
+  
+  snprintf(name,
+           HONEY_MAX_LIGHT_NAME_LENGTH,
+           "directional_lights[%d].direction",
+           directional_light_index);
+  honey_shader_set_vec3(shader, name, light.direction);
+
+  snprintf(name,
+           HONEY_MAX_LIGHT_NAME_LENGTH,
+           "directional_lights[%d].color",
+           directional_light_index);
+  honey_shader_set_vec3(shader, name, light.color);
+}
+
   

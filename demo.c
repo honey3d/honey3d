@@ -10,22 +10,23 @@ float cameraSpeed = 3.0;
 float camera_roll_speed = 1.0;
 const float cameraMouseSensitivity = 0.1;
 
-honey_mesh cube;
-mat4 model;
-honey_shader cube_shader;
-honey_texture container;
-honey_texture happy_face;
-
 honey_mesh light_cube;
-vec3 ambient_color = { 0, 0.2, 0.2 };
-vec3 light_color = { 1, 1, 1 };
-vec3 light_position = { 2, 2, 2 };
+vec3 ambient_color = { 0.3, 0.3, 0.3 };
+honey_point_light light;
+
+honey_directional_light sun;
+
 mat4 light_model;
 honey_shader light_shader;
 
 honey_model suzanne;
 mat4 suzanne_model;
 honey_texture suzanne_tex;
+
+honey_model sphere;
+honey_shader sphere_shader;
+mat4 model;
+honey_texture sphere_tex;
 
 bool wireframe = false;
 
@@ -76,8 +77,6 @@ void toggle_wireframe(void* data, int action) {
 void update(float dt) {
   glfwPollEvents();
 
-  //glm_rotate_x(model, glm_rad(10*dt), model);
-  
   if (honey_key_down(HONEY_KEY_ESCAPE)) {
     glfwSetWindowShouldClose(window, true);
   }
@@ -118,23 +117,22 @@ void draw() {
   }
 
   honey_camera_calculate_view(&camera);
-  honey_shader_set_mat4(cube_shader, "view", camera.view);
-  honey_shader_set_mat4(cube_shader, "model", model);
+  honey_shader_set_mat4(sphere_shader, "view", camera.view);
+  honey_shader_set_mat4(sphere_shader, "model", model);
   mat4 normal4;
   mat3 normal;
   glm_mat4_copy(model, normal4);
   glm_mat4_inv_fast(normal4, normal4);
   glm_mat4_pick3t(normal4, normal);
-  honey_shader_set_mat3(cube_shader, "normal_mat", normal);
+  honey_shader_set_mat3(sphere_shader, "normal_mat", normal);
 
   honey_shader_set_mat4(light_shader, "view", camera.view);    
   honey_shader_set_mat4(light_shader, "model", light_model);
     
-  honey_texture_use(suzanne_tex, 0);
-  honey_texture_use(happy_face, 1);
+  honey_texture_use(sphere_tex, 0);
 
-  //honey_mesh_draw(cube, cube_shader);
-  honey_model_draw(&suzanne, cube_shader);
+  //honey_mesh_draw(cube, sphere_shader);
+  honey_model_draw(&sphere, sphere_shader);
   honey_mesh_draw(light_cube, light_shader);
     
   glfwSwapBuffers(window);
@@ -150,19 +148,11 @@ int main() {
 
   honey_key_bind(HONEY_KEY_F, toggle_wireframe, NULL);
 
-  /* load container texture */
-  if (honey_texture_new(&container, "container.jpg", false) != TEXTURE_OK) {
-    return 1;
-  }
-
-  /* load happy face texture */
-  if (honey_texture_new(&happy_face, "happy.png", true) != TEXTURE_OK) {
-    return 1;
-  }
-
-  honey_texture_new(&suzanne_tex, "Suzanne-tex.png", true);
+  /* load model */
+  honey_texture_new(&sphere_tex, "sphere-tex.png", true);
+  honey_model_load(&sphere, "sphere.obj");
   
-  honey_error result = honey_shader_load(&cube_shader, "demo.vs", "demo.fs");
+  honey_error result = honey_shader_load(&sphere_shader, "demo.vs", "cel.fs");
   if (result != HONEY_OK) {
     char error_message[3*HONEY_ERROR_DATA_STRING_LENGTH];
     honey_human_readable_error(error_message, result);
@@ -170,29 +160,17 @@ int main() {
     return 1;
   }
 
-  if (honey_shader_load(&light_shader, "light.vs", "light.fs") != HONEY_OK) {
-    return 1;
-  }
+  honey_shader_load(&light_shader, "light.vs", "light.fs");
 
-  if (honey_mesh_new_textured_cube(&cube, 1, 1, 1) != MESH_OK) {
-    fprintf(stderr, "Failed to load cube\n");
-    return 1;
-  }
+  honey_mesh_new_cube(&light_cube, 0.1,0.1,0.1);
 
-  if (honey_mesh_new_cube(&light_cube, 0.1, 0.1, 0.1) != MESH_OK) {
-    return 1;
-  }
+  sun.direction[0] = 0;
+  sun.direction[1] = -1;
+  sun.direction[0] = 0;
 
-  result = honey_model_load(&suzanne, "Suzanne.obj");
-  if (result != HONEY_OK) {
-    char error_message[3*HONEY_ERROR_DATA_STRING_LENGTH];
-    honey_human_readable_error(error_message, result);
-    fprintf(stderr, "%s\n", error_message);
-    return 1;
-  }
-
-  glm_mat4_identity(light_model);
-  glm_translate(light_model, light_position);
+  sun.color[0] = 1;
+  sun.color[1] = 1;
+  sun.color[2] = 1;
 
   glm_mat4_identity(model);
 
@@ -208,25 +186,37 @@ int main() {
                                camera_aspect_ratio,
                                camera_near, camera_far,
                                camera_fov);
-  /* set cube_shader uniforms */
-  honey_shader_set_int(cube_shader, "box_texture", 0);
-  honey_shader_set_int(cube_shader, "happy_texture", 1);
-  honey_shader_set_vec3(cube_shader, "light_color", light_color);
-  honey_shader_set_vec3(cube_shader, "light_position", light_position);
-  honey_shader_set_vec3(cube_shader, "ambient_color", ambient_color);
 
-  honey_shader_set_mat4(cube_shader, "model", model);
+  /* set sphere_shader uniforms */
+  honey_shader_set_int(sphere_shader, "tex", 0);
+
+  honey_shader_set_int (sphere_shader, "n_point_lights", 1);
+  honey_shader_set_int (sphere_shader, "n_directional_lights", 1);
+  
+  honey_point_light_new(&light,
+                        2, 2, 2,   /* position */
+                        1, 1, 1,   /* color */
+                        1, 0, 0);  /* attenuation */
+
+  glm_mat4_identity(light_model);
+  glm_translate(light_model, light.position);
+
+  honey_shader_set_point_light(sphere_shader, 0, light);
+  honey_shader_set_directional_light(sphere_shader, 0, sun);
+  honey_shader_set_vec3(sphere_shader, "ambient_color", ambient_color);
+
+  honey_shader_set_mat4(sphere_shader, "model", model);
   mat4 normal4;
   mat3 normal;
   glm_mat4_copy(model, normal4);
   glm_mat4_inv_fast(normal4, normal4);
   glm_mat4_pick3t(normal4, normal);
-  honey_shader_set_mat3(cube_shader, "normal_mat", normal);
-  honey_shader_set_mat4(cube_shader, "view", camera.view);
-  honey_shader_set_mat4(cube_shader, "projection", camera.projection);
+  honey_shader_set_mat3(sphere_shader, "normal_mat", normal);
+  honey_shader_set_mat4(sphere_shader, "view", camera.view);
+  honey_shader_set_mat4(sphere_shader, "projection", camera.projection);
 
   /* set light_shader uniforms */
-  honey_shader_set_vec3(light_shader, "light_color", light_color);
+  honey_shader_set_vec3(light_shader, "light_color", light.color);
 
   honey_shader_set_mat4(light_shader, "model", light_model);
   honey_shader_set_mat4(light_shader, "view", camera.view);
@@ -241,9 +231,11 @@ int main() {
 
   honey_run(window);
 
-  honey_mesh_delete(cube);
-  honey_model_delete(&suzanne);
-  honey_shader_delete(cube_shader);
+  honey_model_delete(&sphere);
+  honey_shader_delete(sphere_shader);
+
+  honey_mesh_delete(light_cube);
+  honey_shader_delete(light_shader);
 
   honey_quit();
 
