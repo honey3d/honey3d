@@ -40,7 +40,7 @@ typedef enum {
   /* model errors */
   HONEY_MODEL_LOAD_ERROR,
   
-  HONEY_N_ERRORS } honey_error;
+  HONEY_N_ERRORS } honey_result;
 
 #define HONEY_ERROR_DATA_STRING_LENGTH 4096
 
@@ -58,6 +58,6 @@ void honey_error_set_string2(char* string);
  * @param[out] error_string A string with at least 3*HONEY_ERROR_DATA_STRING_LENGTH characters to store the result
  * @param[in] error The error to generate a message for
  */
-void honey_human_readable_error(char* error_string, honey_error error);
+void honey_human_readable_error(char* error_string, honey_result error);
 
 #endif

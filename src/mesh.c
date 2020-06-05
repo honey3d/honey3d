@@ -1,17 +1,17 @@
 #include "include/mesh.h"
 
-enum honey_mesh_result honey_mesh_new(honey_mesh* mesh,
-                                      float* vertices,
-                                      unsigned int n_vertices,
-                                      unsigned int n_attributes,
-                                      unsigned int* attribute_sizes,
-                                      unsigned int* indices,
-                                      unsigned int n_indices) {
+honey_result honey_mesh_new(honey_mesh* mesh,
+                            float* vertices,
+                            unsigned int n_vertices,
+                            unsigned int n_attributes,
+                            unsigned int* attribute_sizes,
+                            unsigned int* indices,
+                            unsigned int n_indices) {
   if (vertices == NULL || n_vertices == 0) {
-    return BAD_VERTEX_DATA;
+    return HONEY_MESH_BAD_VERTEX_DATA;
   }
   if (indices == NULL || n_indices == 0) {
-    return BAD_INDEX_DATA;
+    return HONEY_MESH_BAD_INDEX_DATA;
   }
 
   unsigned int vertex_size = 0;
@@ -21,13 +21,13 @@ enum honey_mesh_result honey_mesh_new(honey_mesh* mesh,
 
   (*mesh).vertices = malloc(vertex_size*n_vertices * sizeof(float));
   if ((*mesh).vertices == NULL) {
-    return MEMORY_ERROR;
+    return HONEY_MEMORY_ALLOCATION_ERROR;
   }
   memcpy((*mesh).vertices, vertices, vertex_size*n_vertices*sizeof(float));
 
   (*mesh).indices = malloc(n_indices * sizeof(unsigned int));
   if ((*mesh).indices == NULL) {
-    return MEMORY_ERROR;
+    return HONEY_MEMORY_ALLOCATION_ERROR;
   }
   memcpy((*mesh).indices, indices, n_indices * sizeof(unsigned int));
 
@@ -61,7 +61,7 @@ enum honey_mesh_result honey_mesh_new(honey_mesh* mesh,
   
   glBindVertexArray(0);
 
-  return MESH_OK;
+  return HONEY_OK;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

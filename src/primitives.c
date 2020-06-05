@@ -1,9 +1,39 @@
 #include "include/primitives.h"
 
-enum honey_mesh_result honey_mesh_new_cube(honey_mesh* mesh,
+honey_result honey_mesh_new_textured_plane(honey_mesh* mesh,
                                            float width,
-                                           float height,
-                                           float depth) {
+                                           float height) {
+  float x0 = 0;
+  float y0 = 0;
+  float x1 = width;
+  float y1 = height;
+
+  float vertices[] = {
+    /* position        normal        uv */
+    x0, y0, 0,         0, 0, 1,      0, 0,
+    x1, y0, 0,         0, 0, 1,      1, 0,
+    x0, y1, 0,         0, 0, 1,      0, 1,
+    x1, y1, 0,         0, 0, 1,      1, 1 };
+
+  unsigned int indices[] = {
+    0, 1, 2,
+    1, 2, 3 };
+
+  unsigned int attrib_sizes[] = { 3, 3, 2 };
+
+  honey_result result = honey_mesh_new(mesh,
+                                       vertices, 4,
+                                       3, attrib_sizes,
+                                       indices, 6);
+  return result;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+honey_result honey_mesh_new_cube(honey_mesh* mesh,
+                                 float width,
+                                 float height,
+                                 float depth) {
   float x0 = 0;
   float y0 = 0;
   float z0 = 0;
@@ -50,7 +80,7 @@ enum honey_mesh_result honey_mesh_new_cube(honey_mesh* mesh,
     x0, y1, z1,       0,  1, 0,
     x1, y1, z1,       0,  1, 0 };
 
-    unsigned int indices[] = {
+  unsigned int indices[] = {
     0, 1, 2,
     1, 2, 3,
     4, 5, 6,
@@ -66,20 +96,20 @@ enum honey_mesh_result honey_mesh_new_cube(honey_mesh* mesh,
 
   unsigned int attrib_sizes[] = { 3, 3 };
 
-  enum honey_mesh_result result = honey_mesh_new(mesh,
-                                                 vertices, 24,
-                                                 2, attrib_sizes,
-                                                 indices, 36);
+  honey_result result = honey_mesh_new(mesh,
+                                       vertices, 24,
+                                       2, attrib_sizes,
+                                       indices, 36);
 
   return result;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-enum honey_mesh_result honey_mesh_new_textured_cube(honey_mesh* mesh,
-                                                    float width,
-                                                    float height,
-                                                    float depth) {
+honey_result honey_mesh_new_textured_cube(honey_mesh* mesh,
+                                          float width,
+                                          float height,
+                                          float depth) {
   float x0 = 0;
   float y0 = 0;
   float z0 = 0;
@@ -88,7 +118,7 @@ enum honey_mesh_result honey_mesh_new_textured_cube(honey_mesh* mesh,
   float y1 = height;
   float z1 = depth;
 
-    float vertices[] = {
+  float vertices[] = {
     /* position        normal     tex coord */
     /* back face */
     x0, y0, z0,       0, 0, -1,     0, 0,
@@ -142,7 +172,7 @@ enum honey_mesh_result honey_mesh_new_textured_cube(honey_mesh* mesh,
 
   unsigned int attrib_sizes[] = { 3, 3, 2 };
 
-  enum honey_mesh_result result;
+  honey_result result;
   result = honey_mesh_new(mesh, vertices, 24,
                           3, attrib_sizes,
                           indices, 36);

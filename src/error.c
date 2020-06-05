@@ -27,7 +27,7 @@ void honey_error_set_string2(char* string) {
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void honey_human_readable_error(char* error_string, honey_error error) {
+void honey_human_readable_error(char* error_string, honey_result error) {
   size_t string_size = sizeof(char)*3*HONEY_ERROR_DATA_STRING_LENGTH;
     
   switch(error) {

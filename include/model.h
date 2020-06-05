@@ -22,7 +22,7 @@ typedef struct {
  * @param[out] model Pointer to the destination honey_model struct.
  * @param[in] path Path of the model to be loaded.
  */
-honey_error honey_model_load(honey_model* model, char* path);
+honey_result honey_model_load(honey_model* model, char* path);
 void honey_model_draw(honey_model* model, honey_shader shader);
 void honey_model_delete(honey_model* model);
 

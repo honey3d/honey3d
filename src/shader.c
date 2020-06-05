@@ -2,7 +2,7 @@
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-static honey_error read_file(char** destination, char* file_path) {
+static honey_result read_file(char** destination, char* file_path) {
   FILE* f = fopen(file_path, "r");
   if (f == NULL) {
     honey_error_set_string1(file_path);
@@ -27,12 +27,12 @@ static honey_error read_file(char** destination, char* file_path) {
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-honey_error honey_shader_load(honey_shader* shader,
+honey_result honey_shader_load(honey_shader* shader,
                               char* vertex_shader_path,
                               char* fragment_shader_path) {
   /* load vertex shader code */
   char* vertex_shader_code;
-  honey_error result = read_file(&vertex_shader_code,
+  honey_result result = read_file(&vertex_shader_code,
                                  vertex_shader_path);
   if (result != HONEY_OK)
     return result;
@@ -62,7 +62,7 @@ honey_error honey_shader_load(honey_shader* shader,
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-honey_error honey_shader_new(honey_shader* shader,
+honey_result honey_shader_new(honey_shader* shader,
                              char* vertex_shader_code,
                              char* fragment_shader_code) {
     /* compile shaders */

@@ -11,13 +11,6 @@
 #include "common.h"
 #include "shader.h"
 
-enum honey_mesh_result {
-  MESH_OK,
-  MEMORY_ERROR,
-  BAD_VERTEX_DATA,
-  BAD_INDEX_DATA,
-  N_MESH_RESULTS };
-
 typedef struct {
   float* vertices;
   unsigned int n_vertices;
@@ -39,13 +32,13 @@ typedef struct {
  * @param[in] indices Array of vertex indices
  * @param[in] n_indices The number of elements in the index array
  */
-enum honey_mesh_result honey_mesh_new(honey_mesh* mesh,
-                                      float* vertices,
-                                      unsigned int n_vertices,
-                                      unsigned int n_attributes,
-                                      unsigned int* attribute_sizes,
-                                      unsigned int* indices,
-                                      unsigned int n_indices);
+honey_result honey_mesh_new(honey_mesh* mesh,
+                            float* vertices,
+                            unsigned int n_vertices,
+                            unsigned int n_attributes,
+                            unsigned int* attribute_sizes,
+                            unsigned int* indices,
+                            unsigned int n_indices);
 
 /** @brief Draw a mesh on screen.
  *

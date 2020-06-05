@@ -20,7 +20,7 @@ typedef int honey_shader;
  * 
  * @return The result of the shader load.
  */
-honey_error honey_shader_load(honey_shader* shader,
+honey_result honey_shader_load(honey_shader* shader,
                               char* vertex_shader_path,
                               char* fragment_shader_path);
 
@@ -32,7 +32,7 @@ honey_error honey_shader_load(honey_shader* shader,
  *
  * @return The result of the shader creation.
  */
-honey_error honey_shader_new(honey_shader* shader,
+honey_result honey_shader_new(honey_shader* shader,
                              char* vertex_shader_code,
                              char* fragment_shader_code);
 

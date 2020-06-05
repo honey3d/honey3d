@@ -81,7 +81,7 @@ static void process_assimp_node(honey_model* model, struct aiNode* node, struct 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   
-honey_error honey_model_load(honey_model* model,
+honey_result honey_model_load(honey_model* model,
                              char* path) {
   model->n_meshes = 0;
   
