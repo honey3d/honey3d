@@ -9,7 +9,7 @@ in vec3 in_fragment_position;
 uniform vec3 ambient_color;
 
 struct point_light {
-  vec3 position; /* view position */
+  vec3 position; /* in view space */
 
   float constant;
   float linear;
@@ -19,7 +19,7 @@ struct point_light {
 };
 
 struct directional_light {
-  vec3 direction;
+  vec3 direction; /* in view space */
   vec3 color;
 };
 
@@ -53,7 +53,7 @@ float compute_light_intensity(vec3 normal, vec3 light_direction, vec3 view_direc
   float specular_intensity = pow(max(dot(view_direction, reflection_direction), 0), 256);
   specular_intensity = smoothstep(0.005, 0.01, specular_intensity);
 
-  return diffuse_intensity + specular_intensity;
+  return diffuse_intensity;// + specular_intensity;
 }
 
 /* compute directional light contribution */
@@ -99,11 +99,15 @@ void main()
   }
   
   /* rim lighting */
-  /*float rim_amount = 0.716;
+  float rim_amount = 0.716;
   float rim_threshold = 0.5;
   float rim_norm = 1 - dot(normal, view_direction);
+  float rim_intensity = rim_norm;
+  if (point_light_contrib == vec3(0,0,0) && directional_light_contrib == vec3(0,0,0)) {
+    rim_intensity = 0;
+  }
   rim_intensity = smoothstep(rim_amount - 0.01, rim_amount + 0.01, rim_intensity);
-  vec3 rim_light = rim_intensity * ambient_color;*/
+  vec3 rim_light = rim_intensity * ambient_color;
 
   vec4 total_light = vec4((ambient_color + point_light_contrib + directional_light_contrib).xyz, 1.0);
   fragment_color = total_light * texture(tex, in_texture_coordinate); 

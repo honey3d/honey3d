@@ -149,10 +149,10 @@ int main() {
   honey_key_bind(HONEY_KEY_F, toggle_wireframe, NULL);
 
   /* load model */
-  honey_texture_new(&sphere_tex, "sphere-tex.png", true);
-  honey_model_load(&sphere, "sphere.obj");
+  honey_texture_new(&sphere_tex, "temple-tex.png", true);
+  honey_model_load(&sphere, "temple.obj");
   
-  honey_error result = honey_shader_load(&sphere_shader, "demo.vs", "cel.fs");
+  honey_result result = honey_shader_load(&sphere_shader, "demo.vs", "cel.fs");
   if (result != HONEY_OK) {
     char error_message[3*HONEY_ERROR_DATA_STRING_LENGTH];
     honey_human_readable_error(error_message, result);
@@ -168,9 +168,9 @@ int main() {
   sun.direction[1] = -1;
   sun.direction[0] = 0;
 
-  sun.color[0] = 1;
-  sun.color[1] = 1;
-  sun.color[2] = 1;
+  sun.color[0] = 10;
+  sun.color[1] = 10;
+  sun.color[2] = 10;
 
   glm_mat4_identity(model);
 
@@ -191,10 +191,10 @@ int main() {
   honey_shader_set_int(sphere_shader, "tex", 0);
 
   honey_shader_set_int (sphere_shader, "n_point_lights", 1);
-  honey_shader_set_int (sphere_shader, "n_directional_lights", 1);
+  //honey_shader_set_int (sphere_shader, "n_directional_lights", 1);
   
   honey_point_light_new(&light,
-                        2, 2, 2,   /* position */
+                        2, 5, 2,   /* position */
                         1, 1, 1,   /* color */
                         1, 0, 0);  /* attenuation */
 
@@ -202,7 +202,7 @@ int main() {
   glm_translate(light_model, light.position);
 
   honey_shader_set_point_light(sphere_shader, 0, light);
-  honey_shader_set_directional_light(sphere_shader, 0, sun);
+  //honey_shader_set_directional_light(sphere_shader, 0, sun);
   honey_shader_set_vec3(sphere_shader, "ambient_color", ambient_color);
 
   honey_shader_set_mat4(sphere_shader, "model", model);
