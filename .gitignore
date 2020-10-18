@@ -1,9 +1,8 @@
+doc/*
+!doc/doxyfile
+
+src-old/*
+include/*
+build/*
 *~
-*.a
-CMakeCache.txt
-CMakeFiles/*
-Makefile
-cmake_install.cmake
-doc/html
 *#
-honey_engine_demo
