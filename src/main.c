@@ -1,21 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-
-#include <unistd.h>
-
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-
-#include "glad.h"
-#include <GLFW/glfw3.h>
-
-#include <cglm/cglm.h>
-#include <cglm/call.h>
-
-#include "input.h"
+#include "honey.h"
 
 struct options {
     bool verbose;

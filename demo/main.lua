@@ -4,11 +4,11 @@ end
 
 local total_time = 0
 
-function honey.update(dt)
-   total_time = total_time + dt
-   print(dt)
-end
-
-function honey.draw()
-   print('draw!')
-end
+--function honey.update(dt)
+--   total_time = total_time + dt
+--   print(dt)
+--end
+--
+--function honey.draw()
+--   print('draw!')
+--end
