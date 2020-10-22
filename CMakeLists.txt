@@ -19,6 +19,7 @@ set(SOURCE_FILES
   src/error/error.c
   src/honey.c
   src/input/input.c
+  src/lua/honey_lua.c
   src/light/light.c
   src/mesh/mesh.c
   src/model/model.c

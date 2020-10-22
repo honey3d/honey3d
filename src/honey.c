@@ -65,5 +65,5 @@ void honey_run(honey_window window) {
     honey_draw_callback();
   }
 }
-    
-  
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

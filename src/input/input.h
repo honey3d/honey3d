@@ -7,6 +7,7 @@
  */
 
 #include "../common.h"
+#include "../lua/honey_lua.h"
 
 #define HONEY_KEY_UNKNOWN 0
 #define HONEY_KEY_SPACE 1
