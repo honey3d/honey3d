@@ -33,6 +33,12 @@ void honey_lua_push_element(lua_State* L, honey_lua_element element)
 	lua_pushcfunction(L, element.data.function);
 	break;
 
+    case HONEY_TABLE:
+	honey_lua_create_table(L,
+			       element.data.table.elements,
+			       element.data.table.n_elements);
+	break;
+
     default:
 	// this should never happen
 	break;

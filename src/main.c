@@ -80,6 +80,9 @@ GLFWwindow* setup_window(int width, int height, char* title)
 	return NULL;
     }
 
+    honey_setup_keyboard();
+    glfwSetKeyCallback(window, default_honey_keyboard_callback);
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -98,23 +101,19 @@ int main(int argc, char** argv)
 
     if (!opt.run)
 	return 0;
-        
+
+    GLFWwindow* window = setup_window(480, 320, "honey-engine");
+    
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
 
     lua_createtable(L, 0, 1);
-
-    lua_createtable(L, 0, 1);
     
     honey_setup_input(L);
-    lua_setfield(L, -2, "key");
-
     lua_setfield(L, -2, "input");
 
     lua_setglobal(L, "honey");
     
-    GLFWwindow* window = setup_window(480, 320, "honey-engine");
-
     size_t dirlen  = strlen(opt.scriptdir) + 10;
     char* scriptfile = malloc(sizeof(char) * dirlen);
     if (scriptfile == NULL) {

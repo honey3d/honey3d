@@ -80,11 +80,12 @@ typedef enum {
     HONEY_INT,
     HONEY_NUM,
     HONEY_STRING,
-    HONEY_FUNC
+    HONEY_FUNC,
+    HONEY_TABLE,
 } honey_lua_type;
 
 /** @brief Wrap C objects for lua. */
-typedef struct {
+typedef struct honey_lua_element {
     char* name;
     honey_lua_type type;
     union {
@@ -92,6 +93,10 @@ typedef struct {
 	double number;
 	char* string;
 	int (*function)(lua_State*);
+	struct {
+	    int n_elements;
+	    struct honey_lua_element* elements;
+	} table;
     } data;
 } honey_lua_element;
 

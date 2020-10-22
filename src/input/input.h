@@ -157,11 +157,14 @@ void honey_setup_input(lua_State* L);
 
 /** @brief Check if a key is down.
  *
- * @param[in] key The key to query.
+ * This function accepts a single integer as input and returns TRUE if the integer
+ * refers to a valid key and is pressed down, and false otherwise.
+ *
+ * @param[in] L The lua state.
  * 
- * @return TRUE if the key is presently held down; FALSE if it is not, or if the keycode was out of bounds.
+ * @return 1 on success and 0 on failure.
  */
-bool honey_key_down(int key);
+int honey_key_down(lua_State* L);
 
 /** @brief Bind a callback to a key.
  *
