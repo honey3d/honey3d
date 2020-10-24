@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/muon/documents/code/games/3d/honey-engine/src/include/glad.h
+khrplatform.h
+/home/muon/documents/code/games/3d/honey-engine/src/include/khrplatform.h
+
+/home/muon/documents/code/games/3d/honey-engine/src/include/khrplatform.h
+stdint.h
+-
+inttypes.h
+-
+stdint.h
+-
+
+/home/muon/documents/code/games/3d/honey-engine/src/include/shader.h
+cglm/cglm.h
+-
+
+/home/muon/documents/code/games/3d/honey-engine/src/shader.c
+stdio.h
+-
+include/glad.h
+/home/muon/documents/code/games/3d/honey-engine/src/include/glad.h
+include/shader.h
+/home/muon/documents/code/games/3d/honey-engine/src/include/shader.h
+

@@ -1,0 +1,1 @@
+/usr/bin/cc -g -rdynamic CMakeFiles/honey_engine_demo.dir/demo.c.o -o honey_engine_demo  libhoney.a -lassimp -lglfw -lGL libglad.a libstb_image.a -ldl -lm 
