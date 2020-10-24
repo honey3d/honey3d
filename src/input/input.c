@@ -182,7 +182,8 @@ int honey_key_bind(lua_State* L)
     }
     else {
         char* error_message;
-        honey_format_string(error_message, "expected 2 or 3 arguments; received %d instead", n_args);
+        honey_format_string(&error_message, "expected 2 or 3 arguments; received %d instead", n_args);
+        lua_pushstring(L, error_message);
         free(error_message);
         lua_error(L);
     }

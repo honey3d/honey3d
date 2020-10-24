@@ -152,4 +152,5 @@ void honey_lua_push_element(lua_State* L,
 void honey_lua_create_table(lua_State* L,
 			    honey_lua_element* elements,
 			    unsigned int n_elements);
+
 #endif

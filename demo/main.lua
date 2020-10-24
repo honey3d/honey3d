@@ -9,6 +9,7 @@ local a_func = function(action, data)
 end
 
 honey.input.bind_key(honey.input.key.a, a_func)
+honey.input.bind_key()
 
 function honey.update(dt)
 
