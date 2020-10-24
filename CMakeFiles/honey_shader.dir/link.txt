@@ -1,2 +1,0 @@
-/usr/bin/ar qc libhoney_shader.a  CMakeFiles/honey_shader.dir/src/shader.c.o
-/usr/bin/ranlib libhoney_shader.a

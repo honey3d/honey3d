@@ -1,6 +1,0 @@
-/home/muon/documents/code/games/3d/honey-engine/CMakeFiles/edit_cache.dir
-/home/muon/documents/code/games/3d/honey-engine/CMakeFiles/honey_engine_demo.dir
-/home/muon/documents/code/games/3d/honey-engine/CMakeFiles/honey.dir
-/home/muon/documents/code/games/3d/honey-engine/CMakeFiles/rebuild_cache.dir
-/home/muon/documents/code/games/3d/honey-engine/CMakeFiles/stb_image.dir
-/home/muon/documents/code/games/3d/honey-engine/CMakeFiles/glad.dir
