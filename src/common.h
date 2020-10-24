@@ -74,15 +74,46 @@ void honey_error_set_string2(char* string);
  */
 void honey_human_readable_error(char* error_string, honey_result error);
 
+/** @brief Generate a string from a format string.
+ *
+ * This function allocates memory for the destination; the user is
+ * responsible for deallocating it. As a side effect of this, the destination
+ * pointer cannot overlap with any of the varargs.
+ *
+ * @param[out] string Pointer to the destination string.
+ * @param[in] format_string The format string used to generate the result.
+ * @param[in] ... The arguments for the format string.
+ *
+ * @returns HONEY_OK on success; HONEY_MEMORY_ALLOCATION_ERROR on a
+ * memory allocation error.
+ */
+honey_result honey_format_string(char** string,
+                                 char* format_string,
+                                 ...);
+
 /* lua binding functions */
 
 typedef enum {
+    HONEY_BOOL,
     HONEY_INT,
     HONEY_NUM,
     HONEY_STRING,
     HONEY_FUNC,
     HONEY_TABLE,
+    HONEY_NIL,
+    HONEY_ANY
 } honey_lua_type;
+
+/** @brief Check that a functions' arguments are of the correct type.
+ *
+ * @param[in] L The lua state to validate.
+ * @param[in] n_types The number of types to validate.
+ * @param[in] ... Variadic list of honey_lua_types to validate against the stack.
+ *
+ * @returns true if the validation was successful; false otherwise, pushing an error message
+ * to the lua stack.
+ */
+bool honey_lua_validate_types(lua_State* L, unsigned int n_types, ...);
 
 /** @brief Wrap C objects for lua. */
 typedef struct honey_lua_element {

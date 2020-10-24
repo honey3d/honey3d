@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhoney.a CMakeFiles/honey.dir/src/honey.c.o CMakeFiles/honey.dir/src/camera.c.o CMakeFiles/honey.dir/src/error.c.o CMakeFiles/honey.dir/src/input.c.o CMakeFiles/honey.dir/src/light.c.o CMakeFiles/honey.dir/src/mesh.c.o CMakeFiles/honey.dir/src/model.c.o CMakeFiles/honey.dir/src/primitives.c.o CMakeFiles/honey.dir/src/shader.c.o CMakeFiles/honey.dir/src/texture.c.o
+/usr/bin/ranlib libhoney.a

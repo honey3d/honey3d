@@ -13,7 +13,7 @@ bool has_function(lua_State* L, char* field)
     lua_getglobal(L, "honey");
     lua_getfield(L, -1, field);
     if (lua_isfunction(L, -1))
-	return true;
+        return true;
     return false;
 }
 
@@ -26,32 +26,32 @@ bool parse_options(struct options* opt, int argc, char** argv)
     int c;
 
     while ((c = getopt(argc, argv, "vh")) != -1) {
-	switch (c) {
-	case 'v':
-	    opt->verbose = true;
-	    break;
+        switch (c) {
+        case 'v':
+            opt->verbose = true;
+            break;
 
-	case 'h':
-	    // print help
-	    break;
+        case 'h':
+            // print help
+            break;
 
-	case '?':
-	    if (isprint (optopt))
-		fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-	    else
-		fprintf (stderr,
-			 "Unknown option character `\\x%x'.\n",
-			 optopt);
-	    return false;
+        case '?':
+            if (isprint (optopt))
+                fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+            else
+                fprintf (stderr,
+                         "Unknown option character `\\x%x'.\n",
+                         optopt);
+            return false;
 
-	default:
-	    return false;
-	}
+        default:
+            return false;
+        }
     }
 
     if (optind < argc) {
-	opt->run = true;
-	opt->scriptdir = argv[optind];
+        opt->run = true;
+        opt->scriptdir = argv[optind];
     }
 
     return true;
@@ -66,18 +66,18 @@ GLFWwindow* setup_window(int width, int height, char* title)
 
     GLFWwindow* window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window == NULL) {
-	fprintf(stderr, "ERROR: failed to create window!\n");
-	glfwTerminate();
-	return NULL;
+        fprintf(stderr, "ERROR: failed to create window!\n");
+        glfwTerminate();
+        return NULL;
     }
 
     glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-	fprintf(stderr, "ERROR: failed to initialize GLAD!\n");
-	glfwTerminate();
-	return NULL;
+        fprintf(stderr, "ERROR: failed to initialize GLAD!\n");
+        glfwTerminate();
+        return NULL;
     }
 
     honey_setup_keyboard();
@@ -95,16 +95,19 @@ int main(int argc, char** argv)
 {
     struct options opt;
     if (!parse_options(&opt, argc, argv)) {
-	fprintf(stderr, "ERROR: failed to parse command line options!\n");
-	return 1;
+        fprintf(stderr, "ERROR: failed to parse command line options!\n");
+        return 1;
     }
 
     if (!opt.run)
-	return 0;
+        return 0;
 
+    printf("%d\n", LUA_NOREF);
+    
     GLFWwindow* window = setup_window(480, 320, "honey-engine");
     
     lua_State* L = luaL_newstate();
+    glfwSetWindowUserPointer(window, L);
     luaL_openlibs(L);
 
     lua_createtable(L, 0, 1);
@@ -117,20 +120,20 @@ int main(int argc, char** argv)
     size_t dirlen  = strlen(opt.scriptdir) + 10;
     char* scriptfile = malloc(sizeof(char) * dirlen);
     if (scriptfile == NULL) {
-	fprintf(stderr, "ERROR: failed to allocate memory for script file string!\n");
-	return 1;
+        fprintf(stderr, "ERROR: failed to allocate memory for script file string!\n");
+        return 1;
     }
 
     snprintf(scriptfile, dirlen, "%s/main.lua", opt.scriptdir);
     
     if (luaL_loadfile(L, scriptfile) == 0) {
-	if (lua_pcall(L, 0, 1, 0) == 0) {
-	    lua_pop(L, lua_gettop(L));
-	}
+        if (lua_pcall(L, 0, 1, 0) == 0) {
+            lua_pop(L, lua_gettop(L));
+        }
     }
     else {
-	fprintf(stderr, "ERROR: failed to open %s!\n", scriptfile);
-	return 1;
+        fprintf(stderr, "ERROR: failed to open %s!\n", scriptfile);
+        return 1;
     }
 
     opt.has_update = has_function(L, "update");
@@ -141,41 +144,41 @@ int main(int argc, char** argv)
     float dt;
     
     while (!glfwWindowShouldClose(window)) {
-	currentTime = (float) glfwGetTime();
-	dt = currentTime - prevTime;
-	prevTime = currentTime;
-	glfwPollEvents();
+        currentTime = (float) glfwGetTime();
+        dt = currentTime - prevTime;
+        prevTime = currentTime;
+        glfwPollEvents();
 
-	lua_getglobal(L, "honey");
+        lua_getglobal(L, "honey");
 
-	if (opt.has_update) {
-	    lua_getfield(L, -1, "update");
-	    if (lua_isfunction(L, -1)) {
-		lua_pushnumber(L, dt);
-		int result = lua_pcall(L, 1, 0, 0);
-		if (result != 0) {
-		    glfwSetWindowShouldClose(window, true);
-		}
-	    }
-	    else {
-		lua_pop(L, 1);
-	    }
-	}
+        if (opt.has_update) {
+            lua_getfield(L, -1, "update");
+            if (lua_isfunction(L, -1)) {
+                lua_pushnumber(L, dt);
+                int result = lua_pcall(L, 1, 0, 0);
+                if (result != 0) {
+                    glfwSetWindowShouldClose(window, true);
+                }
+            }
+            else {
+                lua_pop(L, 1);
+            }
+        }
 
-	if (opt.has_draw) {
-	    lua_getfield(L, -1, "draw");
-	    if (lua_isfunction(L, -1)) {
-		int result = lua_pcall(L, 0, 0, 0);
-		if (result != 0) {
-		    glfwSetWindowShouldClose(window, true);
-		}
-	    }
-	    else {
-		lua_pop(L, 1);
-	    }
-	}
+        if (opt.has_draw) {
+            lua_getfield(L, -1, "draw");
+            if (lua_isfunction(L, -1)) {
+                int result = lua_pcall(L, 0, 0, 0);
+                if (result != 0) {
+                    glfwSetWindowShouldClose(window, true);
+                }
+            }
+            else {
+                lua_pop(L, 1);
+            }
+        }
 
-	lua_pop(L, 1);
+        lua_pop(L, 1);
     }
 
     lua_close(L);
