@@ -4,10 +4,14 @@ end
 
 local total_time = 0
 
+local a_func = function(action, data)
+    print('a: ', action)
+end
+
+honey.input.bind_key(honey.input.key.a, a_func)
+
 function honey.update(dt)
-   if honey.input.is_down(honey.input.key.a) then
-      print('a pressed!')
-   end
+
 end
 
 --function honey.draw()

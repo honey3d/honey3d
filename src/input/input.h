@@ -136,9 +136,8 @@
 #define HONEY_KEY_RELEASE GLFW_RELEASE
 
 unsigned int honey_key_states[HONEY_N_KEYS];
-static void (*honey_key_callbacks[HONEY_N_KEYS])(void*, int);
-static void* honey_key_callbacks_data[HONEY_N_KEYS];
-static void (*honey_keyboard_callback)(honey_window window, int key, int scancode, int action, int mods);
+static int honey_key_callbacks[HONEY_N_KEYS];
+static int honey_key_callbacks_data[HONEY_N_KEYS];
 
 /** @brief Initializes Honey's internal keyboard states.
  * 
@@ -176,7 +175,7 @@ int honey_key_down(lua_State* L);
  * @param[in] callback The callback function to bind.
  * @param[in] data Data to pass to the callback function upon triggering.
  */
-void honey_key_bind(int key, void (*callback)(void*, int), void* data);
+int honey_key_bind(lua_State* L);
 
 /** @brief Unbind a key callback.
  *
@@ -184,13 +183,13 @@ void honey_key_bind(int key, void (*callback)(void*, int), void* data);
  *
  * @param[in] key The key to unbind a callback from.
  */
-void honey_key_unbind(int key);
+int honey_key_unbind(lua_State* L);
 
 /** @brief Unbind all key callbacks.
  *
  * THIS FUNCTION DOES NOT FREE MEMORY! If you allocated any, be sure to free it yourself!
  */
-void honey_key_unbind_all();
+int honey_key_unbind_all(lua_State* L);
 
 void default_honey_keyboard_callback(honey_window window, int key, int scancode, int action, int mods);
 
