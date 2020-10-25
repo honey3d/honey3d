@@ -153,4 +153,12 @@ void honey_lua_create_table(lua_State* L,
 			    honey_lua_element* elements,
 			    unsigned int n_elements);
 
+/** @brief Get the traceback for use after an error.
+ */
+int honey_lua_traceback(lua_State* L);
+
+/** @brief Wrapper for lua_pcall that uses a honey_lua_traceback as an error handler.
+ */
+int honey_lua_pcall(lua_State* L, int nargs, int nret);
+
 #endif

@@ -23,7 +23,7 @@ int main(int argc, char** argv)
     }
     
     if (luaL_loadfile(L, script) == 0) {
-        if (!lua_pcall(L, 0, 1, 0) == 0) {
+        if (!honey_lua_pcall(L, 0, 1) == 0) {
             const char* error = lua_tostring(L, -1);
             fprintf(stderr, "[honey] ERROR: %s\n", error);
             return 1;
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
         if (update_callback != LUA_NOREF) {
             lua_rawgeti(L, LUA_REGISTRYINDEX, update_callback);
             lua_pushnumber(L, dt);
-            int result = lua_pcall(L, 1, 0, 0);
+            int result = honey_lua_pcall(L, 1, 0);
             if (result != 0) {
                 const char* error = lua_tostring(L, -1);
                 fprintf(stderr, "[honey] ERROR: %s\n", error);
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
         if (draw_callback != LUA_NOREF) {
             lua_rawgeti(L, LUA_REGISTRYINDEX, draw_callback);
-            int result = lua_pcall(L, 0, 0, 0);
+            int result = honey_lua_pcall(L, 0, 0);
             if (result != 0) {
                 const char* error = lua_tostring(L, -1);
                 fprintf(stderr, "[honey] ERROR: %s\n", error);
