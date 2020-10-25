@@ -50,6 +50,7 @@ function demo_cglm()
     local z = honey.cglm.get_value(array, 2)
 
     print(x, y, z)
+    print(honey.cglm.vec3.norm(array))
 end
 demo_cglm()
 
