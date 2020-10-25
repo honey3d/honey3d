@@ -16,6 +16,7 @@
 #include "primitives/primitives.h"
 #include "shader/shader.h"
 #include "texture/texture.h"
+#include "window/window.h"
 
 /** @struct Helper struct to wrap command-line options. */
 typedef struct {
@@ -48,7 +49,7 @@ bool honey_parse_options(honey_options* options, int argc, char** argv);
  *
  * @returns true on a success; false otherwise.
  */
-bool honey_setup(lua_State** L, honey_window* window);
+bool honey_setup(lua_State** L);
 
 /** @brief The main game loop.
  *

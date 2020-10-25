@@ -12,7 +12,7 @@ void honey_setup_keyboard()
 void honey_setup_input(lua_State* L)
 {
     honey_setup_keyboard();
-
+    
     honey_lua_element keyElements[] = {
         { "unknown", HONEY_INT, { HONEY_KEY_UNKNOWN } },
         { "space", HONEY_INT, { HONEY_KEY_SPACE } },

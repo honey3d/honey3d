@@ -25,7 +25,8 @@ set(SOURCE_FILES
   src/model/model.c
   src/primitives/primitives.c
   src/shader/shader.c
-  src/texture/texture.c)
+  src/texture/texture.c
+  src/window/window.c)
   
 add_executable(honey ${SOURCE_FILES})
 

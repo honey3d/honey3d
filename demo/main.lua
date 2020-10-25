@@ -2,17 +2,16 @@ for key, value in pairs(honey.input) do
    print(key, value)
 end
 
-local total_time = 0
+local fullscreen = false
 
 local a_func = function(action, data)
-    print('a: ', action)
+    fullscreen = not fullscreen
+    honey.window.set_fullscreen(fullscreen)
 end
 
 honey.input.bind_key(honey.input.key.a, a_func)
-honey.input.bind_key()
 
 function honey.update(dt)
-
 end
 
 --function honey.draw()

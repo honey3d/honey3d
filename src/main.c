@@ -7,11 +7,17 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    honey_window window;
     lua_State* L;
 
-    if (!honey_setup(&L, &window))
+    if (!honey_setup(&L))
         return 1;
+
+    lua_getglobal(L, "honey");
+    lua_getfield(L, -1, "window");
+    lua_getfield(L, -1, "internal");
+    honey_window_information* info = lua_touserdata(L, -1);
+    lua_pop(L, 2);
+    honey_window window = info->window;
 
     char* script;
     honey_result res = honey_format_string(&script,

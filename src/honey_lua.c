@@ -132,6 +132,36 @@ bool honey_lua_validate_types(lua_State* L,
             }
             break;
 
+        case HONEY_USERDATA:
+            if (!lua_isuserdata(L, i+1)) {
+                result = honey_format_string(&error_message,
+                                             "Expected userdata in position %d",
+                                             i);
+                if (result != HONEY_OK)
+                    lua_pushstring(L, "Expected userdata; allocation error occurred for more detailed message.");
+                else {
+                    lua_pushstring(L, error_message);
+                    free(error_message);
+                }
+                return false;
+            }
+            break;
+
+        case HONEY_LIGHTUSERDATA:
+            if (!lua_islightuserdata(L, i+1)) {
+                result = honey_format_string(&error_message,
+                                             "Expected C pointer in position %d",
+                                             i);
+                if (result != HONEY_OK)
+                    lua_pushstring(L, "Expected C pointer; allocation error occurred for more detailed message.");
+                else {
+                    lua_pushstring(L, error_message);
+                    free(error_message);
+                }
+                return false;
+            }
+            break;            
+
         case HONEY_ANY:
             break;
 
@@ -183,6 +213,19 @@ void honey_lua_push_element(lua_State* L, honey_lua_element element)
         honey_lua_create_table(L,
                                element.data.table.elements,
                                element.data.table.n_elements);
+        break;
+
+    case HONEY_NIL:
+        lua_pushnil(L);
+        break;
+
+    case HONEY_USERDATA:
+        /* cannot push userdata, push nil */
+        lua_pushnil(L);
+        break;
+
+    case HONEY_LIGHTUSERDATA:
+        lua_pushlightuserdata(L, element.data.pointer);
         break;
 
     default:
