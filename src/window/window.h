@@ -18,6 +18,8 @@ typedef struct {
 extern int honey_window_info_ref;
 extern int honey_window_resize_callback_ref;
 extern int honey_window_resize_callback_data_ref;
+extern int honey_window_focus_callback_ref;
+extern int honey_window_focus_callback_data_ref;
 
 /** @brief Push the various honey.window table to the stack.
  *
@@ -73,5 +75,25 @@ int honey_window_resize_bind(lua_State* L);
  * @returns Nothing.
  */
 int honey_window_resize_unbind(lua_State* L);
+
+/** @brief Bind a callback to the window changing focus.
+ *
+ * The supplied callback function should be of the form
+ * function(boolean, data). The boolean is true if the window
+ * is gaining focus, and false if it is losing focus. The data is 
+ * just the data parameter passed to this function.
+ *
+ * @param callback The callback function to call on a window resize.
+ * @param data Data to send to the callback.
+ *
+ * @returns Nothing.
+ */
+int honey_window_focus_bind(lua_State* L);
+
+/** @brief Unbind any callback that may be attached to the window focus.
+ *
+ * @returns Nothing.
+ */
+int honey_window_focus_unbind(lua_State* L);
 
 #endif

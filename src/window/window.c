@@ -3,6 +3,8 @@
 int honey_window_info_ref = LUA_NOREF;
 int honey_window_resize_callback_ref = LUA_NOREF;
 int honey_window_resize_callback_data_ref = LUA_NOREF;
+int honey_window_focus_callback_ref = LUA_NOREF;
+int honey_window_focus_callback_data_ref = LUA_NOREF;
 
 static void honey_glfw_window_resize_callback(honey_window window,
                                               int width, int height)
@@ -29,7 +31,32 @@ static void honey_glfw_window_resize_callback(honey_window window,
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void honey_glfw_window_focus_callback(honey_window window,
+                                             int focused)
+{
+    lua_State* L = glfwGetWindowUserPointer(window);
+
+    int callback = honey_window_focus_callback_ref;
+    int data = honey_window_focus_callback_data_ref;
     
+    if (callback == LUA_NOREF)
+        return;
+    
+    lua_rawgeti(L, LUA_REGISTRYINDEX, callback);
+
+    lua_pushboolean(L, focused);
+    
+    if (data == LUA_NOREF || data == LUA_REFNIL)
+        lua_pushnil(L);
+    else
+        lua_rawgeti(L, LUA_REGISTRYINDEX, data);
+
+    honey_lua_pcall(L, 2, 0);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 bool honey_setup_window(lua_State* L)
 {
     honey_window_information* info = lua_newuserdata(L, sizeof(honey_window_information));
@@ -68,6 +95,8 @@ bool honey_setup_window(lua_State* L)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glfwSetWindowSizeCallback(info->window, honey_glfw_window_resize_callback);
+    glfwSetWindowFocusCallback(info->window, honey_glfw_window_focus_callback);
+    
 
     honey_lua_element window_elements[] = {
         { "set_fullscreen", HONEY_FUNC, { .function = honey_window_set_fullscreen } },
@@ -76,9 +105,11 @@ bool honey_setup_window(lua_State* L)
         { "set_size",       HONEY_FUNC, { .function = honey_window_set_size } },
         { "resize_bind",    HONEY_FUNC, { .function = honey_window_resize_bind } },
         { "resize_unbind",  HONEY_FUNC, { .function = honey_window_resize_unbind } },
+        { "focus_bind",     HONEY_FUNC, { .function = honey_window_focus_bind } },
+        { "focus_unbind",   HONEY_FUNC, { .function = honey_window_focus_unbind } },
     };
 
-    honey_lua_create_table(L, window_elements, 6);
+    honey_lua_create_table(L, window_elements, 8);
     return true;
 }
 
@@ -175,7 +206,57 @@ int honey_window_resize_bind(lua_State* L)
 
 int honey_window_resize_unbind(lua_State* L)
 {
+    int callback = honey_window_resize_callback_ref;
+    int data = honey_window_resize_callback_data_ref;
+
+    if (callback != LUA_NOREF) {
+        lua_pushnil(L);
+        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+    }
+
+    if (data != LUA_NOREF && data != LUA_REFNIL) {
+        lua_pushnil(L);
+        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+    }
+
     honey_window_resize_callback_ref = LUA_NOREF;
     honey_window_resize_callback_data_ref = LUA_NOREF;
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_window_focus_bind(lua_State* L)
+{
+    if (!honey_lua_validate_types(L, 2, HONEY_FUNC, HONEY_ANY))
+        lua_error(L);
+
+    lua_pushvalue(L, 1);
+    honey_window_focus_callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushvalue(L, 2);
+    honey_window_focus_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_window_focus_unbind(lua_State* L)
+{
+    int callback = honey_window_focus_callback_ref;
+    int data = honey_window_focus_callback_data_ref;
+
+    if (callback != LUA_NOREF) {
+        lua_pushnil(L);
+        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+    }
+
+    if (data != LUA_NOREF && data != LUA_REFNIL) {
+        lua_pushnil(L);
+        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+    }
+
+    honey_window_focus_callback_ref = LUA_NOREF;
+    honey_window_focus_callback_data_ref = LUA_NOREF;
     return 0;
 }

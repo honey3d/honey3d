@@ -16,6 +16,14 @@ honey.window.set_title('honey engine demo')
 honey.input.bind_key(honey.input.key.a, a_func)
 honey.window.resize_bind(resize_func)
 
+
+local focus_func = function(focus)
+    print('focus:', focus)
+end
+
+honey.window.focus_bind(focus_func)
+    
+
 function honey.update(dt)
 end
 
