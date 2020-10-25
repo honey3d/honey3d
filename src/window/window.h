@@ -16,6 +16,8 @@ typedef struct {
 } honey_window_information;
 
 extern int honey_window_info_ref;
+extern int honey_window_resize_callback_ref;
+extern int honey_window_resize_callback_data_ref;
 
 /** @brief Push the various honey.window table to the stack.
  *
@@ -57,5 +59,19 @@ int honey_window_get_size(lua_State* L);
  * @returns Nothing.
  */
 int honey_window_set_size(lua_State* L);
+
+/** @brief Bind a call back to the window resize.
+ *
+ * @param[in] callback The callback function to call on a window resize.
+ *
+ * @returns Nothing.
+ */
+int honey_window_resize_bind(lua_State* L);
+
+/** @brief Unbind any callback that may be attached to the window resize.
+ *
+ * @returns Nothing.
+ */
+int honey_window_resize_unbind(lua_State* L);
 
 #endif
