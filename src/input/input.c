@@ -1,5 +1,14 @@
 #include "input.h"
 
+int honey_mouse_movement_callback_ref = LUA_NOREF;
+int honey_mouse_movement_callback_data_ref = LUA_NOREF;
+
+static void honey_glfw_mouse_movement_callback(honey_window window,
+                                               double x_pos, double y_pos);
+static void honey_glfw_keyboard_callback(honey_window window,
+                                         int key, int scancode,
+                                         int action, int mods);
+
 void honey_setup_keyboard()
 {
     memset(honey_key_states, 0, sizeof(honey_key_states));
@@ -12,8 +21,15 @@ void honey_setup_keyboard()
 void honey_setup_input(lua_State* L)
 {
     honey_setup_keyboard();
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_window_info_ref);
+    honey_window_information* info = lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    glfwSetKeyCallback(info->window, honey_glfw_keyboard_callback);
+    glfwSetCursorPosCallback(info->window, honey_glfw_mouse_movement_callback);
     
-    honey_lua_element keyElements[] = {
+    honey_lua_element key_elements[] = {
         { "unknown", HONEY_INT, { HONEY_KEY_UNKNOWN } },
         { "space", HONEY_INT, { HONEY_KEY_SPACE } },
         { "apostrophe", HONEY_INT, { HONEY_KEY_APOSTROPHE } },
@@ -135,17 +151,31 @@ void honey_setup_input(lua_State* L)
         { "right_alt", HONEY_INT, { HONEY_KEY_RIGHT_ALT } },
         { "right_super", HONEY_INT, { HONEY_KEY_RIGHT_SUPER } },
         { "menu", HONEY_INT, { HONEY_KEY_MENU } },
-    };
-
-    honey_lua_element inputElements[] = {
-        { "key", HONEY_TABLE, { .table={ HONEY_N_KEYS, keyElements } } },
         { "is_down", HONEY_FUNC, { .function = honey_key_down } },
-        { "bind_key", HONEY_FUNC, { .function = honey_key_bind } },
-        { "unbind_key", HONEY_FUNC, { .function = honey_key_unbind } },
-        { "unbind_all_keys", HONEY_FUNC, { .function = honey_key_unbind_all } },
+        { "bind", HONEY_FUNC, { .function = honey_key_bind } },
+        { "unbind", HONEY_FUNC, { .function = honey_key_unbind } },
+        { "unbind_all", HONEY_FUNC, { .function = honey_key_unbind_all } },
     };
 
-    honey_lua_create_table(L, inputElements, 5);
+    honey_lua_element mouse_mode_elements[] = {
+        { "normal", HONEY_INT, { .integer = HONEY_MOUSE_MODE_NORMAL } },
+        { "hidden", HONEY_INT, { .integer = HONEY_MOUSE_MODE_HIDDEN } },
+        { "disabled", HONEY_INT, { .integer = HONEY_MOUSE_MODE_DISABLED } },
+    };
+
+    honey_lua_element mouse_elements[] = {
+        { "mode", HONEY_TABLE, { .table = { 3, mouse_mode_elements } } },
+        { "set_mode", HONEY_FUNC, { .function = honey_mouse_set_mode } },
+        { "bind_movement",   HONEY_FUNC, { .function = honey_mouse_movement_bind } },
+        { "unbind_movement", HONEY_FUNC, { .function = honey_mouse_movement_unbind } },
+    };
+
+    honey_lua_element input_elements[] = {
+        { "key",   HONEY_TABLE, { .table={ HONEY_N_KEYS+4, key_elements } } },
+        { "mouse", HONEY_TABLE, { .table={ 4, mouse_elements } } },
+    };
+
+    honey_lua_create_table(L, input_elements, 2);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -194,6 +224,11 @@ int honey_key_bind(lua_State* L)
     lua_pushvalue(L, 3);
     int data = luaL_ref(L, LUA_REGISTRYINDEX);
 
+    /* avoid potential memory leak */
+    lua_pushcfunction(L, honey_key_unbind);
+    lua_pushinteger(L, key);
+    honey_lua_pcall(L, 1, 0);
+
     if (key >= 0 && key < HONEY_N_KEYS) {
         honey_key_callbacks[key] = callback;
         honey_key_callbacks_data[key] = data;
@@ -238,6 +273,91 @@ int honey_key_unbind_all(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+int honey_mouse_set_mode(lua_State* L)
+{
+    if (!honey_lua_validate_types(L, 1, HONEY_INT))
+        lua_error(L);
+
+    int cursor_mode = lua_tointeger(L, 1);
+
+    if (honey_window_info_ref == LUA_NOREF ||
+        honey_window_info_ref == LUA_REFNIL) {
+        lua_pushstring(L, "ERROR: no window set!");
+        lua_error(L);
+    }
+    
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_window_info_ref);
+    honey_window_information* info = lua_touserdata(L, -1);
+
+    glfwSetInputMode(info->window, GLFW_CURSOR, cursor_mode);
+
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_mouse_movement_bind(lua_State* L)
+{
+    if (!honey_lua_validate_types(L, 2, HONEY_FUNC, HONEY_ANY))
+        lua_error(L);
+
+    honey_mouse_movement_unbind(L); /* avoid memory leaks! */
+    
+    lua_pushvalue(L, 1);
+    honey_mouse_movement_callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushvalue(L, 2);
+    honey_mouse_movement_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_mouse_movement_unbind(lua_State* L)
+{
+    int callback = honey_mouse_movement_callback_ref;
+    int data = honey_mouse_movement_callback_data_ref;
+
+    if (callback != LUA_NOREF || callback != LUA_REFNIL) {
+        lua_pushnil(L);
+        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+    }
+
+    if (data != LUA_NOREF || data != LUA_REFNIL) {
+        lua_pushnil(L);
+        lua_rawseti(L, LUA_REGISTRYINDEX, data);
+    }
+
+    honey_mouse_movement_callback_ref = LUA_NOREF;
+    honey_mouse_movement_callback_data_ref = LUA_NOREF;
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void honey_glfw_mouse_movement_callback(honey_window window,
+                                               double x_pos, double y_pos)
+{
+    int callback = honey_mouse_movement_callback_ref;
+    int data = honey_mouse_movement_callback_data_ref;
+    lua_State* L = glfwGetWindowUserPointer(window);
+    
+    if (callback == LUA_NOREF || callback == LUA_REFNIL)
+        return;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, callback);
+    lua_pushnumber(L, x_pos);
+    lua_pushnumber(L, y_pos);
+
+    if (data == LUA_NOREF || data == LUA_REFNIL)
+        lua_pushnil(L);
+    else
+        lua_rawgeti(L, LUA_REGISTRYINDEX, data);
+
+    honey_lua_pcall(L, 3, 0);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 static void execute_lua_key_callback(lua_State* L, int callback, int action, int data)
 {
     if (callback != LUA_NOREF) {
@@ -253,10 +373,12 @@ static void execute_lua_key_callback(lua_State* L, int callback, int action, int
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void default_honey_keyboard_callback(honey_window window, int key, int scancode, int action, int mods)
+static void honey_glfw_keyboard_callback(honey_window window,
+                                         int key, int scancode,
+                                         int action, int mods)
 {
     int callback, data;
-    lua_State* L = (lua_State*) glfwGetWindowUserPointer(window);
+    lua_State* L = glfwGetWindowUserPointer(window);
     switch (key) {
     case GLFW_KEY_UNKNOWN:
         if (action == HONEY_KEY_PRESS)   { honey_key_states[HONEY_KEY_UNKNOWN] = 1; }
@@ -1231,5 +1353,3 @@ void default_honey_keyboard_callback(honey_window window, int key, int scancode,
         break;
     }
 }
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

@@ -135,9 +135,16 @@
 #define HONEY_KEY_PRESS GLFW_PRESS
 #define HONEY_KEY_RELEASE GLFW_RELEASE
 
+#define HONEY_MOUSE_MODE_NORMAL GLFW_CURSOR_NORMAL
+#define HONEY_MOUSE_MODE_HIDDEN GLFW_CURSOR_HIDDEN
+#define HONEY_MOUSE_MODE_DISABLED GLFW_CURSOR_DISABLED
+
 unsigned int honey_key_states[HONEY_N_KEYS];
 static int honey_key_callbacks[HONEY_N_KEYS];
 static int honey_key_callbacks_data[HONEY_N_KEYS];
+
+extern int honey_mouse_movement_callback_ref;
+extern int honey_mouse_movement_callback_data_ref;
 
 /** @brief Initializes Honey's internal keyboard states.
  * 
@@ -191,6 +198,32 @@ int honey_key_unbind(lua_State* L);
  */
 int honey_key_unbind_all(lua_State* L);
 
-void default_honey_keyboard_callback(honey_window window, int key, int scancode, int action, int mods);
+/** @brief Set the cursor mode.
+ *
+ * @param[in] mode The mouse mode (from honey.input.mouse.mode) to use.
+ *
+ * @returns Nothing.
+ */
+int honey_mouse_set_mode(lua_State* L);
+
+/** Bind a callback to mouse movement.
+ *
+ * The callback should be of the form cb(xpos, ypos, data),
+ * where xpos and ypos are the coordinates of the mouse relative to the
+ * upper left corner of the window, and data is the data parameter passed
+ * to this function.
+ *
+ * @param[in] callback A callback as described above.
+ * @param[in] data Auxilliary data to pass to the callback.
+ *
+ * @returns Nothing.
+ */
+int honey_mouse_movement_bind(lua_State* L);
+
+/** Unbind any callback that may be attached to mouse movement.
+ *
+ * @returns Nothing.
+ */
+int honey_mouse_movement_unbind(lua_State* L);
 
 #endif

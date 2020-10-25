@@ -8,19 +8,6 @@
 #define HONEY_WINDOW_DEFAULT_WIDTH 640
 #define HONEY_WINDOW_DEFAULT_HEIGHT 480
 
-typedef struct {
-    honey_window window;
-    int width;
-    int height;
-    bool fullscreen;
-} honey_window_information;
-
-extern int honey_window_info_ref;
-extern int honey_window_resize_callback_ref;
-extern int honey_window_resize_callback_data_ref;
-extern int honey_window_focus_callback_ref;
-extern int honey_window_focus_callback_data_ref;
-
 /** @brief Push the various honey.window table to the stack.
  *
  * @param[in] L The lua state to push to

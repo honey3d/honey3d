@@ -35,6 +35,19 @@
 
 typedef GLFWwindow* honey_window;
 
+typedef struct {
+    honey_window window;
+    int width;
+    int height;
+    bool fullscreen;
+} honey_window_information;
+
+extern int honey_window_info_ref;
+extern int honey_window_resize_callback_ref;
+extern int honey_window_resize_callback_data_ref;
+extern int honey_window_focus_callback_ref;
+extern int honey_window_focus_callback_data_ref;
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 typedef enum {

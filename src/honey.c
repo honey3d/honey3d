@@ -72,10 +72,6 @@ bool honey_setup(lua_State** L)
 
     lua_setglobal(*L, "honey");
 
-    lua_rawgeti(*L, LUA_REGISTRYINDEX, honey_window_info_ref);
-    honey_window_information* info = lua_touserdata(*L, -1);
-    glfwSetKeyCallback(info->window, default_honey_keyboard_callback);
-
     return true;
 }
 
