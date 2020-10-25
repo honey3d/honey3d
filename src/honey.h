@@ -53,9 +53,10 @@ bool honey_setup(lua_State** L);
 
 /** @brief The main game loop.
  *
- * @param[in] window The window the game is running in, created with honey_setup()
+ * @param[in] L The lua state honey was initialized in.
+ * @param[in] opts The honey_options struct previously populated by honey_parse_options().
  */
-void honey_run(honey_window window);
+bool honey_run(lua_State* L, honey_options opts);
 
 /** @brief Get a registry reference to a given honey callback.
  *
