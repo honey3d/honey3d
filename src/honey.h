@@ -9,10 +9,10 @@
 #include "common.h"
 
 #include "camera/camera.h"
+#include "cglm_bindings.h"
 #include "input/input.h"
 #include "light/light.h"
 #include "mesh/mesh.h"
-#include "model/model.h"
 #include "primitives/primitives.h"
 #include "shader/shader.h"
 #include "texture/texture.h"
@@ -67,10 +67,5 @@ bool honey_run(lua_State* L, honey_options opts);
  * LUA_NOREF otherwise.
  */
 int honey_get_callback(lua_State* L, char* callback);
-
-#define honey_set_resize_callback glfwSetFramebufferSizeCallback
-#define honey_set_mouse_move_callback glfwSetCursorPosCallback
-
-#define honey_quit glfwTerminate
 
 #endif
