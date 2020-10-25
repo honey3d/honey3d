@@ -18,6 +18,7 @@ end
 honey.window.set_title('honey engine demo')
 
 honey.input.key.bind(honey.input.key.a, a_func)
+honey.input.key.bind(honey.input.key.escape, honey.exit)
 honey.window.resize_bind(resize_func)
 honey.input.mouse.set_mode( honey.input.mouse.mode.disabled )
 honey.input.mouse.bind_movement(mousemove)

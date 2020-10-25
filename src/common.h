@@ -179,4 +179,10 @@ int honey_lua_traceback(lua_State* L);
  */
 int honey_lua_pcall(lua_State* L, int nargs, int nret);
 
+/** @brief Trigger honey to exit.
+ *
+ * @returns Nothing.
+ */
+int honey_exit(lua_State* L);
+
 #endif

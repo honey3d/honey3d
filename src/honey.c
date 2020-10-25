@@ -70,6 +70,9 @@ bool honey_setup(lua_State** L)
     honey_setup_input(*L);
     lua_setfield(*L, -2, "input");
 
+    lua_pushcfunction(*L, honey_exit);
+    lua_setfield(*L, -2, "exit");
+
     lua_setglobal(*L, "honey");
 
     return true;

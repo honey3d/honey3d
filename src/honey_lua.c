@@ -273,3 +273,20 @@ int honey_lua_pcall(lua_State* L, int nargs, int nret)
     return result;
 }
     
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_exit(lua_State* L)
+{
+    if (honey_window_info_ref == LUA_NOREF ||
+        honey_window_info_ref == LUA_REFNIL) {
+        lua_pushstring(L, "Window information is not set!");
+        lua_error(L);
+    }
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_window_info_ref);
+    honey_window_information* info = lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    glfwSetWindowShouldClose(info->window, true);
+    return 0;
+}
