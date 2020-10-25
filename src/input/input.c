@@ -247,7 +247,7 @@ static void execute_lua_key_callback(lua_State* L, int callback, int action, int
             lua_rawgeti(L, LUA_REGISTRYINDEX, data);
         else
             lua_pushnil(L);
-        lua_pcall(L, 2, 0, 0);
+        honey_lua_pcall(L, 2, 0);
     }
 }
 
