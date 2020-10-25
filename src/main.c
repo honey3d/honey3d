@@ -12,11 +12,8 @@ int main(int argc, char** argv)
     if (!honey_setup(&L))
         return 1;
 
-    lua_getglobal(L, "honey");
-    lua_getfield(L, -1, "window");
-    lua_getfield(L, -1, "internal");
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_window_info_ref);
     honey_window_information* info = lua_touserdata(L, -1);
-    lua_pop(L, 2);
     honey_window window = info->window;
 
     char* script;

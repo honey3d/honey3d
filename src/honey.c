@@ -65,17 +65,16 @@ bool honey_setup(lua_State** L)
 
     if (!honey_setup_window(*L))
         return false;
-
-    lua_getfield(*L, -1, "internal");
-    honey_window_information* info = lua_touserdata(*L, -1);
-    lua_pop(*L, 1);
     lua_setfield(*L, -2, "window");
 
     honey_setup_input(*L);
-    glfwSetKeyCallback(info->window, default_honey_keyboard_callback);
     lua_setfield(*L, -2, "input");
 
     lua_setglobal(*L, "honey");
+
+    lua_rawgeti(*L, LUA_REGISTRYINDEX, honey_window_info_ref);
+    honey_window_information* info = lua_touserdata(*L, -1);
+    glfwSetKeyCallback(info->window, default_honey_keyboard_callback);
 
     return true;
 }
