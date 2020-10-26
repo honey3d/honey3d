@@ -66,8 +66,8 @@ honey_result honey_mesh_new(honey_mesh* mesh,
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void honey_mesh_draw(honey_mesh mesh, honey_shader shader) {
-  honey_shader_use(shader);
+void honey_mesh_draw(honey_mesh mesh, int shader) {
+  glUseProgram(shader);
   
   glBindVertexArray(mesh.vertex_array);
   glDrawElements(GL_TRIANGLES, mesh.n_indices, GL_UNSIGNED_INT, 0);

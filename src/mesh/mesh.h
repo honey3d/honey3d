@@ -46,7 +46,7 @@ honey_result honey_mesh_new(honey_mesh* mesh,
  * @param[in] shader The shader to use when drawing the mesh
  */
 void honey_mesh_draw(honey_mesh mesh,
-                     honey_shader shader);
+                     int shader);
 
 /** @brief Delete a mesh.
  *

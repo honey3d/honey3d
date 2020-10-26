@@ -23,7 +23,6 @@ set(SOURCE_FILES
   src/honey_lua.c
   src/light/light.c
   src/mesh/mesh.c
-  src/model/model.c
   src/primitives/primitives.c
   src/shader/shader.c
   src/texture/texture.c
