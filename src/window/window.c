@@ -99,14 +99,14 @@ bool honey_setup_window(lua_State* L)
     
 
     honey_lua_element window_elements[] = {
-        { "set_fullscreen", HONEY_FUNC, { .function = honey_window_set_fullscreen } },
-        { "set_title",      HONEY_FUNC, { .function = honey_window_set_title } },
-        { "get_size",       HONEY_FUNC, { .function = honey_window_get_size } },
-        { "set_size",       HONEY_FUNC, { .function = honey_window_set_size } },
-        { "resize_bind",    HONEY_FUNC, { .function = honey_window_resize_bind } },
-        { "resize_unbind",  HONEY_FUNC, { .function = honey_window_resize_unbind } },
-        { "focus_bind",     HONEY_FUNC, { .function = honey_window_focus_bind } },
-        { "focus_unbind",   HONEY_FUNC, { .function = honey_window_focus_unbind } },
+        { "set_fullscreen", HONEY_FUNCTION, { .function = honey_window_set_fullscreen } },
+        { "set_title",      HONEY_FUNCTION, { .function = honey_window_set_title } },
+        { "get_size",       HONEY_FUNCTION, { .function = honey_window_get_size } },
+        { "set_size",       HONEY_FUNCTION, { .function = honey_window_set_size } },
+        { "resize_bind",    HONEY_FUNCTION, { .function = honey_window_resize_bind } },
+        { "resize_unbind",  HONEY_FUNCTION, { .function = honey_window_resize_unbind } },
+        { "focus_bind",     HONEY_FUNCTION, { .function = honey_window_focus_bind } },
+        { "focus_unbind",   HONEY_FUNCTION, { .function = honey_window_focus_unbind } },
     };
 
     honey_lua_create_table(L, window_elements, 8);
@@ -117,7 +117,7 @@ bool honey_setup_window(lua_State* L)
 
 int honey_window_set_fullscreen(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_BOOL))
+    if (!honey_lua_validate_types(L, 1, HONEY_BOOLEAN))
         lua_error(L);
 
     bool fullscreen = lua_toboolean(L, 1);
@@ -174,7 +174,7 @@ int honey_window_get_size(lua_State* L)
 
 int honey_window_set_size(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_INT, HONEY_INT))
+    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_INTEGER))
         lua_error(L);
 
     int width = lua_tointeger(L, 1);
@@ -191,7 +191,7 @@ int honey_window_set_size(lua_State* L)
 
 int honey_window_resize_bind(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_FUNC, HONEY_ANY))
+    if (!honey_lua_validate_types(L, 2, HONEY_FUNCTION, HONEY_ANY))
         lua_error(L);
 
     lua_pushvalue(L, 1);
@@ -228,7 +228,7 @@ int honey_window_resize_unbind(lua_State* L)
 
 int honey_window_focus_bind(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_FUNC, HONEY_ANY))
+    if (!honey_lua_validate_types(L, 2, HONEY_FUNCTION, HONEY_ANY))
         lua_error(L);
 
     lua_pushvalue(L, 1);

@@ -28,6 +28,123 @@ honey_result honey_format_string(char** string,
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+static void honey_lua_arg_error(lua_State* L,
+                                char* expected_type,
+                                int position)
+{
+    char* error_message;
+    honey_result result;
+    char* got_type = lua_typename(L, lua_type(L, position));
+    result = honey_format_string(&error_message,
+                                 "bad argument in position %d: "
+                                 "expected %s, but got %s instead.",
+                                 position,
+                                 expected_type,
+                                 got_type);
+    if (result != HONEY_OK) {
+        lua_pushstring(L, "error allocating memory for error message :(");
+    }
+    else {
+        lua_pushstring(L, error_message);
+        free(error_message);
+    }
+    lua_error(L);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+void honey_lua_parse_arguments(lua_State* L, int n, ...)
+{
+    va_list args;
+    va_start(args, n);
+
+    for (int i=1; i<=n; i++) {
+        honey_lua_type expected_type = va_arg(args, honey_lua_type);
+
+        switch (expected_type) {
+        case HONEY_BOOLEAN:
+            if (!lua_isboolean(L, i))
+                honey_lua_arg_error(L, "boolean", i);
+            {
+                bool* result = va_arg(args, bool*);
+                *result = lua_toboolean(L, i);
+            }
+            break;
+
+        case HONEY_INTEGER:
+            if (!lua_isnumber(L, i))
+                honey_lua_arg_error(L, "integer", i);
+            {
+                int* result = va_arg(args, int*);
+                *result = lua_tointeger(L, i);
+            }
+            break;
+
+        case HONEY_NUMBER:
+            if (!lua_isnumber(L, i))
+                honey_lua_arg_error(L, "number", i);
+            {
+                float* result = va_arg(args, float*);
+                *result = lua_tonumber(L, i);
+            }
+            break;
+
+        case HONEY_STRING:
+            if (!lua_isstring(L, i))
+                honey_lua_arg_error(L, "string", i);
+            {
+                char** result = va_arg(args, char**);
+                *result = lua_tostring(L, i);
+            }
+            break;
+            
+        case HONEY_TABLE:
+            if (!lua_istable(L, i))
+                honey_lua_arg_error(L, "table", i);
+            break;
+
+        case HONEY_FUNCTION:
+            if (!lua_isfunction(L, i))
+                honey_lua_arg_error(L, "function", i);
+            break;
+
+        case HONEY_NIL:
+            if (!lua_isnil(L, i))
+                honey_lua_arg_error(L, "nil", i);
+            break;
+
+        case HONEY_USERDATA:
+            if (!lua_isuserdata(L, i))
+                honey_lua_arg_error(L, "userdata", i);
+            {
+                void** result = va_arg(args, void**);
+                *result = lua_touserdata(L, i);
+            }
+            break;
+
+        case HONEY_LIGHTUSERDATA:
+            if (!lua_isuserdata(L, i))
+                honey_lua_arg_error(L, "light userdata", i);
+            {
+                void** result = va_arg(args, void**);
+                *result = lua_touserdata(L, i);
+            }
+            break;
+
+        case HONEY_ANY:
+            break;
+
+        default:
+            /* should never get here! */
+            break;
+        }
+    }
+            
+    va_end(args);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 bool honey_lua_validate_types(lua_State* L,
                               unsigned int n_types,
                               ...)
@@ -41,7 +158,7 @@ bool honey_lua_validate_types(lua_State* L,
         char* error_message;
 
         switch(expected_type) {
-        case HONEY_BOOL:
+        case HONEY_BOOLEAN:
             if (!lua_isboolean(L, i+1)) {
                 result = honey_format_string(&error_message,
                                              "Expected boolean in position %d",
@@ -56,8 +173,8 @@ bool honey_lua_validate_types(lua_State* L,
             }
             break;
             
-        case HONEY_INT:
-        case HONEY_NUM:
+        case HONEY_INTEGER:
+        case HONEY_NUMBER:
             if (!lua_isnumber(L, i+1)) {
                 result = honey_format_string(&error_message,
                                              "Expected number in position %d",
@@ -87,7 +204,7 @@ bool honey_lua_validate_types(lua_State* L,
             }
             break;
 
-        case HONEY_FUNC:
+        case HONEY_FUNCTION:
             if (!lua_isfunction(L, i+1)) {
                 result = honey_format_string(&error_message,
                                              "Expected function in position %d",
@@ -193,11 +310,11 @@ void honey_lua_create_table(lua_State* L,
 void honey_lua_push_element(lua_State* L, honey_lua_element element)
 {
     switch(element.type) {
-    case HONEY_INT:
+    case HONEY_INTEGER:
         lua_pushinteger(L, element.data.integer);
         break;
 
-    case HONEY_NUM:
+    case HONEY_NUMBER:
         lua_pushnumber(L, element.data.number);
         break;
 
@@ -205,7 +322,7 @@ void honey_lua_push_element(lua_State* L, honey_lua_element element)
         lua_pushstring(L, element.data.string);
         break;
 
-    case HONEY_FUNC:
+    case HONEY_FUNCTION:
         lua_pushcfunction(L, element.data.function);
         break;
 

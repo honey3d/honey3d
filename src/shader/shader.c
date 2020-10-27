@@ -3,15 +3,15 @@
 void honey_setup_shader(lua_State* L)
 {
     honey_lua_element shader_elements[] = {
-        { "new", HONEY_FUNC, { .function = honey_shader_new } },
-        { "use", HONEY_FUNC, { .function = honey_shader_use } },
-        { "set_int", HONEY_FUNC, { .function = honey_shader_set_int } },
-        { "set_float", HONEY_FUNC, { .function = honey_shader_set_float } },
-        { "set_vec3", HONEY_FUNC, { .function = honey_shader_set_vec3 } },
-        { "set_vec4", HONEY_FUNC, { .function = honey_shader_set_vec4 } },
-        { "set_mat3", HONEY_FUNC, { .function = honey_shader_set_mat3 } },
-        { "set_mat4", HONEY_FUNC, { .function = honey_shader_set_mat4 } },
-        { "delete", HONEY_FUNC, { .function = honey_shader_delete } },
+        { "new", HONEY_FUNCTION, { .function = honey_shader_new } },
+        { "use", HONEY_FUNCTION, { .function = honey_shader_use } },
+        { "set_int", HONEY_FUNCTION, { .function = honey_shader_set_int } },
+        { "set_float", HONEY_FUNCTION, { .function = honey_shader_set_float } },
+        { "set_vec3", HONEY_FUNCTION, { .function = honey_shader_set_vec3 } },
+        { "set_vec4", HONEY_FUNCTION, { .function = honey_shader_set_vec4 } },
+        { "set_mat3", HONEY_FUNCTION, { .function = honey_shader_set_mat3 } },
+        { "set_mat4", HONEY_FUNCTION, { .function = honey_shader_set_mat4 } },
+        { "delete", HONEY_FUNCTION, { .function = honey_shader_delete } },
     };
 
     honey_lua_create_table(L, shader_elements, 9);
@@ -93,7 +93,7 @@ int honey_shader_new(lua_State* L)
 
 int honey_shader_use(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_INT))
+    if (!honey_lua_validate_types(L, 1, HONEY_INTEGER))
         lua_error(L);
 
     int shader = lua_tointeger(L, 1);
@@ -105,7 +105,7 @@ int honey_shader_use(lua_State* L)
 
 int honey_shader_set_int(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_INT, HONEY_STRING, HONEY_INT))
+    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_STRING, HONEY_INTEGER))
         lua_error(L);
 
     int shader       = lua_tointeger(L, 1);
@@ -123,7 +123,7 @@ int honey_shader_set_int(lua_State* L)
 
 int honey_shader_set_float(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_INT, HONEY_STRING, HONEY_NUM))
+    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_STRING, HONEY_NUMBER))
         lua_error(L);
 
     int shader       = lua_tointeger(L, 1);
@@ -143,7 +143,7 @@ static void get_array(lua_State* L,
                       unsigned int* location,
                       float** value)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_INT, HONEY_STRING, HONEY_USERDATA))
+    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_STRING, HONEY_USERDATA))
         lua_error(L);
 
     int shader       = lua_tointeger(L, 1);
@@ -206,7 +206,7 @@ int honey_shader_set_mat4(lua_State* L)
 
 int honey_shader_delete(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_INT))
+    if (!honey_lua_validate_types(L, 1, HONEY_INTEGER))
         lua_error(L);
 
     int shader = lua_tointeger(L, 1);

@@ -109,17 +109,36 @@ honey_result honey_format_string(char** string,
 /* lua binding functions */
 
 typedef enum {
-    HONEY_BOOL,
-    HONEY_INT,
-    HONEY_NUM,
+    HONEY_BOOLEAN,
+    HONEY_INTEGER,
+    HONEY_NUMBER,
     HONEY_STRING,
-    HONEY_FUNC,
+    HONEY_FUNCTION,
     HONEY_TABLE,
     HONEY_NIL,
     HONEY_USERDATA,
     HONEY_LIGHTUSERDATA,
     HONEY_ANY
 } honey_lua_type;
+
+/** @brief Get arguments from a function, checking to ensure the types match.
+ *
+ * If a function should accept a variable list of arguments, but you still wish to ensure
+ * correct types, use honey_lua_validate_types() and throw an error only if all of your
+ * possiblities fail to match.
+ *
+ * Note that this function will check for correct types of HONEY_TABLE, HONEY_NIL, and
+ * HONEY_FUNCTION, but does not expect a pointer to them. It performs no check for 
+ * HONEY_ANY, and also does not expect a pointer.
+ *
+ * @param[in] L The lua state to parse arguments from.
+ * @param[in] n The number of arguments to parse.
+ * @param[in] ... Variadic list of alternating types and pointers to store the type.
+ *
+ * @returns Nothing, but throws a lua_error if a type mismatch is detected.
+ */
+void honey_lua_parse_arguments(lua_State* L, int n, ...);
+
 
 /** @brief Check that a functions' arguments are of the correct type.
  *

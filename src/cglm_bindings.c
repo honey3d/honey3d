@@ -3,54 +3,54 @@
 void honey_setup_cglm(lua_State* L)
 {
     honey_lua_element vec3_elements[] = {
-        { "dot",         HONEY_FUNC, { .function = honey_cglm_vec3_dot } },
-        { "cross",       HONEY_FUNC, { .function = honey_cglm_vec3_cross } },
-        { "square_norm", HONEY_FUNC, { .function = honey_cglm_vec3_square_norm } },
-        { "norm",        HONEY_FUNC, { .function = honey_cglm_vec3_norm } },
+        { "dot",         HONEY_FUNCTION, { .function = honey_cglm_vec3_dot } },
+        { "cross",       HONEY_FUNCTION, { .function = honey_cglm_vec3_cross } },
+        { "square_norm", HONEY_FUNCTION, { .function = honey_cglm_vec3_square_norm } },
+        { "norm",        HONEY_FUNCTION, { .function = honey_cglm_vec3_norm } },
     };
 
     honey_lua_element vec4_elements[] = {
-        { "dot",       HONEY_FUNC, { .function = honey_cglm_vec4_dot } },
-        { "norm2",     HONEY_FUNC, { .function = honey_cglm_vec4_norm2 } },
-        { "norm",      HONEY_FUNC, { .function = honey_cglm_vec4_norm } },
-        { "add",       HONEY_FUNC, { .function = honey_cglm_vec4_add } },
-        { "adds",      HONEY_FUNC, { .function = honey_cglm_vec4_adds } },
-        { "mul",       HONEY_FUNC, { .function = honey_cglm_vec4_mul } },
-        { "muls",      HONEY_FUNC, { .function = honey_cglm_vec4_muls } },
-        { "normalize", HONEY_FUNC, { .function = honey_cglm_vec4_normalize } },
-        { "distance",  HONEY_FUNC, { .function = honey_cglm_vec4_distance } },
-        { "lerp",      HONEY_FUNC, { .function = honey_cglm_vec4_lerp } },
+        { "dot",       HONEY_FUNCTION, { .function = honey_cglm_vec4_dot } },
+        { "norm2",     HONEY_FUNCTION, { .function = honey_cglm_vec4_norm2 } },
+        { "norm",      HONEY_FUNCTION, { .function = honey_cglm_vec4_norm } },
+        { "add",       HONEY_FUNCTION, { .function = honey_cglm_vec4_add } },
+        { "adds",      HONEY_FUNCTION, { .function = honey_cglm_vec4_adds } },
+        { "mul",       HONEY_FUNCTION, { .function = honey_cglm_vec4_mul } },
+        { "muls",      HONEY_FUNCTION, { .function = honey_cglm_vec4_muls } },
+        { "normalize", HONEY_FUNCTION, { .function = honey_cglm_vec4_normalize } },
+        { "distance",  HONEY_FUNCTION, { .function = honey_cglm_vec4_distance } },
+        { "lerp",      HONEY_FUNCTION, { .function = honey_cglm_vec4_lerp } },
     };
 
     honey_lua_element mat4_elements[] = {
-        { "identity", HONEY_FUNC, { .function = honey_cglm_mat4_identity } },
-        { "pick3",    HONEY_FUNC, { .function = honey_cglm_mat4_pick3 } },
-        { "mul",      HONEY_FUNC, { .function = honey_cglm_mat4_mul } },
-        { "muls",     HONEY_FUNC, { .function = honey_cglm_mat4_muls } },
-        { "mulv",     HONEY_FUNC, { .function = honey_cglm_mat4_mulv } },
-        { "trans",    HONEY_FUNC, { .function = honey_cglm_mat4_trans } },
-        { "det",      HONEY_FUNC, { .function = honey_cglm_mat4_det } },
-        { "trace",    HONEY_FUNC, { .function = honey_cglm_mat4_trace } },
-        { "inv",      HONEY_FUNC, { .function = honey_cglm_mat4_inv } },
-        { "inv_fast", HONEY_FUNC, { .function = honey_cglm_mat4_inv_fast } },
+        { "identity", HONEY_FUNCTION, { .function = honey_cglm_mat4_identity } },
+        { "pick3",    HONEY_FUNCTION, { .function = honey_cglm_mat4_pick3 } },
+        { "mul",      HONEY_FUNCTION, { .function = honey_cglm_mat4_mul } },
+        { "muls",     HONEY_FUNCTION, { .function = honey_cglm_mat4_muls } },
+        { "mulv",     HONEY_FUNCTION, { .function = honey_cglm_mat4_mulv } },
+        { "trans",    HONEY_FUNCTION, { .function = honey_cglm_mat4_trans } },
+        { "det",      HONEY_FUNCTION, { .function = honey_cglm_mat4_det } },
+        { "trace",    HONEY_FUNCTION, { .function = honey_cglm_mat4_trace } },
+        { "inv",      HONEY_FUNCTION, { .function = honey_cglm_mat4_inv } },
+        { "inv_fast", HONEY_FUNCTION, { .function = honey_cglm_mat4_inv_fast } },
     };
 
     honey_lua_element affine_elements[] = {
-        { "translate", HONEY_FUNC, { .function = honey_cglm_translate } },
-        { "scale",     HONEY_FUNC, { .function = honey_cglm_scale } },
-        { "rotate",    HONEY_FUNC, { .function = honey_cglm_rotate } },
+        { "translate", HONEY_FUNCTION, { .function = honey_cglm_translate } },
+        { "scale",     HONEY_FUNCTION, { .function = honey_cglm_scale } },
+        { "rotate",    HONEY_FUNCTION, { .function = honey_cglm_rotate } },
     };
 
     honey_lua_element camera_elements[] = {
-        { "perspective",  HONEY_FUNC, { .function = honey_cglm_perspective } },
-        { "orthographic", HONEY_FUNC, { .function = honey_cglm_orthographic } },
+        { "perspective",  HONEY_FUNCTION, { .function = honey_cglm_perspective } },
+        { "orthographic", HONEY_FUNCTION, { .function = honey_cglm_orthographic } },
     };
     
     honey_lua_element cglm_elements[] = {
-        { "new_array_zero", HONEY_FUNC, { .function = honey_cglm_new_array_zero } },
-        { "set_value",      HONEY_FUNC, { .function = honey_cglm_array_set_value } },
-        { "get_value",      HONEY_FUNC, { .function = honey_cglm_array_get_value } },
-        { "copy_array",     HONEY_FUNC, { .function = honey_cglm_array_copy } },
+        { "new_array_zero", HONEY_FUNCTION, { .function = honey_cglm_new_array_zero } },
+        { "set_value",      HONEY_FUNCTION, { .function = honey_cglm_array_set_value } },
+        { "get_value",      HONEY_FUNCTION, { .function = honey_cglm_array_get_value } },
+        { "copy_array",     HONEY_FUNCTION, { .function = honey_cglm_array_copy } },
         { "vec3",           HONEY_TABLE, { .table = { 4, vec3_elements } } },
         { "vec4",           HONEY_TABLE, { .table = { 10, vec4_elements } } },
         { "mat4",           HONEY_TABLE, { .table = { 10, mat4_elements } } },
@@ -65,7 +65,7 @@ void honey_setup_cglm(lua_State* L)
 
 int honey_cglm_new_array_zero(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_INT))
+    if (!honey_lua_validate_types(L, 1, HONEY_INTEGER))
         lua_error(L);
 
     int size = lua_tointeger(L, 1);
@@ -79,7 +79,7 @@ int honey_cglm_new_array_zero(lua_State* L)
 
 int honey_cglm_array_set_value(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 3, HONEY_USERDATA, HONEY_INT, HONEY_NUM))
+    if (!honey_lua_validate_types(L, 3, HONEY_USERDATA, HONEY_INTEGER, HONEY_NUMBER))
         lua_error(L);
 
     float* array = lua_touserdata(L, 1);
@@ -94,7 +94,7 @@ int honey_cglm_array_set_value(lua_State* L)
 
 int honey_cglm_array_get_value(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA, HONEY_INT))
+    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA, HONEY_INTEGER))
         lua_error(L);
 
     float* array = lua_touserdata(L, 1);
@@ -107,7 +107,7 @@ int honey_cglm_array_get_value(lua_State* L)
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_array_copy(lua_State* L) {
-    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA, HONEY_INT))
+    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA, HONEY_INTEGER))
         lua_error(L);
 
     float* array = lua_touserdata(L, 1);
@@ -253,7 +253,7 @@ int honey_cglm_vec4_add(lua_State* L)
 
 int honey_cglm_vec4_adds(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_NUM, HONEY_USERDATA))
+    if (!honey_lua_validate_types(L, 2, HONEY_NUMBER, HONEY_USERDATA))
         lua_error(L);
 
     float a = lua_tonumber(L, 1);
@@ -287,7 +287,7 @@ int honey_cglm_vec4_mul(lua_State* L)
 
 int honey_cglm_vec4_muls(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_NUM, HONEY_USERDATA))
+    if (!honey_lua_validate_types(L, 2, HONEY_NUMBER, HONEY_USERDATA))
         lua_error(L);
 
     float a = lua_tonumber(L, 1);
@@ -334,7 +334,7 @@ int honey_cglm_vec4_distance(lua_State* L)
 
 int honey_cglm_vec4_lerp(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 3, HONEY_USERDATA, HONEY_USERDATA, HONEY_NUM))
+    if (!honey_lua_validate_types(L, 3, HONEY_USERDATA, HONEY_USERDATA, HONEY_NUMBER))
         lua_error(L);
 
     float* a = lua_touserdata(L, 1);
@@ -400,7 +400,7 @@ int honey_cglm_mat4_mul(lua_State* L)
 
 int honey_cglm_mat4_muls(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_NUM, HONEY_USERDATA))
+    if (!honey_lua_validate_types(L, 2, HONEY_NUMBER, HONEY_USERDATA))
         lua_error(L);
 
     float a = lua_tonumber(L, 1);
@@ -543,7 +543,7 @@ int honey_cglm_scale(lua_State* L)
 int honey_cglm_rotate(lua_State* L) {
     if (!honey_lua_validate_types(L, 4,
                                   HONEY_USERDATA, HONEY_USERDATA,
-                                  HONEY_USERDATA, HONEY_NUM))
+                                  HONEY_USERDATA, HONEY_NUMBER))
         lua_error(L);
 
     float* matrix = lua_touserdata(L, 1);
@@ -566,8 +566,8 @@ int honey_cglm_perspective(lua_State* L)
 {
     if (!honey_lua_validate_types(L, 5,
                                   HONEY_USERDATA,
-                                  HONEY_NUM, HONEY_NUM,
-                                  HONEY_NUM, HONEY_NUM))
+                                  HONEY_NUMBER, HONEY_NUMBER,
+                                  HONEY_NUMBER, HONEY_NUMBER))
         lua_error(L);
 
     float* matrix = lua_touserdata(L, 1);

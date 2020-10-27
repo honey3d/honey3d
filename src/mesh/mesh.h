@@ -12,46 +12,36 @@
 #include "../shader/shader.h"
 
 typedef struct {
-  float* vertices;
-  unsigned int n_vertices;
-  unsigned int* indices;
-  unsigned int n_indices;
-  unsigned int vertex_array, vertex_buffer, element_buffer;
+    unsigned int n_vertices, n_indices;
+    unsigned int vertex_array, vertex_buffer, element_buffer;
 } honey_mesh;
 
 /** @brief Create a new mesh from vertex and index arrays.
  *
- * Note that this function creates copies of the vertex and index arrays, 
- * so you can deallocate those immediately.
+ * This function copies the data, so you can safely permit vertices and
+ * indices to be garbage collected after calling it.
  *
- * @param[out] mesh Pointer to the destination honey_mesh struct
- * @param[in] vertices Array of floats representing the vertices
- * @param[in] n_attributes The number of attributes per vertex
- * @param[in] attribute_sizes An array containing for each attribute how many floats it contains
- * @param[in] n_vertices The number of vertices (NOT the number of floats in the vertex array)
- * @param[in] indices Array of vertex indices
- * @param[in] n_indices The number of elements in the index array
+ * @param[in] vertices Userdata array containing the vertices.
+ * @param[in] indices Userdata array defining the mesh faces.
+ * @param[in] attributes Lua table containing the attribute sizes.
+ * @param[in] n_vertices Integer number of vertices.
+ * @param[in] n_indices Integer number of indices.
+ *
+ * @returns Userdata containing the mesh's OpenGL handles.
  */
-honey_result honey_mesh_new(honey_mesh* mesh,
-                            float* vertices,
-                            unsigned int n_vertices,
-                            unsigned int n_attributes,
-                            unsigned int* attribute_sizes,
-                            unsigned int* indices,
-                            unsigned int n_indices);
+int honey_mesh_new(lua_State* L);
 
 /** @brief Draw a mesh on screen.
  *
  * @param[in] mesh The mesh to draw
  * @param[in] shader The shader to use when drawing the mesh
  */
-void honey_mesh_draw(honey_mesh mesh,
-                     int shader);
+int honey_mesh_draw(lua_State* L);
 
 /** @brief Delete a mesh.
  *
  * @param[in] mesh The mesh to delete
  */
-void honey_mesh_delete(honey_mesh mesh);
+int honey_mesh_delete(lua_State* L);
   
 #endif
