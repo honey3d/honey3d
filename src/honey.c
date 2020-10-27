@@ -114,7 +114,11 @@ bool honey_run(lua_State* L, honey_options opts) {
         }
     }
     else {
-        fprintf(stderr, "ERROR: failed to open %s!\n", script);
+        
+        fprintf(stderr,
+                "[honey] ERROR: failed to load %s: %s!\n",
+                script,
+                lua_tostring(L, -1));
         return false;
     }
 
@@ -124,11 +128,13 @@ bool honey_run(lua_State* L, honey_options opts) {
     float prevTime = 0;
     float currentTime = 0;
     float dt;
+    float drawTime = 0;
     
     while (!glfwWindowShouldClose(window)) {
         currentTime = (float) glfwGetTime();
         dt = currentTime - prevTime;
         prevTime = currentTime;
+        drawTime += dt;
         glfwPollEvents();
 
         if (update_callback != LUA_NOREF) {
@@ -142,20 +148,23 @@ bool honey_run(lua_State* L, honey_options opts) {
             }
         }
 
-        glClearColor(0,0,0,1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (drawTime > 0.016) {
+            drawTime -= 0.016;
+            glClearColor(0,0,0,1);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        if (draw_callback != LUA_NOREF) {
-            lua_rawgeti(L, LUA_REGISTRYINDEX, draw_callback);
-            int result = honey_lua_pcall(L, 0, 0);
-            if (result != 0) {
-                const char* error = lua_tostring(L, -1);
-                fprintf(stderr, "[honey] ERROR: %s\n", error);
-                glfwSetWindowShouldClose(window, true);
+            if (draw_callback != LUA_NOREF) {
+                lua_rawgeti(L, LUA_REGISTRYINDEX, draw_callback);
+                int result = honey_lua_pcall(L, 0, 0);
+                if (result != 0) {
+                    const char* error = lua_tostring(L, -1);
+                    fprintf(stderr, "[honey] ERROR: %s\n", error);
+                    glfwSetWindowShouldClose(window, true);
+                }
             }
-        }
 
-        glfwSwapBuffers(window);
+            glfwSwapBuffers(window);
+        }
     }
 
     lua_close(L);
