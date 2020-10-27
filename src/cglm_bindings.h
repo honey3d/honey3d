@@ -1,6 +1,10 @@
 #ifndef HONEY_CGLM_BINDINGS_H
 #define HONEY_CGLM_BINDINGS_H
 
+/** @file cglm_bindings.h
+ * @brief Lua bindings for CGLM functions. 
+ */
+
 #include "common.h"
 
 /** @brief Push the honey cglm binding functions to the lua stack.
