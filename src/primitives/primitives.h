@@ -9,6 +9,9 @@
 #include "../common.h"
 #include "../mesh/mesh.h"
 
+/** @brief Push table of lua bindings for creating primitives to the stack. */
+void honey_setup_primitives(lua_State* L);
+
 /** @brief Create a textured plane.
  *
  * This function creates a plane with vertex positions in attribute 0,

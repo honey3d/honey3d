@@ -19,28 +19,6 @@ void honey_setup_shader(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-static bool compile_shader(int* shader,
-                           const char* source,
-                           int shader_type,
-                           char* error_message,
-                           size_t error_size)
-{
-    int success;
-    
-    *shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(*shader, 1, source, NULL);
-    glCompileShader(*shader);
-    glGetShaderiv(*shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(*shader, error_size, NULL, error_message);
-        return false;
-    }
-
-    return true;
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
 int honey_shader_new(lua_State* L)
 {
     if (!honey_lua_validate_types(L, 2, HONEY_STRING, HONEY_STRING))
@@ -48,23 +26,28 @@ int honey_shader_new(lua_State* L)
 
     const char* vertex_shader_source = lua_tostring(L, 1);
     const char* fragment_shader_source = lua_tostring(L, 2);
-    
+
+    int success;
     char error[1024];
 
-    int vertex_shader, fragment_shader;
-    
-    if (!compile_shader(&vertex_shader,
-                        vertex_shader_source,
-                        GL_VERTEX_SHADER,
-                        error, 1024)) {
+    int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1,
+                   &vertex_shader_source, NULL);
+    glCompileShader(vertex_shader);
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertex_shader, 1024, NULL, error);
         lua_pushstring(L, error);
         lua_error(L);
     }
 
-    if (!compile_shader(&fragment_shader,
-                        fragment_shader_source,
-                        GL_FRAGMENT_SHADER,
-                        error, 1024)) {
+    int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1,
+                   &fragment_shader_source, NULL);
+    glCompileShader(fragment_shader);
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragment_shader, 1024, NULL, error);
         lua_pushstring(L, error);
         lua_error(L);
     }
@@ -74,7 +57,6 @@ int honey_shader_new(lua_State* L)
     glAttachShader(shader, fragment_shader);
     glLinkProgram(shader);
 
-    int success;
     glGetShaderiv(shader, GL_LINK_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(shader, 1024, NULL, error);

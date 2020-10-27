@@ -79,6 +79,9 @@ bool honey_setup(lua_State** L)
     honey_setup_mesh(*L);
     lua_setfield(*L, -2, "mesh");
 
+    honey_setup_primitives(*L);
+    lua_setfield(*L, -2, "primitives");
+
     lua_pushcfunction(*L, honey_exit);
     lua_setfield(*L, -2, "exit");
 
@@ -139,6 +142,9 @@ bool honey_run(lua_State* L, honey_options opts) {
             }
         }
 
+        glClearColor(0,0,0,1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
         if (draw_callback != LUA_NOREF) {
             lua_rawgeti(L, LUA_REGISTRYINDEX, draw_callback);
             int result = honey_lua_pcall(L, 0, 0);
@@ -148,6 +154,8 @@ bool honey_run(lua_State* L, honey_options opts) {
                 glfwSetWindowShouldClose(window, true);
             }
         }
+
+        glfwSwapBuffers(window);
     }
 
     lua_close(L);

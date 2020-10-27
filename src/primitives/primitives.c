@@ -1,5 +1,31 @@
 #include "primitives.h"
 
+static int honey_mesh_lua_plane(lua_State* L)
+{
+    float width, height;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_NUMBER, &width,
+                              HONEY_NUMBER, &height);
+
+    honey_mesh* mesh = lua_newuserdata(L, sizeof(honey_mesh));
+    if (honey_mesh_new_textured_plane(mesh, width, height) != HONEY_OK) {
+        lua_pushstring(L, "error encountered while building plane");
+        lua_error(L);
+    }
+    return 1;
+}
+
+void honey_setup_primitives(lua_State* L)
+{
+    honey_lua_element primitive_elements[] = {
+        { "plane", HONEY_FUNCTION, { .function = honey_mesh_lua_plane } },
+    };
+
+    honey_lua_create_table(L, primitive_elements, 1);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 honey_result honey_mesh_new_textured_plane(honey_mesh* mesh,
                                            float width,
                                            float height) {
