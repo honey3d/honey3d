@@ -1,5 +1,18 @@
 #include "mesh.h"
 
+void honey_setup_mesh(lua_State* L)
+{
+    honey_lua_element mesh_elements[] = {
+        { "new", HONEY_FUNCTION, { .function = honey_mesh_new } },
+        { "draw", HONEY_FUNCTION, { .function = honey_mesh_draw } },
+        { "delete", HONEY_FUNCTION, { .function = honey_mesh_delete } },
+    };
+
+    honey_lua_create_table(L, mesh_elements, 3);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 int honey_mesh_new(lua_State* L)
 {
     float* vertices;
@@ -58,6 +71,9 @@ int honey_mesh_new(lua_State* L)
     }
 
     glBindVertexArray(0);
+
+    free(attribute_sizes);
+    
     return 1;
 }
 

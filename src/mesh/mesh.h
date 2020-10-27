@@ -16,6 +16,9 @@ typedef struct {
     unsigned int vertex_array, vertex_buffer, element_buffer;
 } honey_mesh;
 
+/** @brief Push the mesh bindings to the lua stack. */
+void honey_setup_mesh();
+
 /** @brief Create a new mesh from vertex and index arrays.
  *
  * This function copies the data, so you can safely permit vertices and
