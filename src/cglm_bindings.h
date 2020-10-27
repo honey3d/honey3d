@@ -60,42 +60,101 @@ int honey_cglm_array_copy(lua_State* L);
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
-/** @brief Dot product of a and b.
+/** @brief Compute the dot product of two vectors.
  *
  * @param[in] a Vector a.
  * @param[in] b Vector b.
  *
- * @returns The result of dot(a, b)
+ * @returns dot(a,b).
  */
 int honey_cglm_vec3_dot(lua_State* L);
 
-/** @brief Cross product of a and b.
- *
- * @param[in] a Vector a.
- * @param[in] b Vector b.
- *
- * @returns vec3 of cross(a, b).
- */
-int honey_cglm_vec3_cross(lua_State* L);
-
 /** @brief Compute the square of the norm of a vector.
  *
- * This function is useful if you want norm*norm
- * because it avoids the overhead of two sqrt calls.
+ * Use this if you are tempted to compute norm*norm;
+ * it avoids the two calls to sqrt.
  *
- * @param a Vector a.
+ * @param[in] v The vector to compute norm^2 for.
  *
- * @returns The square of norm(a).
+ * @returns norm(v)^2.
  */
-int honey_cglm_vec3_square_norm(lua_State* L);
+int honey_cglm_vec3_norm2(lua_State* L);
 
-/** @brief Compute the L2 norm of a vector.
+/** @brief Compute the norm of a vector.
  *
- * @param a Vector a.
+ * @param[in] v The vector.
  *
- * @returns The norm(a).
+ * @returns norm(v).
  */
 int honey_cglm_vec3_norm(lua_State* L);
+
+/** @brief Add two vectors together.
+ *
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ * @param[out] dest vec3 to fill with a + b.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec3_add(lua_State* L);
+
+/** @brief Add a scalar to a vector.
+ *
+ * @param[in] a The scalar.
+ * @param[in] v The vector.
+ * @param[out] dest vec3 to fill with a + v
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec3_adds(lua_State* L);
+
+/** @param Component-wise multiply two vectors together.
+ *
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ * @param[out] dest vec3 to fill with [ a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w ]
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec3_mul(lua_State* L);
+
+/** @brief Multiply a vector by a scalar.
+ *
+ * @param[in] a The scalar.
+ * @param[in] v The vector.
+ * @param[out] dest vec3 to fill with a*v.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec3_muls(lua_State* L);
+
+/** @brief Normalize a vector.
+ *
+ * @param[in,out] v The vector.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec3_normalize(lua_State* L);
+
+/** @brief Compute the distance between two vectors.
+ *
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ *
+ * @returns norm(a-b).
+ */
+int honey_cglm_vec3_distance(lua_State* L);
+
+/** @brief Linearly interpolate between two values.
+ *
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ * @param[in] s A scalar.
+ * @param[out] dest vec3 to fill with a + s*(b-s).
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec3_lerp(lua_State* L);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -199,6 +258,83 @@ int honey_cglm_vec4_distance(lua_State* L);
  * @returns Nothing.
  */
 int honey_cglm_vec4_lerp(lua_State* L);
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * cglm mat3 functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+/** @brief Set a matrix to be the identity matrix.
+ *
+ * @param[out] matrix The matrix to set to the identity.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_mat3_identity(lua_State* L);
+
+/** @brief Multiply two mat3s together.
+ *
+ * @param[in] A The first matrix.
+ * @param[in] B The second matrix.
+ * @param[out] dest mat3 to fill with A*B.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_mat3_mul(lua_State* L);
+
+/** @brief Multiply a matrix by a scalar.
+ *
+ * @param[in] a The scalar.
+ * @param[in,out] M The matrix.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_mat3_muls(lua_State* L);
+
+/** @brief Multiply a matrix by a column vector.
+ *
+ * @param[in] M The matrix.
+ * @param[in] v The column vector.
+ * @param[out] dest Matrix to fill with M*v.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_mat3_mulv(lua_State* L);
+
+/** @brief Transpose a matrix.
+ *
+ * @param[in,out] M The matrix to transpose.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_mat3_trans(lua_State* L);
+
+/** @brief Get the determinant of a matrix.
+ *
+ * @param[in] M The matrix.
+ *
+ * @returns det(M).
+ */
+int honey_cglm_mat3_det(lua_State* L);
+
+/** @brief Get the trace of a matrix.
+ *
+ * @param[in] M The matrix.
+ *
+ * @returns trace(M).
+ */
+int honey_cglm_mat3_trace(lua_State* L);
+
+/** @brief Get the inverse of a matrix.
+ *
+ * @param[in] M The matrix to invert.
+ * @param[out] dest Matrix to fill with inv(M).
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_mat3_inv(lua_State* L);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
