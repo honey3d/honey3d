@@ -22,6 +22,7 @@
 #include <GLFW/glfw3.h>
 
 // c opengl mathematics function
+#define CGLM_ALL_UNALIGNED
 #include <cglm/cglm.h>
 #include <cglm/call.h>
 

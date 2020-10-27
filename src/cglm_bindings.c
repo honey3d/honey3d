@@ -236,80 +236,62 @@ int honey_cglm_vec4_norm(lua_State* L)
 
 int honey_cglm_vec4_add(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA, HONEY_USERDATA))
-        lua_error(L);
-
-    float* a = lua_touserdata(L, 1);
-    float* b = lua_touserdata(L, 2);
-
-    float* dest = lua_newuserdata(L, 4*sizeof(float));
-
+    float* a, *b, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_USERDATA, &a,
+                              HONEY_USERDATA, &b,
+                              HONEY_USERDATA, &dest);
     glm_vec4_add(a, b, dest);
-
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_vec4_adds(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_NUMBER, HONEY_USERDATA))
-        lua_error(L);
-
-    float a = lua_tonumber(L, 1);
-    float* v = lua_touserdata(L, 2);
-
-    float* dest = lua_newuserdata(L, 4*sizeof(float));
-
+    float a, *v, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_NUMBER, &a,
+                              HONEY_USERDATA, &v,
+                              HONEY_USERDATA, &dest);
     glm_vec4_adds(v, a, dest);
-
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_vec4_mul(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA, HONEY_USERDATA))
-        lua_error(L);
-
-    float* a = lua_touserdata(L, 1);
-    float* b = lua_touserdata(L, 2);
-
-    float* dest = lua_newuserdata(L, 4*sizeof(float));
-
+    float *a, *b, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_USERDATA, &a,
+                              HONEY_USERDATA, &b,
+                              HONEY_USERDATA, &dest);
     glm_vec4_mul(a, b, dest);
-
-    return 1;
+    return 0;
 }    
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_vec4_muls(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_NUMBER, HONEY_USERDATA))
-        lua_error(L);
-
-    float a = lua_tonumber(L, 1);
-    float* v = lua_touserdata(L, 2);
-
-    float* dest = lua_newuserdata(L, 4*sizeof(float));
-
+    float a, *v, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_NUMBER, &a,
+                              HONEY_USERDATA, &v,
+                              HONEY_USERDATA, &dest);
     glm_vec4_scale(v, a, dest);
-
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_vec4_normalize(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_USERDATA))
-        lua_error(L);
+    float* a;
+    honey_lua_parse_arguments(L, 1, HONEY_USERDATA, &a);
 
-    float* v = lua_touserdata(L, 1);
-
-    glm_vec4_normalize(v);
+    glm_vec4_normalize(a);
 
     return 0;
 }    
@@ -318,11 +300,10 @@ int honey_cglm_vec4_normalize(lua_State* L)
 
 int honey_cglm_vec4_distance(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA, HONEY_USERDATA))
-        lua_error(L);
-
-    float* a = lua_touserdata(L, 1);
-    float* b = lua_touserdata(L, 2);
+    float* a, *b;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_USERDATA, &a,
+                              HONEY_USERDATA, &b);
 
     float distance = glm_vec4_distance(a, b);
     lua_pushnumber(L, distance);
@@ -334,18 +315,15 @@ int honey_cglm_vec4_distance(lua_State* L)
 
 int honey_cglm_vec4_lerp(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 3, HONEY_USERDATA, HONEY_USERDATA, HONEY_NUMBER))
-        lua_error(L);
-
-    float* a = lua_touserdata(L, 1);
-    float* b = lua_touserdata(L, 2);
-    float s = lua_tonumber(L, 3);
-
-    float* dest = lua_newuserdata(L, 4*sizeof(float));
-
+    float* a, *b, s, *dest;
+    honey_lua_parse_arguments(L, 4,
+                              HONEY_USERDATA, &a,
+                              HONEY_USERDATA, &b,
+                              HONEY_NUMBER, &s,
+                              HONEY_USERDATA, &dest);
     glm_vec4_lerp(a, b, s, dest);
 
-    return 1;
+    return 0;
 }    
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -369,64 +347,52 @@ int honey_cglm_mat4_identity(lua_State* L)
 
 int honey_cglm_mat4_pick3(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_USERDATA))
-        lua_error(L);
-
-    float* matrix = lua_touserdata(L, 1);
-
-    float* dest = lua_newuserdata(L, 9*sizeof(float));
+    float* matrix, *dest;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_USERDATA, &matrix,
+                              HONEY_USERDATA, &dest);
     glm_mat4_pick3(matrix, dest);
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_mat4_mul(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA))
-        lua_error(L);
-
-    float* A = lua_touserdata(L, 1);
-    float* B = lua_touserdata(L, 2);
-
-    float* dest = lua_newuserdata(L, 16*sizeof(float));
-
+    float* A, *B, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_USERDATA, &A,
+                              HONEY_USERDATA, &B,
+                              HONEY_USERDATA, &dest);
     glm_mat4_mul(A, B, dest);
-
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_mat4_muls(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_NUMBER, HONEY_USERDATA))
-        lua_error(L);
-
-    float a = lua_tonumber(L, 1);
-    float* M = lua_touserdata(L, 2);
-
-    float* dest = lua_newuserdata(L, 16*sizeof(float));
+    float a;
+    float* M;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_NUMBER, &a,
+                              HONEY_USERDATA, &M);
     glm_mat4_scale(M, a);
 
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_mat4_mulv(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_USERDATA))
-        lua_error(L);
-
-    float* M = lua_touserdata(L, 1);
-    float* v = lua_touserdata(L, 2);
-
-    float* dest = lua_newuserdata(L, 4*sizeof(float));
-
+    float* M, *v, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_USERDATA, &M,
+                              HONEY_USERDATA, &v,
+                              HONEY_USERDATA, &dest);
     glm_mat4_mulv(M, v, dest);
-
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -477,32 +443,24 @@ int honey_cglm_mat4_trace(lua_State* L)
 
 int honey_cglm_mat4_inv(lua_State* L)
 {
-        if (!honey_lua_validate_types(L, 1, HONEY_USERDATA))
-        lua_error(L);
-
-    float* M = lua_touserdata(L, 1);
-
-    float* dest = lua_newuserdata(L, 16*sizeof(float));
-
+    float* M, *dest;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_USERDATA, &M,
+                              HONEY_USERDATA, &dest);
     glm_mat4_inv(M, dest);
-
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cglm_mat4_inv_fast(lua_State* L)
 {
-        if (!honey_lua_validate_types(L, 1, HONEY_USERDATA))
-        lua_error(L);
-
-    float* M = lua_touserdata(L, 1);
-
-    float* dest = lua_newuserdata(L, 16*sizeof(float));
-
+    float* M, *dest;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_USERDATA, &M,
+                              HONEY_USERDATA, &dest);
     glm_mat4_inv_fast(M, dest);
-
-    return 1;
+    return 0;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

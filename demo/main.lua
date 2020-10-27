@@ -11,21 +11,35 @@ layout(location = 0) in vec3 position;
 
 void main()
 {
-  gl_Position.xyz = position;
+  gl_Position.xyz = position - vec3(1,1,0);
   gl_Position.w = 1.0;
 } ]]
 local fragment_shader = [[
 #version 330 core
+uniform vec4 base_color;
 
 out vec4 color;
-void main() { color = vec4(1,0,0,1); } ]]
+void main() { color = base_color; } ]]
 
 local shader = honey.shader.new(vertex_shader, fragment_shader)
-local plane = honey.primitives.plane(1,1)
+local plane = honey.primitives.plane(2,2)
+
+local color1 = honey.cglm.new_array_zero(4)
+honey.cglm.set_value(color1, 3, 1)
+local color2 = honey.cglm.copy_array(color1, 4)
+honey.cglm.set_value(color1, 0, 1)
+honey.cglm.set_value(color2, 2, 1)
+
+local color = honey.cglm.new_array_zero(4)
+
+local total_time = 0
 
 function honey.update(dt)
+    total_time = total_time + dt
+    honey.cglm.vec4.lerp(color1, color2, 0.5*(math.sin(math.pi*total_time)+1), color)
 end
 
 function honey.draw()
+    honey.shader.set_vec4(shader, "base_color", color)
     honey.mesh.draw(plane, shader)
 end

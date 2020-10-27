@@ -136,8 +136,9 @@ int honey_cglm_vec4_norm(lua_State* L);
  *
  * @param[in] a The first vector.
  * @param[in] b The second vector.
+ * @param[out] dest vec4 to fill with a + b.
  *
- * @returns a + b
+ * @returns Nothing.
  */
 int honey_cglm_vec4_add(lua_State* L);
 
@@ -145,32 +146,35 @@ int honey_cglm_vec4_add(lua_State* L);
  *
  * @param[in] a The scalar.
  * @param[in] v The vector.
+ * @param[out] dest vec4 to fill with a + v
  *
- * @returns a + v.
+ * @returns Nothing.
  */
 int honey_cglm_vec4_adds(lua_State* L);
 
 /** @param Component-wise multiply two vectors together.
  *
- * @param a The first vector.
- * @param b The second vector.
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ * @param[out] dest vec4 to fill with [ a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w ]
  *
- * @returns [ a.x*b.x, a.y*b.y, a.z*b.z, a.w*b.w ]
+ * @returns Nothing.
  */
 int honey_cglm_vec4_mul(lua_State* L);
 
 /** @brief Multiply a vector by a scalar.
  *
- * @param a The scalar.
- * @param v The vector.
+ * @param[in] a The scalar.
+ * @param[in] v The vector.
+ * @param[out] dest vec4 to fill with a*v.
  *
- * @returns a*v.
+ * @returns Nothing.
  */
 int honey_cglm_vec4_muls(lua_State* L);
 
 /** @brief Normalize a vector.
  *
- * @param[inout] v The vector.
+ * @param[in,out] v The vector.
  *
  * @returns Nothing.
  */
@@ -187,11 +191,12 @@ int honey_cglm_vec4_distance(lua_State* L);
 
 /** @brief Linearly interpolate between two values.
  *
- * @param a The first vector.
- * @param b The second vector.
- * @param s A scalar.
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ * @param[in] s A scalar.
+ * @param[out] dest vec4 to fill with a + s*(b-s).
  *
- * @returns a + s*(b-s)
+ * @returns Nothing.
  */
 int honey_cglm_vec4_lerp(lua_State* L);
 
@@ -204,7 +209,7 @@ int honey_cglm_vec4_lerp(lua_State* L);
 
 /** @brief Set a matrix to be the identity matrix.
  *
- * @param matrix The matrix to set to the identity.
+ * @param[out] matrix The matrix to set to the identity.
  *
  * @returns Nothing.
  */
@@ -212,27 +217,29 @@ int honey_cglm_mat4_identity(lua_State* L);
 
 /** @brief Get the upper left of a matrix as a mat3.
  *
- * @param matrix The matrix to extract.
+ * @param[in] matrix The matrix to extract.
+ * @param[out] dest The 3x3 matrix to fill.
  *
- * @returns A new matrix containing the upper left 3x3 section of matrix.
+ * @returns Nothing.
  */
 int honey_cglm_mat4_pick3(lua_State* L);
 
 /** @brief Multiply two mat4s together.
  *
- * @param A The first matrix.
- * @param B The second matrix.
+ * @param[in] A The first matrix.
+ * @param[in] B The second matrix.
+ * @param[out] dest mat4 to fill with A*B.
  *
- * @returns A*B.
+ * @returns Nothing.
  */
 int honey_cglm_mat4_mul(lua_State* L);
 
 /** @brief Multiply a matrix by a scalar.
  *
  * @param[in] a The scalar.
- * @param[in] M The matrix.
+ * @param[in,out] M The matrix.
  *
- * @returns Matrix containing a*M.
+ * @returns Nothing.
  */
 int honey_cglm_mat4_muls(lua_State* L);
 
@@ -240,14 +247,15 @@ int honey_cglm_mat4_muls(lua_State* L);
  *
  * @param[in] M The matrix.
  * @param[in] v The column vector.
+ * @param[out] dest Matrix to fill with M*v.
  *
- * @returns Matrix containing M*v.
+ * @returns Nothing.
  */
 int honey_cglm_mat4_mulv(lua_State* L);
 
 /** @brief Transpose a matrix.
  *
- * @param[inout] M The matrix to transpose.
+ * @param[in,out] M The matrix to transpose.
  *
  * @returns Nothing.
  */
@@ -275,8 +283,9 @@ int honey_cglm_mat4_trace(lua_State* L);
  * for a faster but less precise version.
  *
  * @param[in] M The matrix to invert.
+ * @param[out] dest Matrix to fill with inv(M).
  *
- * @returns inv(M).
+ * @returns Nothing.
  */
 int honey_cglm_mat4_inv(lua_State* L);
 
@@ -286,8 +295,9 @@ int honey_cglm_mat4_inv(lua_State* L);
  * for a slower but more precise version.
  *
  * @param[in] M The matrix to invert.
+ * @param[out] dest Matrix to fill with inv(M).
  *
- * @returns inv(M).
+ * @returns Nothing.
  */
 int honey_cglm_mat4_inv_fast(lua_State* L);
 
@@ -302,7 +312,7 @@ int honey_cglm_mat4_inv_fast(lua_State* L);
  *
  * This function modifies the matrix in place.
  *
- * @param[inout] matrix The mat4 to translate.
+ * @param[in,out] matrix The mat4 to translate.
  * @param[in] vector The vec3 to translate by.
  *
  * @returns Nothing.
@@ -311,7 +321,7 @@ int honey_cglm_translate(lua_State* L);
 
 /** @brief Scale a matrix by a vector.
  *
- * @param[inout] matrix The mat4 to scale.
+ * @param[in,out] matrix The mat4 to scale.
  * @param[in] vector The vec3 to scale by.
  *
  * @returns Nothing.
@@ -320,7 +330,7 @@ int honey_cglm_scale(lua_State* L);
 
 /** @brief Rotate a matrix about a given axis.
  *
- * @param[inout] matrix The mat4 to rotate.
+ * @param[in,out] matrix The mat4 to rotate.
  * @param[in] center The vec3 center of rotation.
  * @param[in] axis The vec3 axis of rotation.
  * @param[in] angle The angle to rotate by.
