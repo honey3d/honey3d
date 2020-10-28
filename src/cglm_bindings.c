@@ -8,6 +8,7 @@ void honey_setup_cglm(lua_State* L)
         { "norm",      HONEY_FUNCTION, { .function = honey_cglm_vec3_norm } },
         { "add",       HONEY_FUNCTION, { .function = honey_cglm_vec3_add } },
         { "adds",      HONEY_FUNCTION, { .function = honey_cglm_vec3_adds } },
+        { "sub",       HONEY_FUNCTION, { .function = honey_cglm_vec3_sub } },
         { "mul",       HONEY_FUNCTION, { .function = honey_cglm_vec3_mul } },
         { "muls",      HONEY_FUNCTION, { .function = honey_cglm_vec3_muls } },
         { "normalize", HONEY_FUNCTION, { .function = honey_cglm_vec3_normalize } },
@@ -21,6 +22,7 @@ void honey_setup_cglm(lua_State* L)
         { "norm",      HONEY_FUNCTION, { .function = honey_cglm_vec4_norm } },
         { "add",       HONEY_FUNCTION, { .function = honey_cglm_vec4_add } },
         { "adds",      HONEY_FUNCTION, { .function = honey_cglm_vec4_adds } },
+        { "sub",       HONEY_FUNCTION, { .function = honey_cglm_vec4_sub } },
         { "mul",       HONEY_FUNCTION, { .function = honey_cglm_vec4_mul } },
         { "muls",      HONEY_FUNCTION, { .function = honey_cglm_vec4_muls } },
         { "normalize", HONEY_FUNCTION, { .function = honey_cglm_vec4_normalize } },
@@ -69,15 +71,15 @@ void honey_setup_cglm(lua_State* L)
         { "set_value",      HONEY_FUNCTION, { .function = honey_cglm_array_set_value } },
         { "get_value",      HONEY_FUNCTION, { .function = honey_cglm_array_get_value } },
         { "copy_array",     HONEY_FUNCTION, { .function = honey_cglm_array_copy } },
-        { "vec3",           HONEY_TABLE, { .table = { 10, vec3_elements } } },
-        { "vec4",           HONEY_TABLE, { .table = { 10, vec4_elements } } },
+        { "vec3",           HONEY_TABLE, { .table = { 11, vec3_elements } } },
+        { "vec4",           HONEY_TABLE, { .table = { 11, vec4_elements } } },
         { "mat3",           HONEY_TABLE, { .table = {  8, mat3_elements } } },
         { "mat4",           HONEY_TABLE, { .table = { 10, mat4_elements } } },
         { "affine",         HONEY_TABLE, { .table = { 3, affine_elements } } },
         { "camera",         HONEY_TABLE, { .table = { 3, camera_elements } } },
     };
 
-    honey_lua_create_table(L, cglm_elements, 9);
+    honey_lua_create_table(L, cglm_elements, 10);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -197,6 +199,19 @@ int honey_cglm_vec3_add(lua_State* L)
                               HONEY_USERDATA, &b,
                               HONEY_USERDATA, &dest);
     glm_vec3_add(a, b, dest);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cglm_vec3_sub(lua_State* L)
+{
+    float* a, *b, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_USERDATA, &a,
+                              HONEY_USERDATA, &b,
+                              HONEY_USERDATA, &dest);
+    glm_vec3_sub(a, b, dest);
     return 0;
 }
 
@@ -354,6 +369,19 @@ int honey_cglm_vec4_adds(lua_State* L)
                               HONEY_USERDATA, &v,
                               HONEY_USERDATA, &dest);
     glm_vec4_adds(v, a, dest);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cglm_vec4_sub(lua_State* L)
+{
+    float* a, *b, *dest;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_USERDATA, &a,
+                              HONEY_USERDATA, &b,
+                              HONEY_USERDATA, &dest);
+    glm_vec4_sub(a, b, dest);
     return 0;
 }
 

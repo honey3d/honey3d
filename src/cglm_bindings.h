@@ -102,6 +102,16 @@ int honey_cglm_vec3_norm(lua_State* L);
  */
 int honey_cglm_vec3_add(lua_State* L);
 
+/** @brief Subtract one vector from another.
+ *
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ * @param[out] dest Vector to fill with a - b
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec3_sub(lua_State* L);
+
 /** @brief Add a scalar to a vector.
  *
  * @param[in] a The scalar.
@@ -214,6 +224,16 @@ int honey_cglm_vec4_add(lua_State* L);
  * @returns Nothing.
  */
 int honey_cglm_vec4_adds(lua_State* L);
+
+/** @brief Subtract one vector from another.
+ *
+ * @param[in] a The first vector.
+ * @param[in] b The second vector.
+ * @param[out] dest vec4 to fill with a - b.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_vec4_sub(lua_State* L);
 
 /** @param Component-wise multiply two vectors together.
  *

@@ -15,13 +15,30 @@ static int honey_mesh_lua_plane(lua_State* L)
     return 1;
 }
 
+static int honey_mesh_lua_cube(lua_State* L)
+{
+    float width, height, depth;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_NUMBER, &width,
+                              HONEY_NUMBER, &height,
+                              HONEY_NUMBER, &depth);
+
+    honey_mesh* mesh = lua_newuserdata(L, sizeof(honey_mesh));
+    if (honey_mesh_new_textured_cube(mesh, width, height, depth) != HONEY_OK) {
+        lua_pushstring(L, "error encountered while building plane");
+        lua_error(L);
+    }
+    return 1;
+}
+
 void honey_setup_primitives(lua_State* L)
 {
     honey_lua_element primitive_elements[] = {
         { "plane", HONEY_FUNCTION, { .function = honey_mesh_lua_plane } },
+        { "cube", HONEY_FUNCTION, { .function = honey_mesh_lua_cube } },
     };
 
-    honey_lua_create_table(L, primitive_elements, 1);
+    honey_lua_create_table(L, primitive_elements, 2);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

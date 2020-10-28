@@ -2,9 +2,9 @@ local Vec3 = {}
 
 Vec3.tostring = function(vec3)
     local str = '['..
-        tostring(honey.cglm.get_value(vec4, 0))..','..
-        tostring(honey.cglm.get_value(vec4, 1))..','..
-        tostring(honey.cglm.get_value(vec4, 2))..']'
+        tostring(honey.cglm.get_value(vec3, 0))..','..
+        tostring(honey.cglm.get_value(vec3, 1))..','..
+        tostring(honey.cglm.get_value(vec3, 2))..']'
     return str
 end
 
@@ -19,11 +19,16 @@ Vec3.new = function(tbl)
     
     local vec3 = honey.cglm.new_array_zero(3)
     for i = 0,2 do
-        honey.cglm.set_value(data, i, tbl[i+1])
+        honey.cglm.set_value(vec3, i, tbl[i+1])
     end
 
     return vec3
 end
+
+Vec3.ZERO   = Vec3.new()
+Vec3.X_UNIT = Vec3.new{1, 0, 0}
+Vec3.Y_UNIT = Vec3.new{0, 1, 0}
+Vec3.Z_UNIT = Vec3.new{0, 0, 1}
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
