@@ -22,11 +22,137 @@ static int honey_mesh_lua_delete(lua_State* L)
 void honey_setup_mesh(lua_State* L)
 {
     honey_lua_element mesh_elements[] = {
+        { "load", HONEY_FUNCTION, { .function = honey_mesh_load } },
         { "draw", HONEY_FUNCTION, { .function = honey_mesh_lua_draw } },
         { "delete", HONEY_FUNCTION, { .function = honey_mesh_lua_delete } },
     };
 
     honey_lua_create_table(L, mesh_elements, 2);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static honey_mesh assimp_to_honey_mesh(struct aiMesh* mesh,
+                                       struct aiScene* scene)
+{
+  unsigned int vertex_step = 6;
+  bool mesh_has_uvs = false;
+  unsigned int n_vertices = mesh->mNumVertices;
+  
+  if (mesh->mTextureCoords[0]) {
+    mesh_has_uvs = true;
+    vertex_step = 8;
+  }
+
+  float* vertices = malloc(sizeof(float) * vertex_step * n_vertices);
+  for (int i=0; i<n_vertices; i++) {
+    int j = i*vertex_step;
+    /* positions */
+    vertices[j+0] = mesh->mVertices[i].x;
+    vertices[j+1] = mesh->mVertices[i].y;
+    vertices[j+2] = mesh->mVertices[i].z;
+
+    /* normals */
+    vertices[j+3] = mesh->mNormals[i].x;
+    vertices[j+4] = mesh->mNormals[i].y;
+    vertices[j+5] = mesh->mNormals[i].z;
+
+    /* uvs? */
+    if (mesh_has_uvs) {
+      vertices[j+6] = mesh->mTextureCoords[0][i].x;
+      vertices[j+7] = mesh->mTextureCoords[0][i].y;
+    }
+  }
+
+  unsigned int n_indices = mesh->mNumFaces*3;
+  unsigned int* indices = malloc(sizeof(unsigned int) * n_indices);
+  for (int i=0; i<mesh->mNumFaces; i++) {
+    int j = 3*i;
+    struct aiFace face = mesh->mFaces[i];
+    indices[j+0] = face.mIndices[0];
+    indices[j+1] = face.mIndices[1];
+    indices[j+2] = face.mIndices[2];
+  }
+
+  honey_mesh result;
+
+  if (mesh_has_uvs) {
+    unsigned int n_attributes = 3;
+    unsigned int attribute_sizes[] = { 3, 3, 2 };
+    honey_mesh_new(&result,
+                   vertices, n_vertices,
+                   n_attributes, attribute_sizes,
+                   indices, n_indices);
+  }
+  else {
+    unsigned int n_attributes = 2;
+    unsigned int attribute_sizes[] = { 3, 3 };
+    honey_mesh_new(&result,
+                   vertices, n_vertices,
+                   n_attributes, attribute_sizes,
+                   indices, n_indices);
+  }
+
+  free(vertices);
+  free(indices);
+
+  return result;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void process_nodes_recursively(lua_State* L,
+                                      struct aiScene* scene,
+                                      struct aiNode* node,
+                                      int* n_meshes)
+{
+    for (int i=0; i<node->mNumMeshes; i++) {
+        honey_mesh* mesh = lua_newuserdata(L, sizeof(honey_mesh));
+        struct aiMesh* assimp_mesh = scene->mMeshes[node->mMeshes[i]];
+        *mesh = assimp_to_honey_mesh(assimp_mesh, scene);
+        lua_rawseti(L, -2, *n_meshes);
+        *n_meshes++;
+    }
+
+    for (int i=0; i<node->mNumChildren; i++) {
+        process_nodes_recursively(L, scene, node->mChildren[i], n_meshes);
+    }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_mesh_load(lua_State* L)
+{
+    char* filename;
+    honey_lua_parse_arguments(L, 1, HONEY_STRING, &filename);
+
+    int n_meshes = 1;
+
+    struct aiScene* scene = aiImportFile(filename,
+                                         aiProcess_Triangulate |
+                                         aiProcess_FlipUVs);
+    if (scene == NULL) {
+        char* error;
+        honey_format_string(&error, "could not open file '%s'", filename);
+        lua_pushstring(L, error);
+        free(error);
+        lua_error(L);
+    }
+
+    if (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+        scene->mRootNode == NULL) {
+        char* error;
+        honey_format_string(&error, "could not read mesh(es) in '%s'", filename);
+        lua_pushstring(L, error);
+        free(error);
+        lua_error(L);
+    }
+
+    lua_createtable(L, 0, 0);
+
+    process_nodes_recursively(L, scene, scene->mRootNode, n_meshes);
+
+    return 1;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

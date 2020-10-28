@@ -97,16 +97,9 @@ bool honey_run(lua_State* L, honey_options opts) {
     honey_window_information* info = lua_touserdata(L, -1);
     honey_window window = info->window;
 
-    char* script;
-    honey_result res = honey_format_string(&script,
-                                           "%s/main.lua",
-                                           opts.script_directory);
-    if (res != HONEY_OK) {
-        fprintf(stderr, "[honey] FATAL: could not allocate space for script filename!");
-        return false;
-    }
+    chdir(opts.script_directory);
     
-    if (luaL_loadfile(L, script) == 0) {
+    if (luaL_loadfile(L, "main.lua") == 0) {
         if (!honey_lua_pcall(L, 0, 1) == 0) {
             const char* error = lua_tostring(L, -1);
             fprintf(stderr, "[honey] ERROR: %s\n", error);
@@ -116,8 +109,7 @@ bool honey_run(lua_State* L, honey_options opts) {
     else {
         
         fprintf(stderr,
-                "[honey] ERROR: failed to load %s: %s!\n",
-                script,
+                "[honey] ERROR: failed to load main.lua: %s!\n",
                 lua_tostring(L, -1));
         return false;
     }

@@ -508,4 +508,16 @@ int honey_cglm_perspective(lua_State* L);
  */
 int honey_cglm_orthographic(lua_State* L);
 
+/** @brief Compute the view matrix.
+ *
+ * @param[in] position The camera's vec3 position.
+ * @param[in] direction The vec3 direction the camera is facing.
+ * @param[in] up The camera's vec3 up vector.
+ * @param[out] dest The view matrix destination.
+ *
+ * @returns Nothing.
+ */
+int honey_cglm_look(lua_State* L);
+
+
 #endif

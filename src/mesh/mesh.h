@@ -16,6 +16,14 @@ typedef struct {
 /** @brief Lua bindings for mesh drawing and deletion functions. */
 void honey_setup_mesh(lua_State* L);
 
+/** @brief Load all meshes from a file.
+ *
+ * @param[in] filename The name of the file to load from.
+ *
+ * @returns A table containing all of the meshes.
+ */
+int honey_mesh_load(lua_State* L);
+
 /** @brief Create a new mesh from vertex and index arrays.
  *
  * Note that this function creates copies of the vertex and index arrays, 

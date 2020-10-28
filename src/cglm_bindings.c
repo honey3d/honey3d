@@ -61,6 +61,7 @@ void honey_setup_cglm(lua_State* L)
     honey_lua_element camera_elements[] = {
         { "perspective",  HONEY_FUNCTION, { .function = honey_cglm_perspective } },
         { "orthographic", HONEY_FUNCTION, { .function = honey_cglm_orthographic } },
+        { "look", HONEY_FUNCTION, { .function = honey_cglm_look } },
     };
     
     honey_lua_element cglm_elements[] = {
@@ -73,7 +74,7 @@ void honey_setup_cglm(lua_State* L)
         { "mat3",           HONEY_TABLE, { .table = {  8, mat3_elements } } },
         { "mat4",           HONEY_TABLE, { .table = { 10, mat4_elements } } },
         { "affine",         HONEY_TABLE, { .table = { 3, affine_elements } } },
-        { "camera",         HONEY_TABLE, { .table = { 2, camera_elements } } },
+        { "camera",         HONEY_TABLE, { .table = { 3, camera_elements } } },
     };
 
     honey_lua_create_table(L, cglm_elements, 9);
@@ -767,5 +768,19 @@ int honey_cglm_orthographic(lua_State* L)
     float* box[] = { a, b };
     
     glm_ortho_aabb(box, matrix);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cglm_look(lua_State* L)
+{
+    float *position, *direction, *up, *dest;
+    honey_lua_parse_arguments(L, 4,
+                              HONEY_USERDATA, &position,
+                              HONEY_USERDATA, &direction,
+                              HONEY_USERDATA, &up,
+                              HONEY_USERDATA, &dest);
+    glm_look(position, direction, up, dest);
     return 0;
 }
