@@ -29,8 +29,11 @@ set(SOURCE_FILES
   src/window/window.c)
   
 add_executable(honey ${SOURCE_FILES})
-
-set(LIBRARIES ${LUA_LIBRARIES} assimp glfw GL glad stb_image dl m)
+if (WIN32)
+  set(LIBRARIES ${LUA_LIBRARIES} assimp glfw3 opengl32 glad stb_image m)
+else()
+  set(LIBRARIES ${LUA_LIBRARIES} assimp glfw GL glad stb_image dl m)
+endif()
 target_link_libraries(honey ${LIBRARIES})
 
 
