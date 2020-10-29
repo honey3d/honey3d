@@ -47,7 +47,7 @@ end
 Matrix.Mat3.prototype.mulv = function(self, v, dest)
    local result
    if dest == nil then
-      result = Matrix.Mat3.new()
+      result = Matrix.Vec3.new()
    else
       result = dest
    end
@@ -218,7 +218,7 @@ end
 Matrix.Mat4.prototype.mulv = function(self, v, dest)
    local result
    if dest == nil then
-      result = Matrix.Mat4.new()
+      result = Matrix.Vec4.new()
    else
       result = dest
    end

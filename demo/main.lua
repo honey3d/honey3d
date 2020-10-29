@@ -27,7 +27,7 @@ out vec4 color;
 void main() { color = base_color; } ]]
 
 local shader = honey.shader.new(vertex_shader, fragment_shader)
-local plane = honey.primitives.cube(10,10,10)
+local plane = honey.mesh.load('Suzanne.obj')[1]
 
 local color1 = Vector.Vec4.new{1,0,0,1}
 local color2 = Vector.Vec4.new{0,0,1,1}
@@ -36,15 +36,16 @@ local color = Vector.Vec4.new()
 local total_time = 0
 
 function honey.update(dt)
-    total_time = total_time + dt
-    color1:lerp(color2, 0.5*(math.sin(math.pi*total_time)+1), color)
+   total_time = total_time + dt
+   color1:lerp(color2, 0.5*(math.sin(math.pi*total_time)+1), color)
+   FPSCamera:update(dt)
 end
 
 function honey.draw()
-    FPSCamera:update()
-    honey.shader.set_mat4(shader, 'model', model.array)
-    honey.shader.set_mat4(shader, 'view', FPSCamera.view.array)
-    honey.shader.set_mat4(shader, 'projection', FPSCamera.projection.array)
-    honey.shader.set_vec4(shader, "base_color", color.array)
-    honey.mesh.draw(plane, shader)
+   
+   honey.shader.set_mat4(shader, 'model', model.array)
+   honey.shader.set_mat4(shader, 'view', FPSCamera.view.array)
+   honey.shader.set_mat4(shader, 'projection', FPSCamera.projection.array)
+   honey.shader.set_vec4(shader, "base_color", color.array)
+   honey.mesh.draw(plane, shader)
 end

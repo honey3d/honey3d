@@ -150,7 +150,7 @@ int honey_mesh_load(lua_State* L)
 
     lua_createtable(L, 0, 0);
 
-    process_nodes_recursively(L, scene, scene->mRootNode, n_meshes);
+    process_nodes_recursively(L, scene, scene->mRootNode, &n_meshes);
 
     return 1;
 }

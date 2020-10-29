@@ -20,7 +20,7 @@ camera.projection = Matrix.Mat4.perspective(math.rad(90),
 					    0.1,
 					    8192)
 
-function camera:update()
+function camera:update(dt)
    local M = Matrix.Mat4.eye()
    M:rotate(Vector.Vec3.ZERO, self.basis.x, math.rad(self.pitch))
    M:rotate(Vector.Vec3.ZERO, Vector.Vec3.Y_UNIT, math.rad(self.yaw))
@@ -42,7 +42,7 @@ function camera:update()
    
    movement:setAt(1, 0)
    movement:normalize()
-   movement:muls(self.movement_speed, movement)
+   movement:muls(self.movement_speed*dt, movement)
    self.position:add(movement, self.position)
 
    Matrix.Mat4.look(self.position, self.basis.z, Vector.Vec3.Y_UNIT, self.view)
