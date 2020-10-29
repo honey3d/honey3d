@@ -1,10 +1,13 @@
-local Vec3, Vec4 = require('Vector')()
+local Vector = require('Vector')
 local Mat3, Mat4 = require('Matrix')()
 local FPSCamera = require('FPSCamera')
 
 local model = Mat4.new()
 honey.cglm.mat4.identity(model)
-honey.cglm.affine.rotate(model, Vec3.ZERO, Vec3.X_UNIT, math.pi/4)
+honey.cglm.affine.rotate(model,
+			 Vector.Vec3.ZERO.array,
+			 Vector.Vec3.X_UNIT.array,
+			 math.pi/4)
 
 honey.input.key.bind(honey.input.key.escape, honey.exit)
 
@@ -31,15 +34,15 @@ void main() { color = base_color; } ]]
 local shader = honey.shader.new(vertex_shader, fragment_shader)
 local plane = honey.primitives.cube(10,10,10)
 
-local color1 = Vec4.new{1,0,0,1}
-local color2 = Vec4.new{0,0,1,1}
-local color = honey.cglm.new_array_zero(4)
+local color1 = Vector.Vec4.new{1,0,0,1}
+local color2 = Vector.Vec4.new{0,0,1,1}
+local color = Vector.Vec4.new()
 
 local total_time = 0
 
 function honey.update(dt)
     total_time = total_time + dt
-    honey.cglm.vec4.lerp(color1, color2, 0.5*(math.sin(math.pi*total_time)+1), color)
+    color1:lerp(color2, 0.5*(math.sin(math.pi*total_time)+1), color)
 end
 
 function honey.draw()
@@ -47,6 +50,6 @@ function honey.draw()
     honey.shader.set_mat4(shader, 'model', model)
     honey.shader.set_mat4(shader, 'view', FPSCamera.view)
     honey.shader.set_mat4(shader, 'projection', FPSCamera.projection)
-    honey.shader.set_vec4(shader, "base_color", color)
+    honey.shader.set_vec4(shader, "base_color", color.array)
     honey.mesh.draw(plane, shader)
 end

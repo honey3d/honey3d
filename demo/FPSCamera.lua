@@ -1,4 +1,4 @@
-local Vec3, Vec4 = require('Vector')()
+local Vector = require('Vector')
 local Mat3, Mat4 = require('Matrix')()
 
 local Basis = function(M)
@@ -18,9 +18,9 @@ local Basis = function(M)
     local z2 = honey.cglm.get_value(m, Mat3.index(3,3))
     
     local b = {}
-    b.x = Vec3.new{x0, x1, x2}
-    b.y = Vec3.new{y0, y1, y2}
-    b.z = Vec3.new{z0, z1, z2}
+    b.x = Vector.Vec3.new{x0, x1, x2}
+    b.y = Vector.Vec3.new{y0, y1, y2}
+    b.z = Vector.Vec3.new{z0, z1, z2}
 
     return b
 end
@@ -34,7 +34,7 @@ camera.sensitivity = 0.1
 
 camera.movement_speed = 1
 
-camera.position = Vec3.new{0,0,-1}
+camera.position = Vector.Vec3.new{0,0,-1}
 
 camera.view = Mat4.new()
 honey.cglm.mat4.identity(camera.view)
@@ -52,22 +52,30 @@ honey.cglm.camera.perspective(
 function camera:update()
     local M = Mat4.new()
     honey.cglm.mat4.identity(M)
-    honey.cglm.affine.rotate(M, Vec3.ZERO, self.basis.x, math.rad(self.pitch))
-    honey.cglm.affine.rotate(M, Vec3.ZERO, Vec3.Y_UNIT, math.rad(self.yaw))
+    honey.cglm.affine.rotate(M, Vector.Vec3.ZERO.array, self.basis.x.array, math.rad(self.pitch))
+    honey.cglm.affine.rotate(M, Vector.Vec3.ZERO.array, Vector.Vec3.Y_UNIT.array, math.rad(self.yaw))
     self.basis = Basis(M)
 
-    movement = Vec3.new()
-    if honey.input.key.is_down(honey.input.key.w) then honey.cglm.vec3.add(movement, self.basis.z, movement) end
-    if honey.input.key.is_down(honey.input.key.a) then honey.cglm.vec3.add(movement, self.basis.x, movement) end
-    if honey.input.key.is_down(honey.input.key.s) then honey.cglm.vec3.sub(movement, self.basis.z, movement) end
-    if honey.input.key.is_down(honey.input.key.d) then honey.cglm.vec3.sub(movement, self.basis.x, movement) end
+    movement = Vector.Vec3.new()
+    if honey.input.key.is_down(honey.input.key.w) then
+       movement:add(self.basis.z, movement)
+    end
+    if honey.input.key.is_down(honey.input.key.a) then
+       movement:add(self.basis.x, movement)
+    end
+    if honey.input.key.is_down(honey.input.key.s) then
+       movement:sub(self.basis.z, movement)
+    end
+    if honey.input.key.is_down(honey.input.key.d) then
+       movement:sub(self.basis.x, movement)
+    end
     
-    honey.cglm.set_value(movement, 1, 0)
-    honey.cglm.vec3.normalize(movement)
-    honey.cglm.vec3.muls(self.movement_speed, movement, movement)
-    honey.cglm.vec3.add(self.position, movement, self.position)
+    movement:setAt(1, 0)
+    movement:normalize()
+    movement:muls(self.movement_speed, movement)
+    self.position:add(movement, self.position)
     
-    honey.cglm.camera.look(self.position, self.basis.z, Vec3.Y_UNIT, self.view)
+    honey.cglm.camera.look(self.position.array, self.basis.z.array, Vector.Vec3.Y_UNIT.array, self.view)
 end
 
 camera.mouse_pos = {}
