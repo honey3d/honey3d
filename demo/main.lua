@@ -1,13 +1,8 @@
 local Vector = require('Vector')
-local Mat3, Mat4 = require('Matrix')()
+local Matrix = require('Matrix')
 local FPSCamera = require('FPSCamera')
 
-local model = Mat4.new()
-honey.cglm.mat4.identity(model)
-honey.cglm.affine.rotate(model,
-			 Vector.Vec3.ZERO.array,
-			 Vector.Vec3.X_UNIT.array,
-			 math.pi/4)
+local model = Matrix.Mat4.eye()
 
 honey.input.key.bind(honey.input.key.escape, honey.exit)
 
@@ -47,9 +42,9 @@ end
 
 function honey.draw()
     FPSCamera:update()
-    honey.shader.set_mat4(shader, 'model', model)
-    honey.shader.set_mat4(shader, 'view', FPSCamera.view)
-    honey.shader.set_mat4(shader, 'projection', FPSCamera.projection)
+    honey.shader.set_mat4(shader, 'model', model.array)
+    honey.shader.set_mat4(shader, 'view', FPSCamera.view.array)
+    honey.shader.set_mat4(shader, 'projection', FPSCamera.projection.array)
     honey.shader.set_vec4(shader, "base_color", color.array)
     honey.mesh.draw(plane, shader)
 end
