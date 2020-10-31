@@ -42,6 +42,13 @@ function camera:update(dt)
    
    movement:setAt(1, 0)
    movement:normalize()
+
+   if honey.input.key.is_down(honey.input.key.left_shift) then
+      movement:add(Vector.Vec3.Y_UNIT, movement)
+   end
+   if honey.input.key.is_down(honey.input.key.left_control) then
+      movement:sub(Vector.Vec3.Y_UNIT, movement)
+   end
    movement:muls(self.movement_speed*dt, movement)
    self.position:add(movement, self.position)
 

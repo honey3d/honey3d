@@ -49,7 +49,7 @@ uniform sampler2D tex;
 out vec4 color;
 
 void main() { 
-  vec2 texture_coords = UV + (0.01 * time * vec2(1,1));
+  vec2 texture_coords = UV + (time * vec2(100,100));
   color = vec4(texture(tex, texture_coords).xyz, 1); 
 } ]]
 
@@ -60,15 +60,21 @@ local color1 = Vector.Vec4.new{1,0,0,1}
 local color2 = Vector.Vec4.new{0,0,1,1}
 local color = Vector.Vec4.new()
 
+local total_frames = 0
 local total_time = 0
 
 function honey.update(dt)
    total_time = total_time + dt
    FPSCamera:update(dt)
+   if total_time > 1 then
+      print('FPS: '..tostring(total_frames/total_time))
+      total_time = 0
+      total_frames = 0
+   end
 end
 
 function honey.draw()
-   
+   total_frames = total_frames + 1
    honey.shader.set_mat4(shader, 'model', model.array)
    honey.shader.set_mat4(shader, 'view', FPSCamera.view.array)
    honey.shader.set_mat4(shader, 'projection', FPSCamera.projection.array)

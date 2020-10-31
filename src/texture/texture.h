@@ -11,17 +11,76 @@
 enum honey_texture_result {
   TEXTURE_OK,
   TEXTURE_FAILED,
+  TEXTURE_CHANNEL_ERROR,
   N_TEXTURE_RESULTS };
 
 typedef struct {
-  unsigned int texture_id;
-  int width;
-  int height;
-  int channels;
+    unsigned int id;
+    enum {
+        GREY,
+        RGB,
+        RGBA,
+        DEPTH
+    } type;
+    int width;
+    int height;
+    int channels;
 } honey_texture;
 
 /** @brief Place the honey.texture bindings as a table on the stack. */
 void honey_setup_texture(lua_State* L);
+
+/** @brief Create a greyscale texture.
+ *
+ * @param[out] texture Pointer to the destination texture.
+ * @param[in] width The width in pixels of the texture to create.
+ * @param[in] height The height in pixels of the texture to create.
+ * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
+ *
+ * @returns HONEY_OK on success, and appropriate error on failure.
+ */
+void honey_texture_new_greyscale(honey_texture* texture,
+                                 int width, int height,
+                                 unsigned char* data);
+
+/** @brief Create an RGB texture.
+ *
+ * @param[out] texture Pointer to the destination texture.
+ * @param[in] width The width in pixels of the texture to create.
+ * @param[in] height The height in pixels of the texture to create.
+ * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
+ *
+ * @returns HONEY_OK on success, and appropriate error on failure.
+ */
+void honey_texture_new_rgb(honey_texture* texture,
+                           int width, int height,
+                           unsigned char* data);
+
+/** @brief Create an RGBA texture.
+ *
+ * @param[out] texture Pointer to the destination texture.
+ * @param[in] width The width in pixels of the texture to create.
+ * @param[in] height The height in pixels of the texture to create.
+ * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
+ *
+ * @returns HONEY_OK on success, and appropriate error on failure.
+ */
+void honey_texture_new_rgba(honey_texture* texture,
+                            int width, int height,
+                            unsigned char* data);
+
+/** @brief Create a depth texture.
+ *
+ * @param[out] texture Pointer to the destination texture.
+ * @param[in] width The width in pixels of the texture to create.
+ * @param[in] height The height in pixels of the texture to create.
+ * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
+ *
+ * @returns HONEY_OK on success, and appropriate error on failure.
+ */
+void honey_texture_new_depth(honey_texture* texture,
+                             int width, int height,
+                             float* data);
 
 /** @brief Load a texture from disk.
  *
@@ -32,8 +91,7 @@ void honey_setup_texture(lua_State* L);
  * @return Success or failure type
  */
 enum honey_texture_result honey_texture_load(honey_texture* texture,
-                                             char* texture_path,
-                                             bool alpha_channel);
+                                             char* texture_path);
 
 /** @brief Load a texture into a texture unit.
  *
@@ -41,5 +99,16 @@ enum honey_texture_result honey_texture_load(honey_texture* texture,
  * @param[in] texture_unit The texture unit to put the texture in
  */
 void honey_texture_use(honey_texture texture, int texture_unit);
+
+/** @brief Create a framebuffer object.
+ *
+ * @param[out] destination Pointer to store the resulting OpenGL handle in.
+ * @param[in] width The width in pixels of the FBO.
+ * @param[in] height The height in pixels of the FBO.
+ *
+ * @returns HONEY_OK on success; appropriate error otherwise.
+ */
+honey_result honey_texture_framebuffer_object_new(unsigned int* destination,
+                                                  int width, int height);
 
 #endif

@@ -97,6 +97,9 @@ bool honey_setup_window(lua_State* L)
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
+    // Enable face culling
+    glEnable(GL_CULL_FACE);
+
     glfwSetWindowSizeCallback(info->window, honey_glfw_window_resize_callback);
     glfwSetWindowFocusCallback(info->window, honey_glfw_window_focus_callback);
     
