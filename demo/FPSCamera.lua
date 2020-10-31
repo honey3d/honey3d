@@ -22,8 +22,8 @@ camera.projection = Matrix.Mat4.perspective(math.rad(90),
 
 function camera:update(dt)
    local M = Matrix.Mat4.eye()
-   M:rotate(Vector.Vec3.ZERO, self.basis.x, math.rad(self.pitch))
    M:rotate(Vector.Vec3.ZERO, Vector.Vec3.Y_UNIT, math.rad(self.yaw))
+   M:rotate(Vector.Vec3.ZERO, Vector.Vec3.X_UNIT, math.rad(self.pitch))
    self.basis = M:basis()
 
    movement = Vector.Vec3.new()

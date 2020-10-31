@@ -1,30 +1,57 @@
 local Vector = require('Vector')
 local Matrix = require('Matrix')
 local FPSCamera = require('FPSCamera')
+FPSCamera.movement_speed = 5
 
 local model = Matrix.Mat4.eye()
+model:rotate(Vector.Vec3.ZERO, Vector.Vec3.Y_UNIT, math.pi)
+model:translate(Vector.Vec3.new{0,0,-2})
+print(model)
 
 honey.input.key.bind(honey.input.key.escape, honey.exit)
+
+local tex = honey.texture.new()
+honey.texture.load(tex, 'checkerboard.png', false)
+honey.texture.use(tex, 0)
 
 local vertex_shader = [[
 #version 330 core
 
 layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 uv;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+out vec3 Position;
+out vec3 Normal;
+out vec2 UV;
+
 void main()
 {
-  gl_Position = projection * view * vec4(position.xyz, 1);
+  gl_Position = projection * view * model * vec4(position.xyz, 1);
+  Position = gl_Position.xyz;
+  Normal = normal;
+  UV = uv;
 } ]]
 local fragment_shader = [[
 #version 330 core
-uniform vec4 base_color;
+
+in vec3 Position;
+in vec3 Normal;
+in vec2 UV;
+
+uniform float time;
+uniform sampler2D tex;
 
 out vec4 color;
-void main() { color = base_color; } ]]
+
+void main() { 
+  vec2 texture_coords = UV + (0.01 * time * vec2(1,1));
+  color = vec4(texture(tex, texture_coords).xyz, 1); 
+} ]]
 
 local shader = honey.shader.new(vertex_shader, fragment_shader)
 local plane = honey.mesh.load('Suzanne.obj')[1]
@@ -37,7 +64,6 @@ local total_time = 0
 
 function honey.update(dt)
    total_time = total_time + dt
-   color1:lerp(color2, 0.5*(math.sin(math.pi*total_time)+1), color)
    FPSCamera:update(dt)
 end
 
@@ -46,6 +72,6 @@ function honey.draw()
    honey.shader.set_mat4(shader, 'model', model.array)
    honey.shader.set_mat4(shader, 'view', FPSCamera.view.array)
    honey.shader.set_mat4(shader, 'projection', FPSCamera.projection.array)
-   honey.shader.set_vec4(shader, "base_color", color.array)
+   honey.shader.set_float(shader, 'time', total_time)
    honey.mesh.draw(plane, shader)
 end
