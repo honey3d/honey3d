@@ -82,6 +82,9 @@ bool honey_setup(lua_State** L)
     honey_setup_primitives(*L);
     lua_setfield(*L, -2, "primitives");
 
+    honey_setup_texture(*L);
+    lua_setfield(*L, -2, "texture");
+
     lua_pushcfunction(*L, honey_exit);
     lua_setfield(*L, -2, "exit");
 

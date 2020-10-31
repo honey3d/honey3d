@@ -1,6 +1,59 @@
 #include "texture.h"
 
-enum honey_texture_result honey_texture_new(honey_texture* texture,
+static int honey_lua_texture_new(lua_State* L)
+{
+    honey_texture* texture = lua_newuserdata(L, sizeof(honey_texture));
+    return 1;
+}
+
+static int honey_lua_texture_load(lua_State* L)
+{
+    honey_texture* texture;
+    char* texture_path;
+    bool use_alpha;
+    honey_lua_parse_arguments(L, 3,
+                              HONEY_USERDATA, &texture,
+                              HONEY_STRING, &texture_path,
+                              HONEY_BOOLEAN, &use_alpha);
+    enum honey_texture_result result = honey_texture_load(texture, texture_path, use_alpha);
+    if (result != TEXTURE_OK) {
+        char* error;
+        honey_format_string(&error,
+                            "failed to load '%s'",
+                            texture_path);
+        lua_pushstring(L, error);
+        free(error);
+        lua_error(L);
+    }
+
+    return 0;
+}
+
+static int honey_lua_texture_use(lua_State* L)
+{
+    honey_texture* texture;
+    int texture_unit;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_USERDATA, &texture,
+                              HONEY_INTEGER, &texture_unit);
+    honey_texture_use(*texture, texture_unit);
+    return 0;
+}
+
+void honey_setup_texture(lua_State* L)
+{
+    honey_lua_element texture_elements[] = {
+        { "new", HONEY_FUNCTION, { .function = honey_lua_texture_new } },
+        { "load", HONEY_FUNCTION, { .function = honey_lua_texture_load } },
+        { "use", HONEY_FUNCTION, { .function = honey_lua_texture_use } },
+    };
+
+    honey_lua_create_table(L, texture_elements, 3);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+enum honey_texture_result honey_texture_load(honey_texture* texture,
                                             char* texture_path,
                                             bool alpha_channel) {
   unsigned int texture_id;

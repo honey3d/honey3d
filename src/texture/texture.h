@@ -20,6 +20,9 @@ typedef struct {
   int channels;
 } honey_texture;
 
+/** @brief Place the honey.texture bindings as a table on the stack. */
+void honey_setup_texture(lua_State* L);
+
 /** @brief Load a texture from disk.
  *
  * @param[out] texture Pointer to the destination texture
@@ -28,9 +31,9 @@ typedef struct {
  *
  * @return Success or failure type
  */
-enum honey_texture_result honey_texture_new(honey_texture* texture,
-                                            char* texture_path,
-                                            bool alpha_channel);
+enum honey_texture_result honey_texture_load(honey_texture* texture,
+                                             char* texture_path,
+                                             bool alpha_channel);
 
 /** @brief Load a texture into a texture unit.
  *
