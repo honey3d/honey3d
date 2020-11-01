@@ -37,7 +37,7 @@ void honey_setup_texture(lua_State* L);
  * @param[in] height The height in pixels of the texture to create.
  * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
  *
- * @returns HONEY_OK on success, and appropriate error on failure.
+ * @returns Nothing.
  */
 void honey_texture_new_greyscale(honey_texture* texture,
                                  int width, int height,
@@ -50,7 +50,7 @@ void honey_texture_new_greyscale(honey_texture* texture,
  * @param[in] height The height in pixels of the texture to create.
  * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
  *
- * @returns HONEY_OK on success, and appropriate error on failure.
+ * @returns Nothing.
  */
 void honey_texture_new_rgb(honey_texture* texture,
                            int width, int height,
@@ -63,7 +63,7 @@ void honey_texture_new_rgb(honey_texture* texture,
  * @param[in] height The height in pixels of the texture to create.
  * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
  *
- * @returns HONEY_OK on success, and appropriate error on failure.
+ * @returns Nothing.
  */
 void honey_texture_new_rgba(honey_texture* texture,
                             int width, int height,
@@ -76,7 +76,7 @@ void honey_texture_new_rgba(honey_texture* texture,
  * @param[in] height The height in pixels of the texture to create.
  * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
  *
- * @returns HONEY_OK on success, and appropriate error on failure.
+ * @returns Nothing.
  */
 void honey_texture_new_depth(honey_texture* texture,
                              int width, int height,
@@ -102,13 +102,20 @@ void honey_texture_use(honey_texture texture, int texture_unit);
 
 /** @brief Create a framebuffer object.
  *
+ * You must specify at least one of draw and depth; otherwise, the framebuffer will
+ * be incomplete and fail.
+ *
  * @param[out] destination Pointer to store the resulting OpenGL handle in.
+ * @param[in] draw Pointer to a texture to draw to.
+ * @param[in] depth Pointer to a depth texture.
  * @param[in] width The width in pixels of the FBO.
  * @param[in] height The height in pixels of the FBO.
  *
- * @returns HONEY_OK on success; appropriate error otherwise.
+ * @returns Nothing.
  */
-honey_result honey_texture_framebuffer_object_new(unsigned int* destination,
-                                                  int width, int height);
+void honey_texture_framebuffer_object_new(unsigned int* destination,
+                                          honey_texture* draw,
+                                          honey_texture* depth,
+                                          int width, int height);
 
 #endif

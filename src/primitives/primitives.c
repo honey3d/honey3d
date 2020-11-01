@@ -60,7 +60,7 @@ honey_result honey_mesh_new_textured_plane(honey_mesh* mesh,
 
   unsigned int indices[] = {
     0, 1, 2,
-    1, 2, 3 };
+    3, 2, 1 };
 
   unsigned int attrib_sizes[] = { 3, 3, 2 };
 

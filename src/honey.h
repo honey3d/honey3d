@@ -68,4 +68,12 @@ bool honey_run(lua_State* L, honey_options opts);
  */
 int honey_get_callback(lua_State* L, char* callback);
 
+/** @brief Set the current render target.
+ *
+ * @param[in] framebuffer The framebuffer to target, or 0 to target the window's framebuffer.
+ *
+ * @returns Nothing.
+ */
+int honey_set_framebuffer(lua_State* L);
+
 #endif

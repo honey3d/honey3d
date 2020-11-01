@@ -54,6 +54,48 @@ bool honey_parse_options(honey_options* options, int argc, char** argv)
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static int honey_lua_clear_color(lua_State* L)
+{
+    float* color_array;
+    bool color, depth, stencil;
+    honey_lua_parse_arguments(L, 4,
+                              HONEY_USERDATA, &color_array,
+                              HONEY_BOOLEAN, &color,
+                              HONEY_BOOLEAN, &depth,
+                              HONEY_BOOLEAN, &stencil);
+    float r = color_array[0];
+    float g = color_array[1];
+    float b = color_array[2];
+    float a = color_array[3];
+
+    int clear_flags = 0;
+    if (color)
+        clear_flags = clear_flags | GL_COLOR_BUFFER_BIT;
+    if (depth)
+        clear_flags = clear_flags | GL_DEPTH_BUFFER_BIT;
+    if (stencil)
+        clear_flags = clear_flags | GL_STENCIL_BUFFER_BIT;
+
+    glClearColor(r, g, b, a);
+    glClear(clear_flags);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_lua_enable_depth_test(lua_State* L)
+{
+    bool enable;
+    honey_lua_parse_arguments(L, 1, HONEY_BOOLEAN, &enable);
+    if (enable)
+        glEnable(GL_DEPTH_TEST);
+    else
+        glDisable(GL_DEPTH_TEST);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
     
 bool honey_setup(lua_State** L)
 {
@@ -87,6 +129,15 @@ bool honey_setup(lua_State** L)
 
     lua_pushcfunction(*L, honey_exit);
     lua_setfield(*L, -2, "exit");
+
+    lua_pushcfunction(*L, honey_set_framebuffer);
+    lua_setfield(*L, -2, "set_framebuffer");
+
+    lua_pushcfunction(*L, honey_lua_clear_color);
+    lua_setfield(*L, -2, "clear_color");
+
+    lua_pushcfunction(*L, honey_lua_enable_depth_test);
+    lua_setfield(*L, -2, "enable_depth_test");
 
     lua_setglobal(*L, "honey");
 
@@ -145,8 +196,6 @@ bool honey_run(lua_State* L, honey_options opts) {
 
         if (drawTime > 0.016) {
             drawTime -= 0.016;
-            glClearColor(0,0,0,1);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
             if (draw_callback != LUA_NOREF) {
                 lua_rawgeti(L, LUA_REGISTRYINDEX, draw_callback);
@@ -184,4 +233,14 @@ int honey_get_callback(lua_State* L, char* callback)
     lua_pop(L, 1);
 
     return ref;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_set_framebuffer(lua_State* L)
+{
+    int framebuffer;
+    honey_lua_parse_arguments(L, 1, HONEY_INTEGER, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    return 0;
 }

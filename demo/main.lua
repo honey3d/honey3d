@@ -1,6 +1,7 @@
 local Vector = require('Vector')
 local Matrix = require('Matrix')
 local FPSCamera = require('FPSCamera')
+local ScreenQuad = require('ScreenQuad')
 FPSCamera.movement_speed = 5
 
 local model = Matrix.Mat4.eye()
@@ -10,9 +11,11 @@ print(model)
 
 honey.input.key.bind(honey.input.key.escape, honey.exit)
 
+local buffer = false
+honey.input.key.bind(honey.input.key.f, function(action) if action == 1 then buffer = not buffer end end)
+
 local tex = honey.texture.new()
 honey.texture.load(tex, 'checkerboard.png', false)
-honey.texture.use(tex, 0)
 
 local vertex_shader = [[
 #version 330 core
@@ -49,12 +52,13 @@ uniform sampler2D tex;
 out vec4 color;
 
 void main() { 
-  vec2 texture_coords = UV + (time * vec2(100,100));
-  color = vec4(texture(tex, texture_coords).xyz, 1); 
+  //vec2 texture_coords = UV + (time * vec2(100,100));
+  color = vec4(texture(tex, UV).xyz, 1); 
 } ]]
 
 local shader = honey.shader.new(vertex_shader, fragment_shader)
-local plane = honey.mesh.load('Suzanne.obj')[1]
+local suzanne = honey.mesh.load('Suzanne.obj')[1]
+local plane = honey.primitives.plane(4,4)
 
 local color1 = Vector.Vec4.new{1,0,0,1}
 local color2 = Vector.Vec4.new{0,0,1,1}
@@ -73,11 +77,32 @@ function honey.update(dt)
    end
 end
 
-function honey.draw()
-   total_frames = total_frames + 1
+function draw_suzanne()
+   honey.texture.use(tex, 0)
    honey.shader.set_mat4(shader, 'model', model.array)
    honey.shader.set_mat4(shader, 'view', FPSCamera.view.array)
    honey.shader.set_mat4(shader, 'projection', FPSCamera.projection.array)
    honey.shader.set_float(shader, 'time', total_time)
+   honey.mesh.draw(suzanne, shader)
    honey.mesh.draw(plane, shader)
+end
+
+function honey.draw()
+   total_frames = total_frames + 1
+
+   if buffer then
+      honey.set_framebuffer(ScreenQuad.fb)
+      honey.enable_depth_test(true)
+      honey.clear_color(Vector.Vec4.new().array, true, true, false)
+      draw_suzanne()
+      
+      honey.set_framebuffer(0)
+      honey.enable_depth_test(true)
+      honey.clear_color(Vector.Vec4.new{0,0,1,1}.array, true, true, false)
+      ScreenQuad:draw()
+   else
+      honey.clear_color(Vector.Vec4.new{1,1,0,1}.array, true, true, false)
+      honey.enable_depth_test(true)
+      draw_suzanne()
+   end
 end
