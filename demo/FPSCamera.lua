@@ -1,7 +1,12 @@
 local Vector = require('Vector')
 local Matrix = require('Matrix')
+local Camera = require('Camera')
 
-local camera = {}
+local camera = Camera.new(nil,
+                          Vector.Vec3.new(),
+                          Vector.Vec3.new(),
+                          Vector.Vec3.new{1,1,1},
+                          math.rad(90), 640/480, 0.1, 1000)
 
 camera.pitch = 0
 camera.yaw = 0
@@ -10,22 +15,7 @@ camera.sensitivity = 0.1
 
 camera.movement_speed = 1
 
-camera.position = Vector.Vec3.new{0,0,-1}
-
-camera.view = Matrix.Mat4.eye()
-camera.basis = camera.view:basis()
-
-camera.projection = Matrix.Mat4.perspective(math.rad(90),
-					    640/480,
-					    0.1,
-					    8192)
-
 function camera:update(dt)
-   local M = Matrix.Mat4.eye()
-   M:rotate(Vector.Vec3.ZERO, Vector.Vec3.Y_UNIT, math.rad(self.yaw))
-   M:rotate(Vector.Vec3.ZERO, Vector.Vec3.X_UNIT, math.rad(self.pitch))
-   self.basis = M:basis()
-
    movement = Vector.Vec3.new()
    if honey.input.key.is_down(honey.input.key.w) then
       movement:add(self.basis.z, movement)
@@ -39,7 +29,7 @@ function camera:update(dt)
    if honey.input.key.is_down(honey.input.key.d) then
       movement:sub(self.basis.x, movement)
    end
-   
+
    movement:setAt(1, 0)
    movement:normalize()
 
@@ -51,8 +41,9 @@ function camera:update(dt)
    end
    movement:muls(self.movement_speed*dt, movement)
    self.position:add(movement, self.position)
-
-   Matrix.Mat4.look(self.position, self.basis.z, Vector.Vec3.Y_UNIT, self.view)
+   
+   self:updateTransform()
+   self:updateView()
 end
 
 camera.mouse_pos = {}
@@ -71,6 +62,9 @@ honey.input.mouse.bind_movement(
 
       if camera.pitch > 89 then camera.pitch = 89 end
       if camera.pitch < -89 then camera.pitch = -89 end
+
+      camera.rotation:setAt(0, math.rad(camera.pitch))
+      camera.rotation:setAt(1, math.rad(camera.yaw))
    end
 )
 

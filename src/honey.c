@@ -95,6 +95,16 @@ int honey_lua_enable_depth_test(lua_State* L)
     return 0;
 }
 
+int honey_lua_set_viewport_size(lua_State* L)
+{
+    int width, height;
+    honey_lua_parse_arguments(L, 2,
+                              HONEY_INTEGER, &width,
+                              HONEY_INTEGER, &height);
+    glViewport(0,0,width,height);
+    return 0;
+}
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
     
 bool honey_setup(lua_State** L)
@@ -138,6 +148,9 @@ bool honey_setup(lua_State** L)
 
     lua_pushcfunction(*L, honey_lua_enable_depth_test);
     lua_setfield(*L, -2, "enable_depth_test");
+
+    lua_pushcfunction(*L, honey_lua_set_viewport_size);
+    lua_setfield(*L, -2, "set_viewport_size");
 
     lua_setglobal(*L, "honey");
 

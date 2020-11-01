@@ -67,6 +67,8 @@ local color = Vector.Vec4.new()
 local total_frames = 0
 local total_time = 0
 
+honey.window.set_size(640, 480)
+
 function honey.update(dt)
    total_time = total_time + dt
    FPSCamera:update(dt)
@@ -92,16 +94,19 @@ function honey.draw()
 
    if buffer then
       honey.set_framebuffer(ScreenQuad.fb)
+      honey.set_viewport_size(640,640)
       honey.clear_color(Vector.Vec4.new().array, true, true, false)
       honey.enable_depth_test(true)
       draw_suzanne()
       
       honey.set_framebuffer(0)
+      honey.set_viewport_size(640, 480)
       honey.enable_depth_test(false)
       honey.clear_color(Vector.Vec4.new{0,0,1,1}.array, true, false, false)
       ScreenQuad:draw()
    else
       honey.clear_color(Vector.Vec4.new{1,1,0,1}.array, true, true, false)
+      honey.set_viewport_size(640, 480)
       honey.enable_depth_test(true)
       draw_suzanne()
    end

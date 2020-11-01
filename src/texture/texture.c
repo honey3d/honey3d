@@ -246,6 +246,8 @@ void honey_texture_framebuffer_object_new(unsigned int* destination,
                                           honey_texture* depth,
                                           int width, int height)
 {
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
     glGenFramebuffers(1, destination);
     glBindFramebuffer(GL_FRAMEBUFFER, *destination);
 
