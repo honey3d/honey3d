@@ -28,19 +28,21 @@ out vec4 color;
 
 void main()
 {
-  color = vec4(texture(tex, UV));
+  color = vec4(1 - texture(tex, UV).xyz, 1);
 } ]]
 
 ScreenQuad.shader = honey.shader.new(vertexShader, fragmentShader)
 
-ScreenQuad.texture = honey.texture.new()
-honey.texture.create(ScreenQuad.texture, 'rgba', 640, 480);
+ScreenQuad.tex   = honey.texture.new()
+ScreenQuad.depth = honey.texture.new()
+honey.texture.create(ScreenQuad.tex, 'rgb', 640, 480);
+honey.texture.create(ScreenQuad.depth, 'depth', 640, 480);
 --honey.texture.load(ScreenQuad.texture, 'checkerboard.png', false)
 
-ScreenQuad.fb = honey.texture.new_framebuffer(ScreenQuad.texture, nil, 640, 480)
+ScreenQuad.fb = honey.texture.new_framebuffer(ScreenQuad.tex, ScreenQuad.depth, 640, 480)
 
 ScreenQuad.draw = function(self)
-   honey.texture.use(self.texture, 0)
+   honey.texture.use(self.tex, 0)
    honey.mesh.draw(self.quad, self.shader)
 end
 
