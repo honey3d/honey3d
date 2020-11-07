@@ -4,6 +4,7 @@ local Matrix = require('Matrix')
 local Node = {}
 
 Node.prototype = {}
+
 Node.prototype.updateTransform = function(self)
    honey.cglm.mat4.identity(self.transform.array)
 
@@ -15,9 +16,29 @@ Node.prototype.updateTransform = function(self)
 
    self.transform:translate(self.position)
 
-   if parent ~= nil then
-      self.transform:mul(self.parent.transform)
+   if self.parent ~= nil then
+      self.transform:mul(self.parent.transform, self.transform)
    end
+
+   for _, child in ipairs(self.children) do
+      child:updateTransform()
+   end
+end
+
+Node.prototype.translate = function(self, translation)
+   self.position:add(translation, self.position)
+end
+
+Node.prototype.pitch = function(self, angle)
+   self.rotation:setAt(0, angle)
+end
+
+Node.prototype.yaw = function(self, angle)
+   self.rotation:setAt(1, angle)
+end
+
+Node.prototype.roll = function(self, angle)
+   self.rotation:setAt(2, angle)
 end
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,6 +58,13 @@ Node.new = function(parent, position, rotation, scale)
    node.position = position
    node.rotation = rotation
    node.scale = scale
+
+   node.children = {}
+
+   if parent ~= nil then
+      local index = #parent.children
+      parent.children[index + 1] = node
+   end
    
    node.transform = Matrix.Mat4.eye()
    node:updateTransform()

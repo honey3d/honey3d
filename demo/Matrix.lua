@@ -199,7 +199,7 @@ Matrix.Mat4.prototype.mul = function(self, M, dest)
       result = dest
    end
 
-   honey.cglm.mat4.mul(self.array, M.array, result)
+   honey.cglm.mat4.mul(self.array, M.array, result.array)
    return result
 end
 

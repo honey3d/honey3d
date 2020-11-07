@@ -2,6 +2,7 @@ local Vector = require('Vector')
 local Matrix = require('Matrix')
 local FPSCamera = require('FPSCamera')
 local ScreenQuad = require('ScreenQuad')
+local MeshInstance = require('MeshInstance')
 FPSCamera.movement_speed = 5
 
 local model = Matrix.Mat4.eye()
@@ -57,12 +58,23 @@ void main() {
 } ]]
 
 local shader = honey.shader.new(vertex_shader, fragment_shader)
-local suzanne = honey.mesh.load('Suzanne.obj')[1]
-local plane = honey.primitives.plane(4,4)
-
-local color1 = Vector.Vec4.new{1,0,0,1}
-local color2 = Vector.Vec4.new{0,0,1,1}
-local color = Vector.Vec4.new()
+local suzanne = MeshInstance.new(nil,
+                                 Vector.Vec3.new{0,0,-3},
+                                 Vector.Vec3.new{0,math.pi,0},
+                                 Vector.Vec3.new{1,1,1},
+                                 honey.mesh.load('Suzanne.obj')[1])
+local plane = MeshInstance.new(suzanne,
+                               Vector.Vec3.new{-2,5,0},
+                               Vector.Vec3.new{0,0,0},
+                               Vector.Vec3.new{1,1,1},
+                               honey.primitives.plane(4,4))
+suzanne.update = function(self, dt)
+   local movement = Vector.Vec3.new()
+   movement:add(Vector.Vec3.X_UNIT, movement)
+   movement:muls(dt, movement)
+   self:translate(movement)
+   self:updateTransform()
+end
 
 local total_frames = 0
 local total_time = 0
@@ -72,6 +84,7 @@ honey.window.set_size(640, 480)
 function honey.update(dt)
    total_time = total_time + dt
    FPSCamera:update(dt)
+   suzanne:update(dt)
    if total_time > 1 then
       print('FPS: '..tostring(total_frames/total_time))
       total_time = 0
@@ -81,12 +94,8 @@ end
 
 function draw_suzanne()
    honey.texture.use(tex, 0)
-   honey.shader.set_mat4(shader, 'model', model.array)
-   honey.shader.set_mat4(shader, 'view', FPSCamera.view.array)
-   honey.shader.set_mat4(shader, 'projection', FPSCamera.projection.array)
-   honey.shader.set_float(shader, 'time', total_time)
-   honey.mesh.draw(suzanne, shader)
-   honey.mesh.draw(plane, shader)
+   suzanne:draw(shader, FPSCamera)
+   plane:draw(shader, FPSCamera)
 end
 
 function honey.draw()
@@ -94,7 +103,7 @@ function honey.draw()
 
    if buffer then
       honey.set_framebuffer(ScreenQuad.fb)
-      honey.set_viewport_size(640,640)
+      honey.set_viewport_size(480,640)
       honey.clear_color(Vector.Vec4.new().array, true, true, false)
       honey.enable_depth_test(true)
       draw_suzanne()

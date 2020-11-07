@@ -40,7 +40,7 @@ function camera:update(dt)
       movement:sub(Vector.Vec3.Y_UNIT, movement)
    end
    movement:muls(self.movement_speed*dt, movement)
-   self.position:add(movement, self.position)
+   self:translate(movement)
    
    self:updateTransform()
    self:updateView()
@@ -60,8 +60,8 @@ honey.input.mouse.bind_movement(
       camera.pitch = camera.pitch + camera.sensitivity * dy
       camera.yaw = camera.yaw - camera.sensitivity * dx
 
-      if camera.pitch > 89 then camera.pitch = 89 end
-      if camera.pitch < -89 then camera.pitch = -89 end
+      if camera.pitch > 89.9 then camera.pitch = 89.9 end
+      if camera.pitch < -89.9 then camera.pitch = -89.9 end
 
       camera.rotation:setAt(0, math.rad(camera.pitch))
       camera.rotation:setAt(1, math.rad(camera.yaw))
