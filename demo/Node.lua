@@ -8,20 +8,27 @@ Node.prototype = {}
 Node.prototype.updateTransform = function(self)
    honey.cglm.mat4.identity(self.transform.array)
 
-   self.transform:scale(self.scale)
+   self.transform:translate(self.position)
 
    self.transform:rotate(Vector.Vec3.ZERO, Vector.Vec3.Z_UNIT, self.rotation:at(2))
    self.transform:rotate(Vector.Vec3.ZERO, Vector.Vec3.Y_UNIT, self.rotation:at(1))
    self.transform:rotate(Vector.Vec3.ZERO, Vector.Vec3.X_UNIT, self.rotation:at(0))
 
-   self.transform:translate(self.position)
+   self.transform:scale(self.scale)
 
    if self.parent ~= nil then
-      self.transform:mul(self.parent.transform, self.transform)
+      self.parent.transform:mul(self.transform, self.transform)
    end
 
    for _, child in ipairs(self.children) do
       child:updateTransform()
+   end
+end
+
+Node.prototype.draw = function(self, camera, shader)
+   -- do not draw base nodes, but recursively draw children.
+   for _, child in ipairs(self.children) do
+      child:draw(camera, shader)
    end
 end
 
@@ -30,15 +37,15 @@ Node.prototype.translate = function(self, translation)
 end
 
 Node.prototype.pitch = function(self, angle)
-   self.rotation:setAt(0, angle)
+   self.rotation:setAt(0, self.rotation:at(0) + angle)
 end
 
 Node.prototype.yaw = function(self, angle)
-   self.rotation:setAt(1, angle)
+   self.rotation:setAt(1, self.rotation:at(1) + angle)
 end
 
 Node.prototype.roll = function(self, angle)
-   self.rotation:setAt(2, angle)
+   self.rotation:setAt(2, self.rotation:at(2) + angle)
 end
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

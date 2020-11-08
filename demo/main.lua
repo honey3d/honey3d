@@ -1,14 +1,10 @@
 local Vector = require('Vector')
 local Matrix = require('Matrix')
 local FPSCamera = require('FPSCamera')
+local Node = require('Node')
 local ScreenQuad = require('ScreenQuad')
 local MeshInstance = require('MeshInstance')
 FPSCamera.movement_speed = 5
-
-local model = Matrix.Mat4.eye()
-model:rotate(Vector.Vec3.ZERO, Vector.Vec3.Y_UNIT, math.pi)
-model:translate(Vector.Vec3.new{0,0,-2})
-print(model)
 
 honey.input.key.bind(honey.input.key.escape, honey.exit)
 
@@ -57,22 +53,34 @@ void main() {
   color = vec4(texture(tex, UV).xyz, 1); 
 } ]]
 
+local sceneRoot = Node.new(nil,
+                           Vector.Vec3.new(),
+                           Vector.Vec3.new(),
+                           Vector.Vec3.new{1,1,1})
+
 local shader = honey.shader.new(vertex_shader, fragment_shader)
-local suzanne = MeshInstance.new(nil,
+local suzanne = MeshInstance.new(sceneRoot,
                                  Vector.Vec3.new{0,0,-3},
                                  Vector.Vec3.new{0,math.pi,0},
-                                 Vector.Vec3.new{1,1,1},
-                                 honey.mesh.load('Suzanne.obj')[1])
+                                 Vector.Vec3.new{0.5,1,0.5},
+                                 honey.mesh.load('Suzanne.obj')[1],
+                                 shader)
 local plane = MeshInstance.new(suzanne,
-                               Vector.Vec3.new{-2,5,0},
+                               Vector.Vec3.new{1,0,0},
                                Vector.Vec3.new{0,0,0},
                                Vector.Vec3.new{1,1,1},
-                               honey.primitives.plane(4,4))
+                               honey.primitives.plane(4,4),
+                               shader)
+local plane2 = MeshInstance.new(suzanne,
+                                Vector.Vec3.new{5,0,0},
+                                Vector.Vec3.new{0,math.pi,0},
+                                Vector.Vec3.new{1,1,1},
+                                honey.primitives.plane(4,4),
+                                shader)
+
 suzanne.update = function(self, dt)
-   local movement = Vector.Vec3.new()
-   movement:add(Vector.Vec3.X_UNIT, movement)
-   movement:muls(dt, movement)
-   self:translate(movement)
+   local angle = dt * math.pi
+   self:yaw(angle)
    self:updateTransform()
 end
 
@@ -94,8 +102,7 @@ end
 
 function draw_suzanne()
    honey.texture.use(tex, 0)
-   suzanne:draw(shader, FPSCamera)
-   plane:draw(shader, FPSCamera)
+   sceneRoot:draw(FPSCamera)
 end
 
 function honey.draw()
