@@ -8,14 +8,8 @@ setmetatable(MeshInstance.prototype, { __index = Node.prototype})
 MeshInstance.prototype.draw = function(self, camera, shader)
    local shader = shader or self.shader
    
-   honey.shader.set_mat4(shader, 'model', self.transform.array)
-   honey.shader.set_mat4(shader, 'view', camera.view.array)
-   honey.shader.set_mat4(shader, 'projection', camera.projection.array)
-   honey.mesh.draw(self.mesh, shader)
-
-   for _, child in ipairs(self.children) do
-      child:draw(camera)
-   end
+   shader:setCamera(camera)
+   shader:drawMesh(self)
 end
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -2,6 +2,7 @@ local Vector = require('Vector')
 local Matrix = require('Matrix')
 local FPSCamera = require('FPSCamera')
 local Node = require('Node')
+local SpatialShader = require('SpatialShader')
 local ScreenQuad = require('ScreenQuad')
 local MeshInstance = require('MeshInstance')
 FPSCamera.movement_speed = 5
@@ -14,51 +15,12 @@ honey.input.key.bind(honey.input.key.f, function(action) if action == 1 then buf
 local tex = honey.texture.new()
 honey.texture.load(tex, 'checkerboard.png', false)
 
-local vertex_shader = [[
-#version 330 core
-
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 uv;
-
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-
-out vec3 Position;
-out vec3 Normal;
-out vec2 UV;
-
-void main()
-{
-  gl_Position = projection * view * model * vec4(position.xyz, 1);
-  Position = gl_Position.xyz;
-  Normal = normal;
-  UV = uv;
-} ]]
-local fragment_shader = [[
-#version 330 core
-
-in vec3 Position;
-in vec3 Normal;
-in vec2 UV;
-
-uniform float time;
-uniform sampler2D tex;
-
-out vec4 color;
-
-void main() { 
-  //vec2 texture_coords = UV + (time * vec2(100,100));
-  color = vec4(texture(tex, UV).xyz, 1); 
-} ]]
-
 local sceneRoot = Node.new(nil,
                            Vector.Vec3.new(),
                            Vector.Vec3.new(),
                            Vector.Vec3.new{1,1,1})
 
-local shader = honey.shader.new(vertex_shader, fragment_shader)
+local shader = SpatialShader.new(tex)
 local suzanne = MeshInstance.new(sceneRoot,
                                  Vector.Vec3.new{0,0,-3},
                                  Vector.Vec3.new{0,math.pi,0},
@@ -81,7 +43,6 @@ local plane2 = MeshInstance.new(suzanne,
 suzanne.update = function(self, dt)
    local angle = dt * math.pi
    self:yaw(angle)
-   self:updateTransform()
 end
 
 local total_frames = 0
@@ -92,7 +53,7 @@ honey.window.set_size(640, 480)
 function honey.update(dt)
    total_time = total_time + dt
    FPSCamera:update(dt)
-   suzanne:update(dt)
+   sceneRoot:updateCascade(dt)
    if total_time > 1 then
       print('FPS: '..tostring(total_frames/total_time))
       total_time = 0
@@ -101,8 +62,7 @@ function honey.update(dt)
 end
 
 function draw_suzanne()
-   honey.texture.use(tex, 0)
-   sceneRoot:draw(FPSCamera)
+   sceneRoot:drawCascade(FPSCamera)
 end
 
 function honey.draw()

@@ -25,10 +25,24 @@ Node.prototype.updateTransform = function(self)
    end
 end
 
-Node.prototype.draw = function(self, camera, shader)
+Node.prototype.updateCascade = function(self, dt)
+    if self.update then
+        self:update(dt)
+    end
+    self:updateTransform()
+    for _, child in ipairs(self.children) do
+        child:updateCascade(dt)
+    end
+end
+
+Node.prototype.drawCascade = function(self, camera, shader)
+    if self.draw then
+        self:draw(camera, shader)
+    end
+    
    -- do not draw base nodes, but recursively draw children.
    for _, child in ipairs(self.children) do
-      child:draw(camera, shader)
+      child:drawCascade(camera, shader)
    end
 end
 
