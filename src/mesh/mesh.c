@@ -111,7 +111,7 @@ static void process_nodes_recursively(lua_State* L,
         struct aiMesh* assimp_mesh = scene->mMeshes[node->mMeshes[i]];
         *mesh = assimp_to_honey_mesh(assimp_mesh, scene);
         lua_rawseti(L, -2, *n_meshes);
-        *n_meshes++;
+        (*n_meshes)++;
     }
 
     for (int i=0; i<node->mNumChildren; i++) {

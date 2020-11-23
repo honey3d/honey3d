@@ -21,11 +21,17 @@ local sceneRoot = Node.new(nil,
                            Vector.Vec3.new{1,1,1})
 
 local shader = SpatialShader.new(tex)
+local lightDirection = Vector.Vec3.new{1,1,1}
+lightDirection:normalize()
+shader:setVec3('directional_lights[0].direction', lightDirection)
+shader:setVec3('directional_lights[0].color', Vector.Vec3.new{0,1,0})
+local meshes = honey.mesh.load('Suzanne.obj')
+print(#meshes)
 local suzanne = MeshInstance.new(sceneRoot,
                                  Vector.Vec3.new{0,0,-3},
                                  Vector.Vec3.new{0,math.pi,0},
                                  Vector.Vec3.new{0.5,1,0.5},
-                                 honey.mesh.load('Suzanne.obj')[1],
+                                 meshes[1],
                                  shader)
 local plane = MeshInstance.new(suzanne,
                                Vector.Vec3.new{1,0,0},
@@ -41,8 +47,8 @@ local plane2 = MeshInstance.new(suzanne,
                                 shader)
 
 suzanne.update = function(self, dt)
-   local angle = dt * math.pi
-   self:yaw(angle)
+   --local angle = dt * math.pi
+   --self:yaw(angle)
 end
 
 local total_frames = 0
