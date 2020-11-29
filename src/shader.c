@@ -1,5 +1,7 @@
 #include "shader.h"
 
+int honey_shader_mt_ref = LUA_NOREF;
+
 void honey_setup_shader(lua_State* L)
 {
     honey_lua_element shader_elements[] = {
@@ -21,11 +23,10 @@ void honey_setup_shader(lua_State* L)
 
 int honey_shader_new(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_STRING, HONEY_STRING))
-        lua_error(L);
-
-    const char* vertex_shader_source = lua_tostring(L, 1);
-    const char* fragment_shader_source = lua_tostring(L, 2);
+    char* vertex_shader_source, *fragment_shader_source;
+    honey_lua_parse_arguments
+	(L, 1,
+	 2, HONEY_STRING, &vertex_shader_source, HONEY_STRING, &fragment_shader_source);
 
     int success;
     char error[1024];
@@ -37,8 +38,8 @@ int honey_shader_new(lua_State* L)
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertex_shader, 1024, NULL, error);
-        lua_pushstring(L, error);
-        lua_error(L);
+	honey_lua_throw_error(L, "error compiling vertex shader: %s",
+			      error);
     }
 
     int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -48,8 +49,8 @@ int honey_shader_new(lua_State* L)
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragment_shader, 1024, NULL, error);
-        lua_pushstring(L, error);
-        lua_error(L);
+	honey_lua_throw_error(L, "error compiling fragment shader: %s",
+			      error);
     }
 
     int shader = glCreateProgram();
@@ -60,8 +61,8 @@ int honey_shader_new(lua_State* L)
     glGetShaderiv(shader, GL_LINK_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(shader, 1024, NULL, error);
-        lua_pushstring(L, error);
-        lua_error(L);
+	honey_lua_throw_error(L, "error linking shader program: %s",
+			      error);
     }
 
     glDeleteShader(vertex_shader);
@@ -75,10 +76,11 @@ int honey_shader_new(lua_State* L)
 
 int honey_shader_use(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_INTEGER))
-        lua_error(L);
-
-    int shader = lua_tointeger(L, 1);
+    int shader;
+    honey_lua_parse_arguments
+	(L, 1,
+	 1, HONEY_INTEGER, &shader);
+    
     glUseProgram(shader);
     return 0;
 }
@@ -87,12 +89,15 @@ int honey_shader_use(lua_State* L)
 
 int honey_shader_set_int(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_STRING, HONEY_INTEGER))
-        lua_error(L);
-
-    int shader       = lua_tointeger(L, 1);
-    const char* name = lua_tostring(L, 2);
-    int value        = lua_tointeger(L, 3);
+    int shader, value;
+    char* name;
+    
+    honey_lua_parse_arguments
+	(L, 1,
+	 3,
+	 HONEY_INTEGER, &shader,
+	 HONEY_STRING, &name,
+	 HONEY_INTEGER, &value);
 
     glUseProgram(shader);
     unsigned int location = glGetUniformLocation(shader, name);
@@ -105,13 +110,13 @@ int honey_shader_set_int(lua_State* L)
 
 int honey_shader_set_float(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_STRING, HONEY_NUMBER))
-        lua_error(L);
-
-    int shader       = lua_tointeger(L, 1);
-    const char* name = lua_tostring(L, 2);
-    float value      = lua_tonumber(L, 3);
-
+    int shader; char* name; float value;
+    honey_lua_parse_arguments
+	(L, 1, 3,
+	 HONEY_INTEGER, &shader,
+	 HONEY_STRING, &name,
+	 HONEY_NUMBER, &value);
+    
     glUseProgram(shader);
     unsigned int location = glGetUniformLocation(shader, name);
     glUniform1f(location, value);
@@ -121,25 +126,16 @@ int honey_shader_set_float(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-static void get_array(lua_State* L,
-                      unsigned int* location,
-                      float** value)
-{
-    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_STRING, HONEY_USERDATA))
-        lua_error(L);
-
-    int shader       = lua_tointeger(L, 1);
-    const char* name = lua_tostring(L, 2);
-    *value           = lua_touserdata(L, 3);
-
-    glUseProgram(shader);
-    *location = glGetUniformLocation(shader, name);
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
 int honey_shader_set_vec3(lua_State* L)
 {
+    int shader; char* name; float* array;
+    honey_lua_parse_arguments
+	(L, 1, 3,
+	 HONEY_INTEGER, &shader,
+	 HONEY_STRING, &name,
+	 HONEY_USERDATA, &array);
+			    
+    
     unsigned int location;
     float* array;
     get_array(L, &location, &array);

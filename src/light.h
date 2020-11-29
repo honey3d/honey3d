@@ -1,7 +1,7 @@
 #ifndef HONEY_LIGHT_H
 #define HONEY_LIGHT_H
 
-#include "../common.h"
+#include "common.h"
 
 #define HONEY_MAX_LIGHT_NAME_LENGTH 64
 

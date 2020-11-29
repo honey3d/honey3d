@@ -6,7 +6,9 @@
 #ifndef HONEY_SHADER_H
 #define HONEY_SHADER_H
 
-#include "../common.h"
+#include "common.h"
+
+extern int honey_shader_mt_ref;
 
 /** @brief Push the shader table to the lua stack.
  */

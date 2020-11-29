@@ -2,14 +2,31 @@
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
- * Lua binding helper function definitions
+ * Helper structs
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+struct argument_pair {
+    honey_lua_type type;
+    void* ptr;
+};
+
+struct argument_list {
+    unsigned int length;
+    struct argument_pair* args;
+};
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Lua binding helper function declarations
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
 /* string must be able to hold at least 16 characters. */
-static void type_to_string(char* string,
-			   honey_lua_type type);
+static int type_to_string(char* string,
+			  honey_lua_type type);
 
 static bool check_argument(lua_State* L,
 			   honey_lua_type type,
@@ -111,21 +128,120 @@ static void honey_lua_arg_error(lua_State* L,
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-int honey_lua_parse_arguments(lua_State* L, int n, ...)
+static bool check_arg_list(lua_State* L,
+			   struct argument_list arg_list)
 {
+    struct argument_pair* args = arg_list.args;
+    for (int i=0; i<arg_list.length; i++) {
+	if (!check_argument(L, args[i].type, i+1))
+	    return false;
+    }
+    return true;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static int arg_list_to_string(char* string,
+			      int start_index,
+			      struct argument_list arg_list)
+{
+    struct argument_pair* args = arg_list.args;
+
+    string[start_index] = '(';
+
+    int index = start_index + 1;
+    
+    for (int i=0; i<arg_list.length; i++) {
+	index += type_to_string(string + index, args[i].type);
+	if (i != arg_list.length - 1) {
+	    string[index + 1] = ',';
+	    string[index + 2] = ' ';
+	    index += 2;
+	}
+    }
+
+    string[index] = ')';
+
+    return index+1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void arg_lists_to_string(char** string,
+				int n,
+				struct argument_list* arg_lists)
+{
+    unsigned int size = 0;
+    for (int i=0; i<n; i++)
+	size += 18*arg_lists[i].length + 5;
+
+    *string = calloc(size, sizeof(char));
+    int index = 0;
+
+    for (int i=0; i<n; i++) {
+	index = arg_list_to_string(*string, index, arg_lists[i]);
+	if (i != n) {
+	    *string[index] = '\n';
+	    index++;
+	}
+    }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void get_arg_list(lua_State* L,
+			 struct argument_list arg_list)
+{
+    struct argument_pair* args = arg_list.args;
+    for (int i=0; i<arg_list.length; i++) {
+	get_argument(L, args[i].ptr, args[i].type, i+1);
+    }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_lua_parse_arguments(lua_State* L, unsigned int n, ...)
+{
+    struct argument_list* arg_lists = malloc(n * sizeof(struct argument_list));
+    if (arg_lists == NULL)
+	honey_lua_throw_error(L, "failed to allocate memory for argument parsing!");
+
     va_list args;
     va_start(args, n);
 
-    for (int i=1; i<=n; i++) {
-        honey_lua_type type = va_arg(args, honey_lua_type);
-	void* destination = va_arg(args, void*);
-	if (!check_argument(L, type, i))
-	    honey_lua_arg_error(L, type, i);
+    for (int i=0; i<n; i++) {
+	arg_lists[i].length = va_arg(args, int);
+	arg_lists[i].args = malloc(arg_lists[i].length * sizeof(struct argument_pair));
+	if (arg_lists[i].args == NULL)
+	    honey_lua_throw_error(L, "failed to allocate memory for argument parsing!");
 
-	get_argument(L, destination, type, i);
+	for (int j=0; j<arg_lists[i].length; j++) {
+	    honey_lua_type type = va_arg(args, honey_lua_type);
+	    void* destination = va_arg(args, void*);
+	}
     }
-            
+    
     va_end(args);
+
+    int index = 0;
+    
+    for (; index<n; index++) {
+	if (check_arg_list(L, arg_lists[index])) {
+	    get_arg_list(L, arg_lists[index]);
+	    break;
+	}
+    }
+
+    if (index == n) {
+	/* no arguments match, throw error */
+    }
+	
+    
+    for (int i=0; i<n; i++)
+	free(arg_lists[i].args);
+    free(arg_lists);
+
+    return index;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,65 +251,74 @@ int honey_lua_parse_arguments(lua_State* L, int n, ...)
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
+static void build_table_recursively(lua_State* L,
+				    unsigned int n,
+				    va_list args)
+{
+    lua_createtable(L, 0, n);
+
+    for (int i=0; i<n; i++) {
+	honey_lua_type type = va_arg(args, honey_lua_type);
+	char* name = va_arg(args, char*);
+	switch(type) {
+	case HONEY_INTEGER:
+	    lua_pushinteger(L, va_arg(args, int));
+	    break;
+
+	case HONEY_NUMBER:
+	    lua_pushnumber(L, va_arg(args, double));
+	    break;
+
+	case HONEY_STRING:
+	    lua_pushstring(L, va_arg(args, char*));
+	    break;
+
+	case HONEY_FUNCTION:
+	    lua_pushcfunction(L, va_arg(args, int (*)(lua_State* L)));
+	    break;
+			      
+	case HONEY_TABLE:
+	    build_table_recursively(L, va_arg(args, int), args);
+	    break;
+	    
+	case HONEY_NIL:
+	    lua_pushnil(L);
+	    break;
+
+	case HONEY_USERDATA:
+	    /* cannot push userdata from C, skip */
+	    continue;
+
+	case HONEY_LIGHTUSERDATA:
+	    lua_pushlightuserdata(L, va_arg(args, void*));
+	    break;
+
+	default:
+	    // this should never happen
+	    break;
+	}
+	lua_setfield(L, -2, name);
+    }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 void honey_lua_create_table(lua_State* L,
-                            honey_lua_element* elements,
-                            unsigned int n_elements)
+                            unsigned int n_elements,
+			    ...)
 {
-    lua_createtable(L, 0, n_elements);
-
-    for (int i=0; i<n_elements; i++) {
-        honey_lua_push_element(L, elements[i]);
-        lua_setfield(L, -2, elements[i].name);
-    }
+    va_list args;
+    va_start(args, n_elements);
+    build_table_recursively(L, n_elements, args);
+    va_end(args);
 }
 
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
- 
-void honey_lua_push_element(lua_State* L, honey_lua_element element)
-{
-    switch(element.type) {
-    case HONEY_INTEGER:
-        lua_pushinteger(L, element.data.integer);
-        break;
-
-    case HONEY_NUMBER:
-        lua_pushnumber(L, element.data.number);
-        break;
-
-    case HONEY_STRING:
-        lua_pushstring(L, element.data.string);
-        break;
-
-    case HONEY_FUNCTION:
-        lua_pushcfunction(L, element.data.function);
-        break;
-
-    case HONEY_TABLE:
-        honey_lua_create_table(L,
-                               element.data.table.elements,
-                               element.data.table.n_elements);
-        break;
-
-    case HONEY_NIL:
-        lua_pushnil(L);
-        break;
-
-    case HONEY_USERDATA:
-        /* cannot push userdata, push nil */
-        lua_pushnil(L);
-        break;
-
-    case HONEY_LIGHTUSERDATA:
-        lua_pushlightuserdata(L, element.data.pointer);
-        break;
-
-    default:
-        // this should never happen
-        break;
-    }
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Lua pcall wrapping
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
 
 int honey_lua_traceback(lua_State* L)
 {
@@ -252,58 +377,58 @@ int honey_exit(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
- * Lua binding helper functions
+ * Lua binding helper function definitions
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
 /* string must be able to hold at least 16 characters. */
-static void type_to_string(char* string,
-			   honey_lua_type type)
+static int type_to_string(char* string,
+			  honey_lua_type type)
 {
     switch(type) {
     case HONEY_BOOLEAN:
 	memcpy(string, "boolean", 8);
-	break;
+	return 7;
 
     case HONEY_INTEGER:
 	memcpy(string, "integer", 8);
-	break;
+	return 7;
 
     case HONEY_NUMBER:
 	memcpy(string, "number", 7);
-	break;
+	return 6;
 
     case HONEY_STRING:
 	memcpy(string, "string", 7);
-	break;
+	return 6;
 
     case HONEY_FUNCTION:
 	memcpy(string, "function", 9);
-	break;
+	return 8;
 
     case HONEY_TABLE:
 	memcpy(string, "table", 6);
-	break;
+	return 5;
 
     case HONEY_NIL:
 	memcpy(string, "nil", 4);
-	break;
+	return 3;
 
     case HONEY_USERDATA:
 	memcpy(string, "userdata", 9);
-	break;
+	return 8;
 
     case HONEY_LIGHTUSERDATA:
 	memcpy(string, "light userdata", 16);
-	break;
+	return 15;
 
     case HONEY_ANY:
 	memcpy(string, "any", 4);
-	break;
+	return 3;
 
     default:
-	break;
+	return 0;
     }
 }
 

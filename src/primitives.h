@@ -6,8 +6,8 @@
  * @brief Define various common primitive objects.
  */
 
-#include "../common.h"
-#include "../mesh/mesh.h"
+#include "common.h"
+#include "mesh.h"
 
 /** @brief Push table of lua bindings for creating primitives to the stack. */
 void honey_setup_primitives(lua_State* L);

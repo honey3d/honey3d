@@ -7,7 +7,7 @@ int honey_glm_mat4_mt_ref = LUA_NOREF;
 
 void honey_setup_glm(lua_State* L)
 {
-    honey_lua_create_table(L, NULL, 0);
+    lua_pushnil(L);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

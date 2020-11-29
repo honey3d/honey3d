@@ -8,15 +8,15 @@
 
 #include "common.h"
 
-#include "camera/camera.h"
+#include "camera.h"
 #include "glm_bindings.h"
-#include "input/input.h"
-#include "light/light.h"
-#include "mesh/mesh.h"
-#include "primitives/primitives.h"
-#include "shader/shader.h"
-#include "texture/texture.h"
-#include "window/window.h"
+#include "input.h"
+#include "light.h"
+#include "mesh.h"
+#include "primitives.h"
+#include "shader.h"
+#include "texture.h"
+#include "window.h"
 
 /** @struct Helper struct to wrap command-line options. */
 typedef struct {

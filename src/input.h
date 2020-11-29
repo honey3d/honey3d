@@ -6,7 +6,7 @@
  * @brief Wrap GLFW input functions for honey.
  */
 
-#include "../common.h"
+#include "common.h"
 
 #define HONEY_KEY_UNKNOWN 0
 #define HONEY_KEY_SPACE 1
@@ -137,7 +137,7 @@
 
 #define HONEY_MOUSE_MODE_NORMAL GLFW_CURSOR_NORMAL
 #define HONEY_MOUSE_MODE_HIDDEN GLFW_CURSOR_HIDDEN
-#define HONEY_MOUSE_MODE_DISABLED GLFW_CURSOR_DISABLED
+#define HONEY_MOUSE_MODE_CAPTURED GLFW_CURSOR_DISABLED
 
 unsigned int honey_key_states[HONEY_N_KEYS];
 static int honey_key_callbacks[HONEY_N_KEYS];

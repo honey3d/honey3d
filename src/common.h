@@ -107,11 +107,6 @@ typedef enum {
     HONEY_ANY
 } honey_lua_type;
 
-typedef struct {
-    honey_lua_type type;
-    void* ptr;
-} honey_lua_argument_pair;
-
 /** @brief Get arguments from a function, checking to ensure the types match.
  *
  * Each argument type should be specified as [# of args], type, ptr, type, ptr...,
@@ -137,7 +132,7 @@ typedef struct {
  * @returns The zero-indexed index of the actual argument option used. Throws an
  * error if no options matched the provided arguments.
  */
-int honey_lua_parse_arguments(lua_State* L, int n, ...);
+int honey_lua_parse_arguments(lua_State* L, unsigned int n, ...);
 
 /** @brief Wrap C objects for lua. */
 typedef struct honey_lua_element {
@@ -166,17 +161,25 @@ typedef struct honey_lua_element {
 void honey_lua_push_element(lua_State* L,
 			    honey_lua_element element);
 
-/** @brief Create a lua table populated with various elements.
+/** @brief Create and populate a lua table.
+ *
+ * This function expects a list of the form `type, name, element, type, name, element...`.
+ * In the case of a sub-table, the format is 
+ * `type, name, n_elements, subtype, subname, subelement...`.
+ * This can be nested as deeply as one wishes.
+ *
+ * As userdata cannot be pushed from C, attempting to push HONEY_USERDATA will result in
+ * an error.
  *
  * @param[in] L The lua state to push the table to.
- * @param[in] elements Array of elements to populate the table.
  * @param[in] n_elements The number of elements in the array.
+ * @param[in] ... Variadic list of table elements.
  *
  * @returns Nothing.
  */
 void honey_lua_create_table(lua_State* L,
-			    honey_lua_element* elements,
-			    unsigned int n_elements);
+			    unsigned int n_elements,
+			    ...);
 
 /** @brief Get the traceback for use after an error.
  */

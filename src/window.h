@@ -3,7 +3,7 @@
 #ifndef HONEY_WINDOW_H
 #define HONEY_WINDOW_H
 
-#include "../common.h"
+#include "common.h"
 
 #define HONEY_WINDOW_DEFAULT_WIDTH 640
 #define HONEY_WINDOW_DEFAULT_HEIGHT 480

@@ -6,7 +6,7 @@
  * @brief Defines the honey_mesh struct and related basic mesh functions. 
 */
 
-#include "../common.h"
+#include "common.h"
 
 typedef struct {
     unsigned int n_vertices, n_indices;

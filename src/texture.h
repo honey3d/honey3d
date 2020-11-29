@@ -6,7 +6,7 @@
  *@brief Defines the honey_texture struct and associated functions. 
 */
 
-#include "../common.h"
+#include "common.h"
 
 enum honey_texture_result {
   TEXTURE_OK,

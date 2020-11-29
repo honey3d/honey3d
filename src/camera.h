@@ -7,7 +7,7 @@
  * and common camera variants.
  */
 
-#include "../common.h"
+#include "common.h"
 
 enum honey_camera_projection {
   HONEY_PERSPECTIVE,

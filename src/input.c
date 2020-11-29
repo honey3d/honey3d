@@ -154,10 +154,10 @@ void honey_setup_input(lua_State* L)
 			   HONEY_INTEGER, "right_alt",  HONEY_KEY_RIGHT_ALT,
 			   HONEY_INTEGER, "right_super",  HONEY_KEY_RIGHT_SUPER,
 			   HONEY_INTEGER, "menu",  HONEY_KEY_MENU,
-			   HONEY_FUNCTION, "is_down",  .function = honey_key_down,
-			   HONEY_FUNCTION, "bind",  .function = honey_key_bind,
-			   HONEY_FUNCTION, "unbind",  .function = honey_key_unbind,
-			   HONEY_FUNCTION, "unbind_all",  .function = honey_key_unbind_all,
+			   HONEY_FUNCTION, "is_down",  honey_key_down,
+			   HONEY_FUNCTION, "bind",  honey_key_bind,
+			   HONEY_FUNCTION, "unbind",  honey_key_unbind,
+			   HONEY_FUNCTION, "unbind_all",  honey_key_unbind_all,
 
 			   HONEY_TABLE, "mouse", 4,
 
