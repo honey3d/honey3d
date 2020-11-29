@@ -122,8 +122,8 @@ bool honey_setup(lua_State** L)
     honey_setup_input(*L);
     lua_setfield(*L, -2, "input");
 
-    honey_setup_cglm(*L);
-    lua_setfield(*L, -2, "cglm");
+    honey_setup_glm(*L);
+    lua_setfield(*L, -2, "glm");
 
     honey_setup_shader(*L);
     lua_setfield(*L, -2, "shader");

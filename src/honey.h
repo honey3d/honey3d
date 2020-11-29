@@ -9,7 +9,7 @@
 #include "common.h"
 
 #include "camera/camera.h"
-#include "cglm_bindings.h"
+#include "glm_bindings.h"
 #include "input/input.h"
 #include "light/light.h"
 #include "mesh/mesh.h"
