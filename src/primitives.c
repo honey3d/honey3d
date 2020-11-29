@@ -33,12 +33,11 @@ static int honey_mesh_lua_cube(lua_State* L)
 
 void honey_setup_primitives(lua_State* L)
 {
-    honey_lua_element primitive_elements[] = {
-        { "plane", HONEY_FUNCTION, { .function = honey_mesh_lua_plane } },
-        { "cube", HONEY_FUNCTION, { .function = honey_mesh_lua_cube } },
-    };
-
-    honey_lua_create_table(L, primitive_elements, 2);
+    honey_lua_create_table
+	(L, 2,
+	 HONEY_FUNCTION, "plane", honey_mesh_lua_plane,
+	 HONEY_FUNCTION, "cube",  honey_mesh_lua_cube);
+    lua_setfield(L, -2, "primitives");
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

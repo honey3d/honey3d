@@ -97,15 +97,14 @@ static int honey_lua_framebuffer_new(lua_State* L)
 
 void honey_setup_texture(lua_State* L)
 {
-    honey_lua_element texture_elements[] = {
-        { "new", HONEY_FUNCTION, { .function = honey_lua_texture_new } },
-        { "new_framebuffer", HONEY_FUNCTION, { .function = honey_lua_framebuffer_new } },
-        { "create", HONEY_FUNCTION, { .function = honey_lua_texture_create } },
-        { "load", HONEY_FUNCTION, { .function = honey_lua_texture_load } },
-        { "use", HONEY_FUNCTION, { .function = honey_lua_texture_use } },
-    };
-
-    honey_lua_create_table(L, texture_elements, 5);
+    honey_lua_create_table
+	(L, 5,
+	 HONEY_FUNCTION, "new",  honey_lua_texture_new,
+	 HONEY_FUNCTION, "new_framebuffer",  honey_lua_framebuffer_new,
+	 HONEY_FUNCTION, "create",  honey_lua_texture_create,
+	 HONEY_FUNCTION, "load",  honey_lua_texture_load,
+	 HONEY_FUNCTION, "use",  honey_lua_texture_use);
+    lua_setfield(L, -2, "texture");
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -158,8 +157,6 @@ static void generate_texture(honey_texture* texture,
     default:
         break;
     }
-    
-    return HONEY_OK;
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

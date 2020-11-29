@@ -72,6 +72,22 @@ typedef enum {
   HONEY_N_ERRORS
 } honey_result;
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+typedef enum { VEC3,
+	       VEC4,
+	       MAT3,
+	       MAT4
+} honey_glm_array_type;
+
+typedef struct {
+  honey_glm_array_type type;
+  unsigned int size;
+  float* data;
+} honey_glm_array;
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 honey_result honey_format_string(char** string,
                                  char* format_string,
                                  ...);

@@ -104,18 +104,19 @@ bool honey_setup_window(lua_State* L)
     glfwSetWindowFocusCallback(info->window, honey_glfw_window_focus_callback);
     
 
-    honey_lua_element window_elements[] = {
-        { "set_fullscreen", HONEY_FUNCTION, { .function = honey_window_set_fullscreen } },
-        { "set_title",      HONEY_FUNCTION, { .function = honey_window_set_title } },
-        { "get_size",       HONEY_FUNCTION, { .function = honey_window_get_size } },
-        { "set_size",       HONEY_FUNCTION, { .function = honey_window_set_size } },
-        { "resize_bind",    HONEY_FUNCTION, { .function = honey_window_resize_bind } },
-        { "resize_unbind",  HONEY_FUNCTION, { .function = honey_window_resize_unbind } },
-        { "focus_bind",     HONEY_FUNCTION, { .function = honey_window_focus_bind } },
-        { "focus_unbind",   HONEY_FUNCTION, { .function = honey_window_focus_unbind } },
-    };
+    honey_lua_create_table
+	(L, 8,
+	 HONEY_FUNCTION, "set_fullscreen",  honey_window_set_fullscreen,
+	 HONEY_FUNCTION, "set_title",       honey_window_set_title,
+	 HONEY_FUNCTION, "get_size",        honey_window_get_size,
+	 HONEY_FUNCTION, "set_size",        honey_window_set_size,
+	 HONEY_FUNCTION, "resize_bind",     honey_window_resize_bind,
+	 HONEY_FUNCTION, "resize_unbind",   honey_window_resize_unbind,
+	 HONEY_FUNCTION, "focus_bind",      honey_window_focus_bind,
+	 HONEY_FUNCTION, "focus_unbind",    honey_window_focus_unbind);
 
-    honey_lua_create_table(L, window_elements, 8);
+    lua_setfield(L, -2, "window");
+
     return true;
 }
 
@@ -123,10 +124,8 @@ bool honey_setup_window(lua_State* L)
 
 int honey_window_set_fullscreen(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_BOOLEAN))
-        lua_error(L);
-
-    bool fullscreen = lua_toboolean(L, 1);
+    bool fullscreen;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_BOOLEAN, &fullscreen);
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_window_info_ref);
     honey_window_information* info = lua_touserdata(L, -1);
@@ -150,10 +149,8 @@ int honey_window_set_fullscreen(lua_State* L)
 
 int honey_window_set_title(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 1, HONEY_STRING))
-        lua_error(L);
-
-    const char* title = lua_tostring(L, 1);
+    char* title;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_STRING, &title);
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_window_info_ref);
     honey_window_information* info = lua_touserdata(L, -1);
@@ -180,11 +177,11 @@ int honey_window_get_size(lua_State* L)
 
 int honey_window_set_size(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_INTEGER, HONEY_INTEGER))
-        lua_error(L);
-
-    int width = lua_tointeger(L, 1);
-    int height = lua_tointeger(L, 2);
+    int width, height;
+    honey_lua_parse_arguments
+	(L, 1, 2,
+	 HONEY_INTEGER, &width,
+	 HONEY_INTEGER, &height);
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_window_info_ref);
     honey_window_information* info = lua_touserdata(L, -1);
@@ -197,13 +194,20 @@ int honey_window_set_size(lua_State* L)
 
 int honey_window_resize_bind(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_FUNCTION, HONEY_ANY))
-        lua_error(L);
+    int choice = honey_lua_parse_arguments
+	(L, 2,
+	 1, HONEY_FUNCTION,
+	 2, HONEY_FUNCTION, HONEY_ANY);
+
+    honey_window_resize_unbind(L);
 
     lua_pushvalue(L, 1);
     honey_window_resize_callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_pushvalue(L, 2);
-    honey_window_resize_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    if (choice == 1) {
+	lua_pushvalue(L, 2);
+	honey_window_resize_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    }
 
     return 0;
 }
@@ -216,13 +220,11 @@ int honey_window_resize_unbind(lua_State* L)
     int data = honey_window_resize_callback_data_ref;
 
     if (callback != LUA_NOREF) {
-        lua_pushnil(L);
-        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+	luaL_unref(L, LUA_REGISTRYINDEX, callback);
     }
 
     if (data != LUA_NOREF && data != LUA_REFNIL) {
-        lua_pushnil(L);
-        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+	luaL_unref(L, LUA_REGISTRYINDEX, data);
     }
 
     honey_window_resize_callback_ref = LUA_NOREF;
@@ -234,13 +236,20 @@ int honey_window_resize_unbind(lua_State* L)
 
 int honey_window_focus_bind(lua_State* L)
 {
-    if (!honey_lua_validate_types(L, 2, HONEY_FUNCTION, HONEY_ANY))
-        lua_error(L);
+    int choice = honey_lua_parse_arguments
+	(L, 2,
+	 1, HONEY_FUNCTION,
+	 2, HONEY_FUNCTION, HONEY_ANY);
+
+    honey_window_focus_unbind(L);
 
     lua_pushvalue(L, 1);
     honey_window_focus_callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_pushvalue(L, 2);
-    honey_window_focus_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    if (choice == 1) {
+	lua_pushvalue(L, 2);
+	honey_window_focus_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    }
 
     return 0;
 }
@@ -253,13 +262,11 @@ int honey_window_focus_unbind(lua_State* L)
     int data = honey_window_focus_callback_data_ref;
 
     if (callback != LUA_NOREF) {
-        lua_pushnil(L);
-        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+	luaL_unref(L, LUA_REGISTRYINDEX, callback);
     }
 
     if (data != LUA_NOREF && data != LUA_REFNIL) {
-        lua_pushnil(L);
-        lua_rawseti(L, LUA_REGISTRYINDEX, callback);
+        luaL_unref(L, LUA_REGISTRYINDEX, callback);
     }
 
     honey_window_focus_callback_ref = LUA_NOREF;

@@ -117,7 +117,6 @@ bool honey_setup(lua_State** L)
 
     if (!honey_setup_window(*L))
         return false;
-    lua_setfield(*L, -2, "window");
 
     honey_setup_input(*L);
     lua_setfield(*L, -2, "input");
@@ -126,16 +125,12 @@ bool honey_setup(lua_State** L)
     lua_setfield(*L, -2, "glm");
 
     honey_setup_shader(*L);
-    lua_setfield(*L, -2, "shader");
 
     honey_setup_mesh(*L);
-    lua_setfield(*L, -2, "mesh");
 
     honey_setup_primitives(*L);
-    lua_setfield(*L, -2, "primitives");
 
     honey_setup_texture(*L);
-    lua_setfield(*L, -2, "texture");
 
     lua_pushcfunction(*L, honey_exit);
     lua_setfield(*L, -2, "exit");

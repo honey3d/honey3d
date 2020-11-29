@@ -16,16 +16,16 @@ add_library(stb_image src/stb_image/stb_image.c)
 set(SOURCE_FILES
   src/main.c
   src/glm_bindings.c
-  src/camera/camera.c
+  src/camera.c
   src/honey.c
-  src/input/input.c
+  src/input.c
   src/honey_lua.c
-  src/light/light.c
-  src/mesh/mesh.c
-  src/primitives/primitives.c
-  src/shader/shader.c
-  src/texture/texture.c
-  src/window/window.c)
+  src/light.c
+  src/mesh.c
+  src/primitives.c
+  src/shader.c
+  src/texture.c
+  src/window.c)
   
 add_executable(honey ${SOURCE_FILES})
 if (WIN32)

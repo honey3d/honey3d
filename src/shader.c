@@ -60,13 +60,13 @@ int honey_shader_new(lua_State* L)
     }
 
     int program = glCreateProgram();
-    glAttachShader(shader, vertex_shader);
-    glAttachShader(shader, fragment_shader);
-    glLinkProgram(shader);
+    glAttachShader(program, vertex_shader);
+    glAttachShader(program, fragment_shader);
+    glLinkProgram(program);
 
-    glGetShaderiv(shader, GL_LINK_STATUS, &success);
+    glGetShaderiv(program, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(shader, 1024, NULL, error);
+        glGetShaderInfoLog(program, 1024, NULL, error);
 	honey_lua_throw_error(L, "error linking shader program: %s",
 			      error);
     }
@@ -214,7 +214,7 @@ int honey_shader_set_mat3(lua_State* L)
 
 int honey_shader_set_mat4(lua_State* L)
 {
-    int *shader; char* name; float* array;
+    int *shader; char* name; honey_glm_array* array;
     honey_lua_parse_arguments
 	(L, 1, 3,
 	 HONEY_USERDATA, &shader,

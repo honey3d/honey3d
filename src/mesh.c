@@ -21,13 +21,12 @@ static int honey_mesh_lua_delete(lua_State* L)
 
 void honey_setup_mesh(lua_State* L)
 {
-    honey_lua_element mesh_elements[] = {
-        { "load", HONEY_FUNCTION, { .function = honey_mesh_load } },
-        { "draw", HONEY_FUNCTION, { .function = honey_mesh_lua_draw } },
-        { "delete", HONEY_FUNCTION, { .function = honey_mesh_lua_delete } },
-    };
-
-    honey_lua_create_table(L, mesh_elements, 2);
+    honey_lua_create_table
+	(L, 3,
+	 HONEY_FUNCTION, "load",  honey_mesh_load,
+	 HONEY_FUNCTION, "draw",  honey_mesh_lua_draw,
+	 HONEY_FUNCTION, "delete",  honey_mesh_lua_delete);
+    lua_setfield(L, -2, "mesh");
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
