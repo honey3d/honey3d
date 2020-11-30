@@ -71,7 +71,8 @@ int honey_glm_mat3_mul(lua_State* L)
 		 MAT3, dest->type);
     }
     else {
-	honey_glm_new_mat3(L);
+	lua_pushcfunction(L, honey_glm_new_mat3);
+	honey_lua_pcall(L, 0, 1);
 	dest = lua_touserdata(L, -1);
     }
 
@@ -122,7 +123,8 @@ int honey_glm_mat3_mulv(lua_State* L)
 	     VEC3, v->type);
 
     if (choice == 0) {
-	honey_glm_new_vec3(L);
+	lua_pushcfunction(L, honey_glm_new_vec3);
+	honey_lua_pcall(L, 0, 1);
 	dest = lua_touserdata(L, -1);
     }
     else {
@@ -177,7 +179,8 @@ int honey_glm_mat3_inv(lua_State* L)
 	 2, HONEY_USERDATA, &self, HONEY_USERDATA, &dest);
 
     if (choice == 0) {
-	honey_glm_new_mat3(L);
+	lua_pushcfunction(L, honey_glm_new_mat3);
+	honey_lua_pcall(L, 0, 1);
 	dest = lua_touserdata(L, -1);
     }
     else {

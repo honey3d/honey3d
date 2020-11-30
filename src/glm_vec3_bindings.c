@@ -88,7 +88,8 @@ static bool get_vec3_arrays(lua_State* L,
 		 VEC3, (*dest)->type);
     }
     else {
-	honey_glm_new_vec3(L);
+	lua_pushcfunction(L, honey_glm_new_vec3);
+	honey_lua_pcall(L, 0, 1);
 	*dest = lua_touserdata(L, -1);
     }
 
@@ -114,7 +115,8 @@ static bool get_vec3_scalars(lua_State* L,
 		 VEC3, (*dest)->type);
     }
     else {
-	honey_glm_new_vec3(L);
+	lua_pushcfunction(L, honey_glm_new_vec3);
+	honey_lua_pcall(L, 0, 1);
 	*dest = lua_touserdata(L, -1);
     }
 
@@ -378,7 +380,8 @@ int honey_glm_vec3_lerp(lua_State* L)
 		 VEC3, dest->type);
     }
     else {
-	honey_glm_new_vec3(L);
+	lua_pushcfunction(L, honey_glm_new_vec3);
+	honey_lua_pcall(L, 0, 1);
 	dest = lua_touserdata(L, -1);
     }
 	

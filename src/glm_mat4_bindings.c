@@ -71,7 +71,8 @@ int honey_glm_mat4_mul(lua_State* L)
 		 MAT4, dest->type);
     }
     else {
-	honey_glm_new_mat4(L);
+	lua_pushcfunction(L, honey_glm_new_mat4);
+	honey_lua_pcall(L, 0, 1);
 	dest = lua_touserdata(L, -1);
     }
 
@@ -122,7 +123,8 @@ int honey_glm_mat4_mulv(lua_State* L)
 	     VEC4, v->type);
 
     if (choice == 0) {
-	honey_glm_new_vec4(L);
+	lua_pushcfunction(L, honey_glm_new_vec4);
+	honey_lua_pcall(L, 0, 1);
 	dest = lua_touserdata(L, -1);
     }
     else {
@@ -177,7 +179,8 @@ int honey_glm_mat4_inv(lua_State* L)
 	 2, HONEY_USERDATA, &self, HONEY_USERDATA, &dest);
 
     if (choice == 0) {
-	honey_glm_new_mat4(L);
+	lua_pushcfunction(L, honey_glm_new_mat4);
+	honey_lua_pcall(L, 0, 1);
 	dest = lua_touserdata(L, -1);
     }
     else {
@@ -211,8 +214,8 @@ int honey_glm_translate(lua_State* L)
 
     if (v->type != VEC3)
 	honey_lua_throw_error
-		(L, "translation vector must be of type VEC3 (%d); got %d instead",
-		 VEC3, v->type);
+	    (L, "translation vector must be of type VEC3 (%d); got %d instead",
+	     VEC3, v->type);
 
     if (choice == 0) {
 	glm_translate(self->data, v->data);
@@ -286,9 +289,9 @@ int honey_glm_scalev(lua_State* L)
 	glm_scale(self->data, v->data);
     else {
 	if (dest->type != MAT4)
-	honey_lua_throw_error
-	    (L, "destination matrix must be of type MAT4 (%d); got %d instead",
-	     MAT4, dest->type);
+	    honey_lua_throw_error
+		(L, "destination matrix must be of type MAT4 (%d); got %d instead",
+		 MAT4, dest->type);
 
 	glm_scale_to(self->data, v->data, dest->data);
     }
@@ -311,9 +314,9 @@ int honey_glm_rotate_x(lua_State* L)
 	dest = self;
     else {
 	if (dest->type != MAT4)
-	honey_lua_throw_error
-	    (L, "destination matrix must be of type MAT4 (%d); got %d instead",
-	     MAT4, dest->type);
+	    honey_lua_throw_error
+		(L, "destination matrix must be of type MAT4 (%d); got %d instead",
+		 MAT4, dest->type);
     }
 
     glm_rotate_x(self->data, angle, dest->data);
@@ -336,9 +339,9 @@ int honey_glm_rotate_y(lua_State* L)
 	dest = self;
     else {
 	if (dest->type != MAT4)
-	honey_lua_throw_error
-	    (L, "destination matrix must be of type MAT4 (%d); got %d instead",
-	     MAT4, dest->type);
+	    honey_lua_throw_error
+		(L, "destination matrix must be of type MAT4 (%d); got %d instead",
+		 MAT4, dest->type);
     }
 
     glm_rotate_y(self->data, angle, dest->data);
@@ -361,9 +364,9 @@ int honey_glm_rotate_z(lua_State* L)
 	dest = self;
     else {
 	if (dest->type != MAT4)
-	honey_lua_throw_error
-	    (L, "destination matrix must be of type MAT4 (%d); got %d instead",
-	     MAT4, dest->type);
+	    honey_lua_throw_error
+		(L, "destination matrix must be of type MAT4 (%d); got %d instead",
+		 MAT4, dest->type);
     }
 
     glm_rotate_z(self->data, angle, dest->data);

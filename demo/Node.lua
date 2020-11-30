@@ -6,7 +6,7 @@ local Node = {}
 Node.prototype = {}
 
 Node.prototype.updateTransform = function(self)
-   honey.cglm.mat4.identity(self.transform.array)
+   self.transform:eye()
 
    self.transform:translate(self.position)
 
@@ -87,7 +87,8 @@ Node.new = function(parent, position, rotation, scale)
       parent.children[index + 1] = node
    end
    
-   node.transform = Matrix.Mat4.eye()
+   node.transform = honey.glm.mat4()
+   node.transform:eye()
    node:updateTransform()
 
    return node

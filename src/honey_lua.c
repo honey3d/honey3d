@@ -102,6 +102,8 @@ void honey_lua_throw_error(lua_State* L,
 static bool check_arg_list(lua_State* L,
 			   struct argument_list arg_list)
 {
+    if (arg_list.length != lua_gettop(L))
+	return false;
     struct argument_pair* args = arg_list.args;
     for (int i=0; i<arg_list.length; i++) {
 	if (!check_argument(L, args[i].type, i+1))

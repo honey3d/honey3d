@@ -26,6 +26,18 @@ int honey_glm_new_mat3(lua_State* L);
 
 int honey_glm_new_mat4(lua_State* L);
 
+int honey_glm_array_vec_get(lua_State* L);
+
+int honey_glm_array_vec_set(lua_State* L);
+
+int honey_glm_array_mat_get(lua_State* L);
+
+int honey_glm_array_mat_set(lua_State* L);
+
+int honey_glm_vector_to_string(lua_State* L);
+
+int honey_glm_matrix_to_string(lua_State* L);
+
 int honey_glm_array_destroy(lua_State* L);
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

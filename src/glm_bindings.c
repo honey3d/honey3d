@@ -9,8 +9,10 @@ void honey_setup_glm(lua_State* L)
 {
     /* vec3 metatable */
     honey_lua_create_table
-	(L, 2,
-	 HONEY_TABLE, "__index", 21,
+	(L, 3,
+	 HONEY_TABLE, "__index", 23,
+	 HONEY_FUNCTION, "get", honey_glm_array_vec_get,
+	 HONEY_FUNCTION, "set", honey_glm_array_vec_set,
 	 HONEY_FUNCTION, "copyTo", honey_glm_vec3_copy,
 	 HONEY_FUNCTION, "zero", honey_glm_vec3_zero,
 	 HONEY_FUNCTION, "eye", honey_glm_vec3_eye,
@@ -33,6 +35,7 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "clamp", honey_glm_vec3_clamp,
 	 HONEY_FUNCTION, "lerpTo", honey_glm_vec3_lerp,
 	 
+	 HONEY_FUNCTION, "__tostring", honey_glm_vector_to_string,
 	 
 	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
     honey_glm_vec3_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -40,8 +43,10 @@ void honey_setup_glm(lua_State* L)
 
     /* vec4 metatable */
     honey_lua_create_table
-	(L, 2,
-	 HONEY_TABLE, "__index", 18,
+	(L, 3,
+	 HONEY_TABLE, "__index", 20,
+	 HONEY_FUNCTION, "get", honey_glm_array_vec_get,
+	 HONEY_FUNCTION, "set", honey_glm_array_vec_set,
 	 HONEY_FUNCTION, "copyTo", honey_glm_vec4_copy,
 	 HONEY_FUNCTION, "zero", honey_glm_vec4_zero,
 	 HONEY_FUNCTION, "eye", honey_glm_vec4_eye,
@@ -60,16 +65,19 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "normalize", honey_glm_vec4_normalize,
 	 HONEY_FUNCTION, "clamp", honey_glm_vec4_clamp,
 	 HONEY_FUNCTION, "lerpTo", honey_glm_vec4_lerp,
-	 
+
+	 HONEY_FUNCTION, "__tostring", honey_glm_vector_to_string,
 	 
 	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
     honey_glm_vec4_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     /* mat3 metatable */
     honey_lua_create_table
-	(L, 2,
+	(L, 3,
 
-	 HONEY_TABLE, "__index", 9,
+	 HONEY_TABLE, "__index", 11,
+	 HONEY_FUNCTION, "get", honey_glm_array_mat_get,
+	 HONEY_FUNCTION, "set", honey_glm_array_mat_set,
 	 HONEY_FUNCTION, "copyTo", honey_glm_mat3_copy,
 	 HONEY_FUNCTION, "eye", honey_glm_mat3_eye,
 	 HONEY_FUNCTION, "zero", honey_glm_mat3_zero,
@@ -80,15 +88,19 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "det", honey_glm_mat3_det,
 	 HONEY_FUNCTION, "inv", honey_glm_mat3_inv,
 
+	 HONEY_FUNCTION, "__tostring", honey_glm_matrix_to_string,
+
 	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
     honey_glm_mat3_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     /* mat4 metatable */
     honey_lua_create_table
-	(L, 2,
+	(L, 3,
 
-	 HONEY_TABLE, "__index", 22,
-	 HONEY_FUNCTION, "copy", honey_glm_mat4_copy,
+	 HONEY_TABLE, "__index", 24,
+	 HONEY_FUNCTION, "get", honey_glm_array_mat_get,
+	 HONEY_FUNCTION, "set", honey_glm_array_mat_set,
+	 HONEY_FUNCTION, "copyTo", honey_glm_mat4_copy,
 	 HONEY_FUNCTION, "eye", honey_glm_mat4_eye,
 	 HONEY_FUNCTION, "zero", honey_glm_mat4_zero,
 	 HONEY_FUNCTION, "mul", honey_glm_mat4_mul,
@@ -110,6 +122,8 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "perspectiveResize", honey_glm_perspective_resize,
 	 HONEY_FUNCTION, "lookAt", honey_glm_lookat,
 	 HONEY_FUNCTION, "look", honey_glm_look,
+
+	 HONEY_FUNCTION, "__tostring", honey_glm_matrix_to_string,
 
 	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
     honey_glm_mat4_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -133,7 +147,8 @@ void honey_setup_glm(lua_State* L)
 
 static void setup_new_array(lua_State* L,
 			    honey_glm_array* array,
-			    honey_glm_array_type type)
+			    honey_glm_array_type type,
+			    int choice)
 {
     unsigned int size;
     switch(type) {
@@ -167,14 +182,49 @@ static void setup_new_array(lua_State* L,
 	honey_lua_throw_error(L,
 			      "failed to allocate memory for array of type %d",
 			      type);
+
+    if (choice == 1) {
+	size_t length = lua_objlen(L, 1);
+	if (length != size)
+	    honey_lua_throw_error
+		(L, "initialization table must contain %d elements; got %d elements instead",
+		 size, length);
+
+	for (int i=0; i<size; i++) {
+	    lua_rawgeti(L, 1, i+1);
+	    if (!lua_isnumber(L, -1))
+		honey_lua_throw_error(L, "initialization table must contain only numbers");
+	    array->data[i] = lua_tonumber(L, -1);
+	    lua_pop(L, 1);
+	}
+    }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static int glm_matrix_dim(honey_glm_array_type type)
+{
+    switch (type) {
+    case MAT3:
+	return 3;
+
+    case MAT4:
+	return 4;
+
+    default:
+	return 0;
+    }
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_glm_new_vec3(lua_State* L)
 {
+    int choice = honey_lua_parse_arguments(L, 2, 0, 1, HONEY_TABLE);
+
     honey_glm_array* vec3 = lua_newuserdata(L, sizeof(honey_glm_array));
-    setup_new_array(L, vec3, VEC3);
+    setup_new_array(L, vec3, VEC3, choice);
+
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_glm_vec3_mt_ref);
     lua_setmetatable(L, -2);
     return 1;
@@ -182,8 +232,9 @@ int honey_glm_new_vec3(lua_State* L)
 
 int honey_glm_new_vec4(lua_State* L)
 {
+    int choice = honey_lua_parse_arguments(L, 2, 0, 1, HONEY_TABLE);
     honey_glm_array* vec4 = lua_newuserdata(L, sizeof(honey_glm_array));
-    setup_new_array(L, vec4, VEC4);
+    setup_new_array(L, vec4, VEC4, choice);
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_glm_vec4_mt_ref);
     lua_setmetatable(L, -2);
     return 1;
@@ -191,8 +242,9 @@ int honey_glm_new_vec4(lua_State* L)
 
 int honey_glm_new_mat3(lua_State* L)
 {
+    int choice = honey_lua_parse_arguments(L, 2, 0, 1, HONEY_TABLE);
     honey_glm_array* mat3 = lua_newuserdata(L, sizeof(honey_glm_array));
-    setup_new_array(L, mat3, MAT3);
+    setup_new_array(L, mat3, MAT3, choice);
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_glm_mat3_mt_ref);
     lua_setmetatable(L, -2);
     return 1;
@@ -200,10 +252,146 @@ int honey_glm_new_mat3(lua_State* L)
 
 int honey_glm_new_mat4(lua_State* L)
 {
+    int choice = honey_lua_parse_arguments(L, 2, 0, 1, HONEY_TABLE);
     honey_glm_array* mat4 = lua_newuserdata(L, sizeof(honey_glm_array));
-    setup_new_array(L, mat4, MAT4);
+    setup_new_array(L, mat4, MAT4, choice);
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_glm_mat4_mt_ref);
     lua_setmetatable(L, -2);
+    return 1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_array_vec_get(lua_State* L)
+{
+    honey_glm_array* self;
+    int index;
+    honey_lua_parse_arguments
+	(L, 1, 2, HONEY_USERDATA, &self, HONEY_INTEGER, &index);
+
+    if (index < 0 || index >= self->size)
+	honey_lua_throw_error(L, "index %d is out of range", index);
+
+    lua_pushnumber(L, self->data[index]);
+    return 1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_array_vec_set(lua_State* L)
+{
+    honey_glm_array* self;
+    int index;
+    float value;
+    honey_lua_parse_arguments
+	(L, 1, 3, HONEY_USERDATA, &self, HONEY_INTEGER, &index, HONEY_NUMBER, &value);
+
+    if (index < 0 || index >= self->size)
+	honey_lua_throw_error(L, "index %d is out of range", index);
+
+    self->data[index] = value;
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_array_mat_set(lua_State* L)
+{
+    honey_glm_array* self;
+    int column, row;
+    float value;
+    honey_lua_parse_arguments
+	(L, 1, 4,
+	 HONEY_USERDATA, &self,
+	 HONEY_INTEGER, &row,
+	 HONEY_INTEGER, &column,
+	 HONEY_NUMBER, &value);
+
+    int dim = glm_matrix_dim(self->type);
+
+    int index = (row - 1) + dim * (column - 1);
+    self->data[index] = value;
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_array_mat_get(lua_State* L)
+{
+    honey_glm_array* self;
+    int column, row;
+    float value;
+    honey_lua_parse_arguments
+	(L, 1, 3,
+	 HONEY_USERDATA, &self,
+	 HONEY_INTEGER, &row,
+	 HONEY_INTEGER, &column);
+
+    int dim = glm_matrix_dim(self->type);
+
+    int index = (row - 1) + dim * (column - 1);
+    lua_pushnumber(L, self->data[index]);
+    return 1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_vector_to_string(lua_State* L)
+{
+    honey_glm_array* self;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &self);
+    
+    char string[256];
+    string[0] = '['; string[1] = ' '; string[2] = 0;
+    int index = 2;
+    for (int i=0; i<self->size; i++) {
+	index += snprintf(string + index, 256-index, "%7.3f ", self->data[i]);
+	if (i != self->size-1) {
+	    string[index] = ' ';
+	    index++;
+	}
+    }
+
+    snprintf(string + index, 256-index, "]");
+    
+    lua_pushstring(L, string);
+    return 1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_matrix_to_string(lua_State* L)
+{
+    honey_glm_array* self;
+    int column, row;
+    float value;
+    honey_lua_parse_arguments
+	(L, 1, 1, HONEY_USERDATA, &self);
+
+    int dim = glm_matrix_dim(self->type);
+
+    char string[512];
+    string[0] = 0;
+    int index = 0;
+
+    for (int row=0; row<dim; row++) {
+	if (row == 0)
+	    index += snprintf(string+index, 512-index, "/ ");
+	else if (row == dim-1)
+	    index += snprintf(string+index, 512-index, "\\ ");
+	else
+	    index += snprintf(string+index, 512-index, "| ");
+	for (int col=0; col<dim; col++)
+	    index += snprintf(string+index, 512-index, "%7.3f ", self->data[row + dim*col]);
+	if (row == 0)
+	    index += snprintf(string+index, 512-index, "\\\n");
+	else if (row == dim-1)
+	    index += snprintf(string+index, 512-index, "/\n");
+	else
+	    index += snprintf(string+index, 512-index, "|\n");
+    }
+
+    lua_pushstring(L, string);
     return 1;
 }
 
@@ -213,6 +401,7 @@ int honey_glm_array_destroy(lua_State* L)
 {
     honey_glm_array* array;
     honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &array);
+    printf("DESTROY GLM ARRAY %d", array->type);
     free(array->data);
     return 0;
 }
