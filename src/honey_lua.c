@@ -25,8 +25,7 @@ struct argument_list {
  */
 
 /* string must be able to hold at least 16 characters. */
-static int type_to_string(char* string,
-			  honey_lua_type type);
+static const char* type_to_string(honey_lua_type type);
 
 static bool check_argument(lua_State* L,
 			   honey_lua_type type,
@@ -100,34 +99,6 @@ void honey_lua_throw_error(lua_State* L,
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
-static void honey_lua_arg_error(lua_State* L,
-                                honey_lua_type type,
-                                int position)
-{
-    char expected_type[16];
-    type_to_string(expected_type, type);
-    
-    char* error_message;
-    honey_result result;
-    char* got_type = (char*) lua_typename(L, lua_type(L, position));
-    result = honey_format_string(&error_message,
-                                 "bad argument in position %d: "
-                                 "expected %s, but got %s instead.",
-                                 position,
-                                 expected_type,
-                                 got_type);
-    if (result != HONEY_OK) {
-        lua_pushstring(L, "error allocating memory for error message :(");
-    }
-    else {
-        lua_pushstring(L, error_message);
-        free(error_message);
-    }
-    lua_error(L);
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
 static bool check_arg_list(lua_State* L,
 			   struct argument_list arg_list)
 {
@@ -141,28 +112,22 @@ static bool check_arg_list(lua_State* L,
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-static int arg_list_to_string(char* string,
-			      int start_index,
+static void arg_list_to_string(char** string,
 			      struct argument_list arg_list)
 {
     struct argument_pair* args = arg_list.args;
 
-    string[start_index] = '(';
+    size_t size = sizeof(char) * (18*arg_list.length + 5);
+    *string = malloc(size);
 
-    int index = start_index + 1;
-    
+    memcpy(*string, "(", 2);
+
     for (int i=0; i<arg_list.length; i++) {
-	index += type_to_string(string + index, args[i].type);
-	if (i != arg_list.length - 1) {
-	    string[index + 1] = ',';
-	    string[index + 2] = ' ';
-	    index += 2;
-	}
+	strcat(*string, type_to_string(args[i].type));
+	if (i != arg_list.length-1)
+	    strcat(*string, ", ");
     }
-
-    string[index] = ')';
-
-    return index+1;
+    strcat(*string, ")");
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -176,15 +141,37 @@ static void arg_lists_to_string(char** string,
 	size += 18*arg_lists[i].length + 5;
 
     *string = calloc(size, sizeof(char));
-    int index = 0;
+
+    char* arg_list_string;
 
     for (int i=0; i<n; i++) {
-	index = arg_list_to_string(*string, index, arg_lists[i]);
-	if (i != n) {
-	    *string[index] = '\n';
-	    index++;
-	}
+	arg_list_to_string(&arg_list_string, arg_lists[i]);
+	strcat(*string, arg_list_string);
+	free(arg_list_string);
+	if (i != n-1)
+	    strcat(*string, "\n");
     }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void arguments_to_string(lua_State* L, char** string)
+{
+    unsigned int argc = lua_gettop(L);
+
+    size_t size = sizeof(char) * (18*argc + 5);
+    *string = malloc(size);
+
+    memcpy(*string, "(", 2);
+
+    char type_string[16];
+    for (int i=0; i<argc; i++) {
+	int type = lua_type(L, i+1);
+	strncat(*string, lua_typename(L, type), 16*sizeof(char));
+	if (i != argc-1)
+	    strncat(*string, ", ", 4*sizeof(char));
+    }
+    strncat(*string, ")", 4);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -218,6 +205,9 @@ int honey_lua_parse_arguments(lua_State* L, unsigned int n, ...)
 	for (int j=0; j<arg_lists[i].length; j++) {
 	    honey_lua_type type = va_arg(args, honey_lua_type);
 	    void* destination = va_arg(args, void*);
+
+	    arg_lists[i].args[j].type = type;
+	    arg_lists[i].args[j].ptr = destination;
 	}
     }
     
@@ -233,7 +223,18 @@ int honey_lua_parse_arguments(lua_State* L, unsigned int n, ...)
     }
 
     if (index == n) {
-	/* no arguments match, throw error */
+	char* arg_lists_str, *argv, *error;
+	arg_lists_to_string(&arg_lists_str, n, arg_lists);
+	arguments_to_string(L, &argv);
+	honey_format_string
+	    (&error,
+	     "expected arguments of the form\n%s\nbut received\n%s",
+	     arg_lists_str, argv);
+	lua_pushstring(L, error);
+	free(arg_lists_str);
+	free(argv);
+	free(error);
+	lua_error(L);
     }
 	
     
@@ -383,57 +384,46 @@ int honey_exit(lua_State* L)
  */
 
 /* string must be able to hold at least 16 characters. */
-static int type_to_string(char* string,
-			  honey_lua_type type)
+static const char* type_to_string(honey_lua_type type)
 {
     switch(type) {
     case HONEY_BOOLEAN:
-	memcpy(string, "boolean", 8);
-	return 7;
+	return "boolean";
 
     case HONEY_INTEGER:
-	memcpy(string, "integer", 8);
-	return 7;
+	return "integer";
 
     case HONEY_NUMBER:
-	memcpy(string, "number", 7);
-	return 6;
+	return "number";
 
     case HONEY_STRING:
-	memcpy(string, "string", 7);
-	return 6;
+	return "string";
 
     case HONEY_FUNCTION:
-	memcpy(string, "function", 9);
-	return 8;
+	return "function";
 
     case HONEY_TABLE:
-	memcpy(string, "table", 6);
-	return 5;
+	return "table";
 
     case HONEY_NIL:
-	memcpy(string, "nil", 4);
-	return 3;
+	return "nil";
 
     case HONEY_USERDATA:
-	memcpy(string, "userdata", 9);
-	return 8;
+	return "userdata";
 
     case HONEY_LIGHTUSERDATA:
-	memcpy(string, "light userdata", 16);
-	return 15;
+	return "light userdata";
 
     case HONEY_ANY:
-	memcpy(string, "any", 4);
-	return 3;
+	return "any";
 
     default:
-	return 0;
+	return "ERROR";
     }
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
+	
 static bool check_argument(lua_State* L,
 			   honey_lua_type type,
 			   int index)

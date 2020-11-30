@@ -397,3 +397,101 @@ int honey_glm_rotate(lua_State* L)
 
     return 0;
 }
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Camera functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+int honey_glm_perspective(lua_State* L)
+{
+    honey_glm_array *self;
+    float fov, aspect, near, far;
+    honey_lua_parse_arguments
+	(L, 1, 5,
+	 HONEY_USERDATA, &self,
+	 HONEY_NUMBER, &fov,  HONEY_NUMBER, &aspect,
+	 HONEY_NUMBER, &near, HONEY_NUMBER, &far);
+
+    glm_perspective(fov, aspect, near, far, self->data);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_perspective_resize(lua_State* L)
+{
+    honey_glm_array *self;
+    float new_aspect;
+    honey_lua_parse_arguments
+	(L, 1, 2, HONEY_USERDATA, &self, HONEY_NUMBER, new_aspect);
+
+    glm_perspective_resize(new_aspect, self->data);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_lookat(lua_State* L)
+{
+    honey_glm_array *self, *eye, *center, *up;
+    honey_lua_parse_arguments
+	(L, 1, 4,
+	 HONEY_USERDATA, &self,
+	 HONEY_USERDATA, &eye,
+	 HONEY_USERDATA, &center,
+	 HONEY_USERDATA, &up);
+
+    if (eye->type != VEC3)
+	honey_lua_throw_error
+	    (L, "eye vector must be of type VEC3 (%d); got %d instead",
+	     VEC3, eye->type);
+
+    if (center->type != VEC3)
+	honey_lua_throw_error
+	    (L, "center vector must be of type VEC3 (%d); got %d instead",
+	     VEC3, center->type);
+
+    if (up->type != VEC3)
+	honey_lua_throw_error
+	    (L, "up vector must be of type VEC3 (%d); got %d instead",
+	     VEC3, up->type);
+
+    glm_lookat(eye->data, center->data, up->data, self->data);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_look(lua_State* L)
+{
+    honey_glm_array *self, *eye, *dir, *up;
+    honey_lua_parse_arguments
+	(L, 1, 4,
+	 HONEY_USERDATA, &self,
+	 HONEY_USERDATA, &eye,
+	 HONEY_USERDATA, &dir,
+	 HONEY_USERDATA, &up);
+
+    if (eye->type != VEC3)
+	honey_lua_throw_error
+	    (L, "eye vector must be of type VEC3 (%d); got %d instead",
+	     VEC3, eye->type);
+
+    if (dir->type != VEC3)
+	honey_lua_throw_error
+	    (L, "direction vector must be of type VEC3 (%d); got %d instead",
+	     VEC3, dir->type);
+
+    if (up->type != VEC3)
+	honey_lua_throw_error
+	    (L, "up vector must be of type VEC3 (%d); got %d instead",
+	     VEC3, up->type);
+
+    glm_look(eye->data, dir->data, up->data, self->data);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+

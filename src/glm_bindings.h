@@ -188,4 +188,12 @@ int honey_glm_rotate_z(lua_State* L);
 
 int honey_glm_rotate(lua_State* L);
 
+int honey_glm_perspective(lua_State* L);
+
+int honey_glm_perspective_resize(lua_State* L);
+
+int honey_glm_lookat(lua_State* L);
+
+int honey_glm_look(lua_State* L);
+
 #endif

@@ -87,7 +87,7 @@ void honey_setup_glm(lua_State* L)
     honey_lua_create_table
 	(L, 2,
 
-	 HONEY_TABLE, "__index", 16,
+	 HONEY_TABLE, "__index", 21,
 	 HONEY_FUNCTION, "copy", honey_glm_mat4_copy,
 	 HONEY_FUNCTION, "eye", honey_glm_mat4_eye,
 	 HONEY_FUNCTION, "zero", honey_glm_mat4_zero,
@@ -105,6 +105,10 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "rotateY", honey_glm_rotate_y,
 	 HONEY_FUNCTION, "rotateZ", honey_glm_rotate_z,
 	 HONEY_FUNCTION, "rotate", honey_glm_rotate,
+	 HONEY_FUNCTION, "perspective", honey_glm_perspective,
+	 HONEY_FUNCTION, "perspectiveResize", honey_glm_perspective_resize,
+	 HONEY_FUNCTION, "lookAt", honey_glm_lookat,
+	 HONEY_FUNCTION, "look", honey_glm_look,
 
 	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
     honey_glm_mat4_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
