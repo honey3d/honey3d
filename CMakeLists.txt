@@ -16,6 +16,8 @@ add_library(stb_image src/stb_image/stb_image.c)
 set(SOURCE_FILES
   src/main.c
   src/glm_bindings.c
+  src/glm_vec3_bindings.c
+  src/glm_vec4_bindings.c
   src/camera.c
   src/honey.c
   src/input.c
