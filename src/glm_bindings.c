@@ -65,6 +65,50 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
     honey_glm_vec4_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
+    /* mat3 metatable */
+    honey_lua_create_table
+	(L, 2,
+
+	 HONEY_TABLE, "__index", 9,
+	 HONEY_FUNCTION, "copyTo", honey_glm_mat3_copy,
+	 HONEY_FUNCTION, "eye", honey_glm_mat3_eye,
+	 HONEY_FUNCTION, "zero", honey_glm_mat3_zero,
+	 HONEY_FUNCTION, "mul", honey_glm_mat3_mul,
+	 HONEY_FUNCTION, "transpose", honey_glm_mat3_transpose,
+	 HONEY_FUNCTION, "mulv", honey_glm_mat3_mulv,
+	 HONEY_FUNCTION, "scale", honey_glm_mat3_scale,
+	 HONEY_FUNCTION, "det", honey_glm_mat3_det,
+	 HONEY_FUNCTION, "inv", honey_glm_mat3_inv,
+
+	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
+    honey_glm_mat3_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    /* mat4 metatable */
+    honey_lua_create_table
+	(L, 2,
+
+	 HONEY_TABLE, "__index", 16,
+	 HONEY_FUNCTION, "copy", honey_glm_mat4_copy,
+	 HONEY_FUNCTION, "eye", honey_glm_mat4_eye,
+	 HONEY_FUNCTION, "zero", honey_glm_mat4_zero,
+	 HONEY_FUNCTION, "mul", honey_glm_mat4_mul,
+	 HONEY_FUNCTION, "transpose", honey_glm_mat4_transpose,
+	 HONEY_FUNCTION, "mulv", honey_glm_mat4_mulv,
+	 HONEY_FUNCTION, "scale", honey_glm_mat4_scale,
+	 HONEY_FUNCTION, "det", honey_glm_mat4_det,
+	 HONEY_FUNCTION, "inv", honey_glm_mat4_inv,
+	 HONEY_FUNCTION, "translateX", honey_glm_translate_x,
+	 HONEY_FUNCTION, "translateY", honey_glm_translate_y,
+	 HONEY_FUNCTION, "translateZ", honey_glm_translate_z,
+	 HONEY_FUNCTION, "scalev", honey_glm_scalev,
+	 HONEY_FUNCTION, "rotateX", honey_glm_rotate_x,
+	 HONEY_FUNCTION, "rotateY", honey_glm_rotate_y,
+	 HONEY_FUNCTION, "rotateZ", honey_glm_rotate_z,
+	 HONEY_FUNCTION, "rotate", honey_glm_rotate,
+
+	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
+    honey_glm_mat4_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
     /* glm table */
     honey_lua_create_table
 	(L, 4,
@@ -167,6 +211,3 @@ int honey_glm_array_destroy(lua_State* L)
     free(array->data);
     return 0;
 }
-
-
-

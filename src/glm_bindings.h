@@ -120,4 +120,72 @@ int honey_glm_vec4_clamp(lua_State* L);
 			     
 int honey_glm_vec4_lerp(lua_State* L);
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Mat3 Functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+int honey_glm_mat3_copy(lua_State* L);
+
+int honey_glm_mat3_eye(lua_State* L);
+
+int honey_glm_mat3_zero(lua_State* L);
+
+int honey_glm_mat3_mul(lua_State* L);
+
+int honey_glm_mat3_transpose(lua_State* L);
+
+int honey_glm_mat3_mulv(lua_State* L);
+
+int honey_glm_mat3_scale(lua_State* L);
+
+int honey_glm_mat3_det(lua_State* L);
+
+int honey_glm_mat3_inv(lua_State* L);
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Mat4 Functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+int honey_glm_mat4_copy(lua_State* L);
+
+int honey_glm_mat4_eye(lua_State* L);
+
+int honey_glm_mat4_zero(lua_State* L);
+
+int honey_glm_mat4_mul(lua_State* L);
+
+int honey_glm_mat4_transpose(lua_State* L);
+
+int honey_glm_mat4_mulv(lua_State* L);
+
+int honey_glm_mat4_scale(lua_State* L);
+
+int honey_glm_mat4_det(lua_State* L);
+
+int honey_glm_mat4_inv(lua_State* L);
+
+int honey_glm_translate(lua_State* L);
+
+int honey_glm_translate_x(lua_State* L);
+
+int honey_glm_translate_y(lua_State* L);
+
+int honey_glm_translate_z(lua_State* L);
+
+int honey_glm_scalev(lua_State* L);
+
+int honey_glm_rotate_x(lua_State* L);
+
+int honey_glm_rotate_y(lua_State* L);
+
+int honey_glm_rotate_z(lua_State* L);
+
+int honey_glm_rotate(lua_State* L);
+
 #endif
