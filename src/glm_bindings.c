@@ -87,7 +87,7 @@ void honey_setup_glm(lua_State* L)
     honey_lua_create_table
 	(L, 2,
 
-	 HONEY_TABLE, "__index", 21,
+	 HONEY_TABLE, "__index", 22,
 	 HONEY_FUNCTION, "copy", honey_glm_mat4_copy,
 	 HONEY_FUNCTION, "eye", honey_glm_mat4_eye,
 	 HONEY_FUNCTION, "zero", honey_glm_mat4_zero,
@@ -97,6 +97,7 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "scale", honey_glm_mat4_scale,
 	 HONEY_FUNCTION, "det", honey_glm_mat4_det,
 	 HONEY_FUNCTION, "inv", honey_glm_mat4_inv,
+	 HONEY_FUNCTION, "translate", honey_glm_translate,
 	 HONEY_FUNCTION, "translateX", honey_glm_translate_x,
 	 HONEY_FUNCTION, "translateY", honey_glm_translate_y,
 	 HONEY_FUNCTION, "translateZ", honey_glm_translate_z,
