@@ -12,6 +12,10 @@ extern int honey_glm_vec4_mt_ref;
 extern int honey_glm_mat3_mt_ref;
 extern int honey_glm_mat4_mt_ref;
 
+extern honey_glm_array UNIT_X;
+extern honey_glm_array UNIT_Y;
+extern honey_glm_array UNIT_Z;
+
 /** @brief Push the honey glm binding functions to the lua stack.
  *
  * @returns Nothing.

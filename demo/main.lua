@@ -1,9 +1,19 @@
+local root = honey.node(nil,
+			honey.glm.vec3{0,0,0},
+			honey.glm.vec3{0,0,0},
+			honey.glm.vec3{1,1,1})
+
+local child = honey.node(root,
+			 honey.glm.vec3{0,0,0},
+			 honey.glm.vec3{0,0,0},
+			 honey.glm.vec3{1,1,1})
+
 local v = honey.glm.vec3{1, 2, 3}
 
-local M = honey.glm.mat3()
+local M = honey.glm.mat4()
 M:set(1,3, 1)
 
-print(M:mulv(v))
+print(M:mul(M))
 
 print(v)
 print(honey.glm.vec3{2, 0.001, 0})

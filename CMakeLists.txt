@@ -28,6 +28,7 @@ set(SOURCE_FILES
   src/mesh.c
   src/primitives.c
   src/shader.c
+  src/scene_tree_node.c
   src/texture.c
   src/window.c)
   

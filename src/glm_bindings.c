@@ -5,6 +5,33 @@ int honey_glm_vec4_mt_ref = LUA_NOREF;
 int honey_glm_mat3_mt_ref = LUA_NOREF;
 int honey_glm_mat4_mt_ref = LUA_NOREF;
 
+int honey_glm_UNIT_X_ref = LUA_NOREF;
+int honey_glm_UNIT_Y_ref = LUA_NOREF;
+int honey_glm_UNIT_Z_ref = LUA_NOREF;
+
+static void create_vec3(lua_State* L,
+			int x, int y, int z,
+			int* ref)
+{
+    lua_createtable(L, 3, 0);
+
+    lua_pushnumber(L, x);
+    lua_rawseti(L, -2, 1);
+
+    lua_pushnumber(L, y);
+    lua_rawseti(L, -2, 2);
+
+    lua_pushnumber(L, z);
+    lua_rawseti(L, -2, 3);
+
+    lua_pushcfunction(L, honey_glm_new_vec3);
+    lua_pushvalue(L, -2);
+    honey_lua_pcall(L, 1, 1);
+
+    *ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pop(L, 1);
+}
+
 void honey_setup_glm(lua_State* L)
 {
     /* vec3 metatable */
@@ -127,6 +154,10 @@ void honey_setup_glm(lua_State* L)
 
 	 HONEY_FUNCTION, "__gc", honey_glm_array_destroy);
     honey_glm_mat4_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    create_vec3(L, 1, 0, 0, &honey_glm_UNIT_X_ref);
+    create_vec3(L, 0, 1, 0, &honey_glm_UNIT_Y_ref);
+    create_vec3(L, 0, 0, 1, &honey_glm_UNIT_Z_ref);
     
     /* glm table */
     honey_lua_create_table
@@ -135,6 +166,16 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "vec4", honey_glm_new_vec4,
 	 HONEY_FUNCTION, "mat3", honey_glm_new_mat3,
 	 HONEY_FUNCTION, "mat4", honey_glm_new_mat4);
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_glm_UNIT_X_ref);
+    lua_setfield(L, -2, "UNIT_X");
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_glm_UNIT_Y_ref);
+    lua_setfield(L, -2, "UNIT_Y");
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_glm_UNIT_Z_ref);
+    lua_setfield(L, -2, "UNIT_Z");
+    
     lua_setfield(L, -2, "glm");
 }
 
