@@ -194,8 +194,8 @@ int honey_key_bind(lua_State* L)
 
     int choice = honey_lua_parse_arguments
 	(L, 2,
-	 2, HONEY_INTEGER, &key, HONEY_FUNCTION,
-	 3, HONEY_INTEGER, &key, HONEY_FUNCTION, HONEY_ANY);
+	 2, HONEY_INTEGER, &key, HONEY_FUNCTION, NULL,
+	 3, HONEY_INTEGER, &key, HONEY_FUNCTION, NULL, HONEY_ANY, NULL);
 
     lua_pushvalue(L, 2);
     int callback = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -282,16 +282,19 @@ int honey_mouse_set_mode(lua_State* L)
 
 int honey_mouse_movement_bind(lua_State* L)
 {
-    honey_lua_parse_arguments
-	(L, 1,
-	 2, HONEY_FUNCTION, HONEY_ANY);
+    int choice = honey_lua_parse_arguments
+	(L, 2,
+	 1, HONEY_FUNCTION, NULL,
+	 2, HONEY_FUNCTION, NULL, HONEY_ANY, NULL);
 
     honey_mouse_movement_unbind(L); /* avoid memory leaks! */
     
     lua_pushvalue(L, 1);
     honey_mouse_movement_callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_pushvalue(L, 2);
-    honey_mouse_movement_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    if (choice == 1) {
+	lua_pushvalue(L, 2);
+	honey_mouse_movement_callback_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    }
     return 0;
 }
 

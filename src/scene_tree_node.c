@@ -16,6 +16,9 @@ void honey_setup_scene_tree(lua_State* L)
 	 HONEY_FUNCTION, "scale", honey_node_scale);
     honey_node_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_node_mt_ref);
+    lua_setfield(L, -2, "nodeMetatable");
+
     lua_pushcfunction(L, honey_node_new);
     lua_setfield(L, -2, "node");
 }
@@ -42,18 +45,19 @@ int honey_node_new(lua_State* L)
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_node_mt_ref);
     lua_setmetatable(L, -2);
 
-    lua_pushvalue(L, 1);
-    if (!lua_isnil(L, -1)) {
+    if (lua_istable(L, 1)) {
 	/* add self to parent.children */
-	lua_getfield(L, -1, "children");
+	lua_getfield(L, 1, "children");
 	int length = lua_objlen(L, -1);
 
 	lua_pushinteger(L, length+1);
-	lua_pushvalue(L, 5);
+	lua_pushvalue(L, -3);
 	lua_settable(L, -3);
 	lua_pop(L, 1);
+
+	lua_pushvalue(L, 1);
+	lua_setfield(L, -2, "parent");
     }
-    lua_setfield(L, -2, "parent");
 
     if (position->type != VEC3)
 	honey_lua_throw_error
@@ -105,46 +109,35 @@ int honey_node_update_transform(lua_State* L)
 {
     honey_lua_parse_arguments(L, 1, 1, HONEY_TABLE, NULL);
 
-    /* self.transform:eye() */
-    lua_pushcfunction(L, honey_glm_mat4_eye);
+    honey_glm_array *transform, *position, *rotation, *parent_transform;
+
     lua_getfield(L, 1, "transform");
-    lua_pushvalue(L, -1);
-    honey_lua_pcall(L, 1, 0);
-
-    /* self.transform:translate(self.position) */
-    lua_pushcfunction(L, honey_glm_translate);
-    lua_pushvalue(L, 2);
-    lua_getfield(L, 1, "position");
-    honey_lua_pcall(L, 2, 0);
-
-    /* self.transform:rotateZ(self.rotation:at(2)) */
-    lua_pushcfunction(L, honey_glm_rotate_z);
-    lua_pushvalue(L, 2);
-    lua_getfield(L, 1, "position");
-    honey_glm_array* position = lua_touserdata(L, -1);
+    transform = lua_touserdata(L, -1);
     lua_pop(L, 1);
-    lua_pushnumber(L, position->data[2]);
-    honey_lua_pcall(L, 2, 0);
 
-    /* self.transform:rotateY(self.rotation:at(1)) */
-    lua_pushcfunction(L, honey_glm_rotate_y);
-    lua_pushvalue(L, 2);
-    lua_pushnumber(L, position->data[1]);
-    honey_lua_pcall(L, 2, 0);
+    lua_getfield(L, 1, "position");
+    position = lua_touserdata(L, -1);
+    lua_pop(L, 1);
+    
+    lua_getfield(L, 1, "rotation");
+    rotation = lua_touserdata(L, -1);
+    lua_pop(L, 1);
 
-    /* self.transform:rotateX(self.rotation:at(0)) */
-    lua_pushcfunction(L, honey_glm_rotate_x);
-    lua_pushvalue(L, 2);
-    lua_pushnumber(L, position->data[0]);
-    honey_lua_pcall(L, 2, 0);
+    glm_mat4_identity(transform->data);
+
+    glm_translate(transform->data, position->data);
+
+    glm_rotate_z(transform->data, rotation->data[2], transform->data);
+    glm_rotate_y(transform->data, rotation->data[1], transform->data);
+    glm_rotate_x(transform->data, rotation->data[0], transform->data);
 
     lua_getfield(L, 1, "parent");
-    if (!lua_isnil(L, -1)) {
-	lua_pushcfunction(L, honey_glm_mat4_mul);
-	lua_getfield(L, -2, "transform");
-	lua_pushvalue(L, 2);
-	lua_pushvalue(L, -1);
-	honey_lua_pcall(L, 3, 0);
+    if (lua_istable(L, -1)) {
+	lua_getfield(L, -1, "transform");
+	parent_transform = lua_touserdata(L, -1);
+	lua_pop(L, 1);
+
+	glm_mat4_mul(parent_transform->data, transform->data, transform->data);
     }
     lua_pop(L, 1);
 
@@ -191,13 +184,23 @@ int honey_node_update_cascade(lua_State* L)
 
 int honey_node_draw_cascade(lua_State* L)
 {
-    honey_lua_parse_arguments(L, 1, 1, HONEY_TABLE, NULL);
+    int* shader;
+    int choice = honey_lua_parse_arguments
+	(L, 2,
+	 2, HONEY_TABLE, NULL, HONEY_TABLE, NULL,
+	 3, HONEY_TABLE, NULL, HONEY_TABLE, NULL, HONEY_USERDATA, &shader);
 
     /* call self.draw if it exists */
     lua_getfield(L, 1, "draw");
     if (!lua_isnil(L, -1)) {
 	lua_pushvalue(L, 1);
-	honey_lua_pcall(L, 1, 0);
+	lua_pushvalue(L, 2);
+	if (choice == 1) {
+	    lua_pushvalue(L, 3);
+	    honey_lua_pcall(L, 3, 0);
+	}
+	else
+	    honey_lua_pcall(L, 2, 0);
     }
     else
 	lua_pop(L, 1);
@@ -209,7 +212,13 @@ int honey_node_draw_cascade(lua_State* L)
 	lua_rawgeti(L, -1, i+1);
 	lua_pushcfunction(L, honey_node_draw_cascade);
 	lua_pushvalue(L, -2);
-	honey_lua_pcall(L, 1, 0);
+	lua_pushvalue(L, 2);
+	if (choice == 1) {
+	    lua_pushvalue(L, 3);
+	    honey_lua_pcall(L, 3, 0);
+	}
+	else
+	    honey_lua_pcall(L, 2, 0);
 	lua_pop(L, 1);
     }
 	
@@ -220,15 +229,17 @@ int honey_node_draw_cascade(lua_State* L)
 
 int honey_node_translate(lua_State* L)
 {
-    honey_glm_array* v;
+    honey_glm_array* position, *v;
     honey_lua_parse_arguments(L, 1, 2, HONEY_TABLE, NULL, HONEY_USERDATA, &v);
 
-    lua_pushcfunction(L, honey_glm_vec3_add);
-    lua_getfield(L, 1, "transform");
-    lua_pushvalue(L, 2);
-    lua_pushvalue(L, -2);
-    honey_lua_pcall(L, 3, 0);
+    lua_getfield(L, 1, "position");
+    position = lua_touserdata(L, -1);
+    lua_pop(L, 1);
 
+    position->data[0] += v->data[0];
+    position->data[1] += v->data[1];
+    position->data[2] += v->data[2];
+    
     return 0;
 }
 

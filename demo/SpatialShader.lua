@@ -1,5 +1,3 @@
-local Shader = require('Shader')
-
 local VertexCode = [[
 #version 330 core
 
@@ -42,17 +40,44 @@ void main()
 local SpatialShader = {}
 
 SpatialShader.prototype = {}
-setmetatable(SpatialShader.prototype, { __index = Shader.prototype })
+
+SpatialShader.prototype.use = function(self)
+   self.shader:use()
+end
+
+SpatialShader.prototype.setInteger = function(self, name, value)
+   self.shader:setInteger(name, value)
+end
+
+SpatialShader.prototype.setFloat = function(self, name, value)
+   self.shader:setFloat(name, value)
+end
+
+SpatialShader.prototype.setVec3 = function(self, name, value)
+   self.shader:setVec3(name, value)
+end
+
+SpatialShader.prototype.setVec4 = function(self, name, value)
+   self.shader:setVec4(name, value)
+end
+
+SpatialShader.prototype.setMat3 = function(self, name, value)
+   self.shader:setMat3(name, value)
+end
+
+SpatialShader.prototype.setMat4 = function(self, name, value)
+   self.shader:setMat4(name, value)
+end
 
 SpatialShader.prototype.setCamera = function(self, camera)
-   self:setMat4('view', camera.view)
-   self:setMat4('projection', camera.projection)
+   self.shader:setMat4('view', camera.view)
+   self.shader:setMat4('projection', camera.projection)
 end
 
 SpatialShader.prototype.drawMesh = function(self, mesh)
-   self:setMat4('model', mesh.transform)
+   self.shader:setMat4('model', mesh.transform)
    honey.texture.use(self.albedo, 0)
-   honey.mesh.draw(mesh.mesh, self.program)
+   honey.mesh.draw(mesh.mesh, self.shader)
 end
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,7 +88,8 @@ SpatialShader.mt.__index = SpatialShader.prototype
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SpatialShader.new = function(albedo)
-   local spatialshader = Shader.new(VertexCode, FragmentCode)
+   local spatialshader = {}
+   spatialshader.shader = honey.shader(VertexCode, FragmentCode)
    spatialshader.albedo = albedo
 
    setmetatable(spatialshader, SpatialShader.mt)

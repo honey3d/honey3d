@@ -10,8 +10,8 @@ int honey_glm_UNIT_Y_ref = LUA_NOREF;
 int honey_glm_UNIT_Z_ref = LUA_NOREF;
 
 static void create_vec3(lua_State* L,
-			int x, int y, int z,
-			int* ref)
+		 int x, int y, int z,
+		 int* ref)
 {
     lua_createtable(L, 3, 0);
 
@@ -32,12 +32,14 @@ static void create_vec3(lua_State* L,
     lua_pop(L, 1);
 }
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 void honey_setup_glm(lua_State* L)
 {
     /* vec3 metatable */
     honey_lua_create_table
 	(L, 3,
-	 HONEY_TABLE, "__index", 23,
+	 HONEY_TABLE, "__index", 24,
 	 HONEY_FUNCTION, "get", honey_glm_array_vec_get,
 	 HONEY_FUNCTION, "set", honey_glm_array_vec_set,
 	 HONEY_FUNCTION, "copyTo", honey_glm_vec3_copy,
@@ -53,6 +55,7 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "sub", honey_glm_vec3_sub,
 	 HONEY_FUNCTION, "subs", honey_glm_vec3_subs,
 	 HONEY_FUNCTION, "mul", honey_glm_vec3_mul,
+	 HONEY_FUNCTION, "muls", honey_glm_vec3_muls,
 	 HONEY_FUNCTION, "scale", honey_glm_vec3_scale,
 	 HONEY_FUNCTION, "scaleAs", honey_glm_vec3_scale_as,
 	 HONEY_FUNCTION, "div", honey_glm_vec3_div,
@@ -124,7 +127,7 @@ void honey_setup_glm(lua_State* L)
     honey_lua_create_table
 	(L, 3,
 
-	 HONEY_TABLE, "__index", 24,
+	 HONEY_TABLE, "__index", 25,
 	 HONEY_FUNCTION, "get", honey_glm_array_mat_get,
 	 HONEY_FUNCTION, "set", honey_glm_array_mat_set,
 	 HONEY_FUNCTION, "copyTo", honey_glm_mat4_copy,
@@ -136,6 +139,7 @@ void honey_setup_glm(lua_State* L)
 	 HONEY_FUNCTION, "scale", honey_glm_mat4_scale,
 	 HONEY_FUNCTION, "det", honey_glm_mat4_det,
 	 HONEY_FUNCTION, "inv", honey_glm_mat4_inv,
+	 HONEY_FUNCTION, "basis", honey_glm_mat4_basis,
 	 HONEY_FUNCTION, "translate", honey_glm_translate,
 	 HONEY_FUNCTION, "translateX", honey_glm_translate_x,
 	 HONEY_FUNCTION, "translateY", honey_glm_translate_y,
@@ -442,7 +446,6 @@ int honey_glm_array_destroy(lua_State* L)
 {
     honey_glm_array* array;
     honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &array);
-    printf("DESTROY GLM ARRAY %d", array->type);
     free(array->data);
     return 0;
 }

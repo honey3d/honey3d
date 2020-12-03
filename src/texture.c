@@ -11,7 +11,7 @@ static int honey_lua_texture_create(lua_State* L)
     honey_texture* texture;
     int width, height;
     char* type;
-    honey_lua_parse_arguments(L, 4,
+    honey_lua_parse_arguments(L, 1, 4,
                               HONEY_USERDATA, &texture,
                               HONEY_STRING, &type,
                               HONEY_INTEGER, &width,
@@ -41,7 +41,7 @@ static int honey_lua_texture_load(lua_State* L)
 {
     honey_texture* texture;
     char* texture_path;
-    honey_lua_parse_arguments(L, 3,
+    honey_lua_parse_arguments(L, 1, 3,
                               HONEY_USERDATA, &texture,
                               HONEY_STRING, &texture_path);
     enum honey_texture_result result = honey_texture_load(texture, texture_path);
@@ -62,7 +62,7 @@ static int honey_lua_texture_use(lua_State* L)
 {
     honey_texture* texture;
     int texture_unit;
-    honey_lua_parse_arguments(L, 2,
+    honey_lua_parse_arguments(L, 1, 2,
                               HONEY_USERDATA, &texture,
                               HONEY_INTEGER, &texture_unit);
     honey_texture_use(*texture, texture_unit);
@@ -72,6 +72,13 @@ static int honey_lua_texture_use(lua_State* L)
 static int honey_lua_framebuffer_new(lua_State* L)
 {
     honey_texture* draw, *depth;
+    int width, height;
+    honey_lua_parse_arguments(L, 1, 4,
+			      HONEY_ANY, NULL,
+			      HONEY_ANY, NULL,
+                              HONEY_INTEGER, &width,
+                              HONEY_INTEGER, &height);
+
     if (lua_isuserdata(L, 1))
         draw = lua_touserdata(L, 1);
     else
@@ -81,11 +88,6 @@ static int honey_lua_framebuffer_new(lua_State* L)
         depth = lua_touserdata(L, 2);
     else
         depth = NULL;
-
-    int width, height;
-    honey_lua_parse_arguments(L, 4, HONEY_ANY, HONEY_ANY,
-                              HONEY_INTEGER, &width,
-                              HONEY_INTEGER, &height);
 
     unsigned int framebuffer;
     honey_texture_framebuffer_object_new(&framebuffer,

@@ -31,7 +31,7 @@ void main()
   color = vec4(texture(tex, UV).xyz, 1);
 } ]]
 
-ScreenQuad.shader = honey.shader.new(vertexShader, fragmentShader)
+ScreenQuad.shader = honey.shader(vertexShader, fragmentShader)
 
 ScreenQuad.tex   = honey.texture.new()
 ScreenQuad.depth = honey.texture.new()

@@ -247,6 +247,33 @@ int honey_glm_vec3_mul(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+int honey_glm_vec3_muls(lua_State* L)
+{
+    honey_glm_array *self, *dest;
+    float s;
+    int choice = honey_lua_parse_arguments
+	(L, 2,
+	 2, HONEY_USERDATA, &self, HONEY_NUMBER, &s,
+	 3, HONEY_USERDATA, &self, HONEY_NUMBER, &s, HONEY_USERDATA, &dest);
+
+    if (choice == 0)
+	dest = self;
+    else {
+	if (dest->type != VEC3)
+	    honey_lua_throw_error
+		(L, "destination vector must be of type VEC3 (%d); got %d instead",
+		 VEC3, dest->type);
+    }
+    
+    dest->data[0] = s * self->data[0];
+    dest->data[1] = s * self->data[1];
+    dest->data[2] = s * self->data[2];
+
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 int honey_glm_vec3_scale(lua_State* L)
 {
     honey_glm_array *self, *dest;

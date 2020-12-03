@@ -1,9 +1,7 @@
-local Node = require('Node')
-
 local MeshInstance = {}
 
 MeshInstance.prototype = {}
-setmetatable(MeshInstance.prototype, { __index = Node.prototype})
+setmetatable(MeshInstance.prototype, { __index = honey.nodeMetatable.__index })
 
 MeshInstance.prototype.draw = function(self, camera, shader)
    local shader = shader or self.shader
@@ -20,7 +18,7 @@ MeshInstance.mt.__index = MeshInstance.prototype
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 MeshInstance.new = function(parent, position, rotation, scale, mesh, shader)
-   local meshinstance = Node.new(parent, position, rotation, scale)
+   local meshinstance = honey.node(parent, position, rotation, scale)
    meshinstance.mesh = mesh
    meshinstance.shader = shader
 

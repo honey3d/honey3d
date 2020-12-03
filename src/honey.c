@@ -57,17 +57,17 @@ bool honey_parse_options(honey_options* options, int argc, char** argv)
 
 static int honey_lua_clear_color(lua_State* L)
 {
-    float* color_array;
+    honey_glm_array* color_array;
     bool color, depth, stencil;
-    honey_lua_parse_arguments(L, 4,
+    honey_lua_parse_arguments(L, 1, 4,
                               HONEY_USERDATA, &color_array,
                               HONEY_BOOLEAN, &color,
                               HONEY_BOOLEAN, &depth,
                               HONEY_BOOLEAN, &stencil);
-    float r = color_array[0];
-    float g = color_array[1];
-    float b = color_array[2];
-    float a = color_array[3];
+    float r = color_array->data[0];
+    float g = color_array->data[1];
+    float b = color_array->data[2];
+    float a = color_array->data[3];
 
     int clear_flags = 0;
     if (color)
@@ -87,7 +87,7 @@ static int honey_lua_clear_color(lua_State* L)
 int honey_lua_enable_depth_test(lua_State* L)
 {
     bool enable;
-    honey_lua_parse_arguments(L, 1, HONEY_BOOLEAN, &enable);
+    honey_lua_parse_arguments(L, 1, 1, HONEY_BOOLEAN, &enable);
     if (enable)
         glEnable(GL_DEPTH_TEST);
     else
@@ -98,7 +98,7 @@ int honey_lua_enable_depth_test(lua_State* L)
 int honey_lua_set_viewport_size(lua_State* L)
 {
     int width, height;
-    honey_lua_parse_arguments(L, 2,
+    honey_lua_parse_arguments(L, 1, 2,
                               HONEY_INTEGER, &width,
                               HONEY_INTEGER, &height);
     glViewport(0,0,width,height);
@@ -249,7 +249,7 @@ int honey_get_callback(lua_State* L, char* callback)
 int honey_set_framebuffer(lua_State* L)
 {
     int framebuffer;
-    honey_lua_parse_arguments(L, 1, HONEY_INTEGER, &framebuffer);
+    honey_lua_parse_arguments(L, 1, 1, HONEY_INTEGER, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     return 0;
 }

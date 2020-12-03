@@ -10,16 +10,19 @@ void honey_setup_shader(lua_State* L)
 
 	 /* honey.shader.prototype */
 	 HONEY_FUNCTION, "use",       honey_shader_use,
-	 HONEY_FUNCTION, "set_int",   honey_shader_set_int,
-	 HONEY_FUNCTION, "set_float", honey_shader_set_float,
-	 HONEY_FUNCTION, "set_vec3",  honey_shader_set_vec3,
-	 HONEY_FUNCTION, "set_vec4",  honey_shader_set_vec4,
-	 HONEY_FUNCTION, "set_mat3",  honey_shader_set_mat3,
-	 HONEY_FUNCTION, "set_mat4",  honey_shader_set_mat4,
+	 HONEY_FUNCTION, "setInteger",   honey_shader_set_int,
+	 HONEY_FUNCTION, "setFloat", honey_shader_set_float,
+	 HONEY_FUNCTION, "setVec3",  honey_shader_set_vec3,
+	 HONEY_FUNCTION, "setVec4",  honey_shader_set_vec4,
+	 HONEY_FUNCTION, "setMat3",  honey_shader_set_mat3,
+	 HONEY_FUNCTION, "setMat4",  honey_shader_set_mat4,
 
 	 HONEY_FUNCTION, "__gc", honey_shader_delete);
 
     honey_shader_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_shader_mt_ref);
+    lua_setfield(L, -2, "shaderMetatable");
 
     lua_pushcfunction(L, honey_shader_new);
     lua_setfield(L, -2, "shader");

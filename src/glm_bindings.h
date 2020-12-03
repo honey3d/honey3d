@@ -76,6 +76,8 @@ int honey_glm_vec3_sub(lua_State* L);
 int honey_glm_vec3_subs(lua_State* L);
 
 int honey_glm_vec3_mul(lua_State* L);
+
+int honey_glm_vec3_muls(lua_State* L);
 			     
 int honey_glm_vec3_scale(lua_State* L);
 			     
@@ -185,6 +187,8 @@ int honey_glm_mat4_scale(lua_State* L);
 int honey_glm_mat4_det(lua_State* L);
 
 int honey_glm_mat4_inv(lua_State* L);
+
+int honey_glm_mat4_basis(lua_State* L);
 
 int honey_glm_translate(lua_State* L);
 

@@ -3,7 +3,7 @@
 static int honey_mesh_lua_plane(lua_State* L)
 {
     float width, height;
-    honey_lua_parse_arguments(L, 2,
+    honey_lua_parse_arguments(L, 1, 2,
                               HONEY_NUMBER, &width,
                               HONEY_NUMBER, &height);
 
@@ -18,7 +18,7 @@ static int honey_mesh_lua_plane(lua_State* L)
 static int honey_mesh_lua_cube(lua_State* L)
 {
     float width, height, depth;
-    honey_lua_parse_arguments(L, 3,
+    honey_lua_parse_arguments(L, 1, 3,
                               HONEY_NUMBER, &width,
                               HONEY_NUMBER, &height,
                               HONEY_NUMBER, &depth);

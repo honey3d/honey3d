@@ -3,18 +3,18 @@
 static int honey_mesh_lua_draw(lua_State* L)
 {
     honey_mesh* mesh;
-    int shader;
-    honey_lua_parse_arguments(L, 2,
+    int* shader;
+    honey_lua_parse_arguments(L, 1, 2,
                               HONEY_USERDATA, &mesh,
-                              HONEY_INTEGER, &shader);
-    honey_mesh_draw(*mesh, shader);
+                              HONEY_USERDATA, &shader);
+    honey_mesh_draw(*mesh, *shader);
     return 0;
 }
 
 static int honey_mesh_lua_delete(lua_State* L)
 {
     honey_mesh* mesh;
-    honey_lua_parse_arguments(L, 1, HONEY_USERDATA, &mesh);
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &mesh);
     honey_mesh_delete(*mesh);
     return 0;
 }
@@ -123,7 +123,7 @@ static void process_nodes_recursively(lua_State* L,
 int honey_mesh_load(lua_State* L)
 {
     char* filename;
-    honey_lua_parse_arguments(L, 1, HONEY_STRING, &filename);
+    honey_lua_parse_arguments(L, 1, 1, HONEY_STRING, &filename);
 
     int n_meshes = 1;
 

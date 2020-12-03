@@ -197,6 +197,47 @@ int honey_glm_mat4_inv(lua_State* L)
     return 0;
 }
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_glm_mat4_basis(lua_State* L)
+{
+    honey_glm_array* self;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &self);
+
+
+    lua_createtable(L, 0, 3);
+    honey_glm_array *x, *y, *z;
+
+    lua_pushcfunction(L, honey_glm_new_vec3);
+    honey_lua_pcall(L, 0, 1);
+    x = lua_touserdata(L, -1);
+    lua_setfield(L, -2, "x");
+
+    lua_pushcfunction(L, honey_glm_new_vec3);
+    honey_lua_pcall(L, 0, 1);
+    y = lua_touserdata(L, -1);
+    lua_setfield(L, -2, "y");
+
+    lua_pushcfunction(L, honey_glm_new_vec3);
+    honey_lua_pcall(L, 0, 1);
+    z = lua_touserdata(L, -1);
+    lua_setfield(L, -2, "z");
+    
+    x->data[0] = self->data[0];
+    x->data[1] = self->data[1];
+    x->data[2] = self->data[2];
+
+    y->data[0] = self->data[4];
+    y->data[1] = self->data[5];
+    y->data[2] = self->data[6];
+
+    z->data[0] = self->data[8];
+    z->data[1] = self->data[9];
+    z->data[2] = self->data[10];
+
+    return 1;
+}
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  * Affine Transforms
