@@ -30,4 +30,3 @@ Camera.new = function(parent, position, rotation, scale, fov, aspect, near, far)
 end
 
 return Camera
-   

@@ -51,7 +51,6 @@ local rotationAxes = { x=0, y=1, z=2 }
 
 function Node.prototype.rotate(self, axis, angle)
    local index = rotationAxes[axis]
-   print(index)
    local oldAngle = self.rotation:get(index)
    self.rotation:set(index, oldAngle + angle)
 end

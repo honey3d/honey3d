@@ -42,7 +42,6 @@ local plane2 = MeshInstance.new(suzanne,
 
 suzanne.update = function(self, dt)
    self:rotate('y', 10*dt)
-   print(self.rotation)
 end
 
 local total_frames = 0
