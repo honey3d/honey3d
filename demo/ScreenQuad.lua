@@ -35,8 +35,8 @@ ScreenQuad.shader = honey.shader(vertexShader, fragmentShader)
 
 ScreenQuad.tex   = honey.texture.new()
 ScreenQuad.depth = honey.texture.new()
-honey.texture.create(ScreenQuad.tex, 'rgb', 640, 480);
-honey.texture.create(ScreenQuad.depth, 'depth', 640, 480);
+ScreenQuad.tex:create('rgb', 640, 480)
+ScreenQuad.depth:create('depth', 640, 480)
 --honey.texture.load(ScreenQuad.texture, 'checkerboard.png', false)
 
 ScreenQuad.fb = honey.texture.new_framebuffer(ScreenQuad.tex, ScreenQuad.depth, 640, 480)

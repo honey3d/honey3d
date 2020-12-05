@@ -1,8 +1,12 @@
 #include "texture.h"
 
+int honey_texture_mt_ref = LUA_NOREF;
+
 static int honey_lua_texture_new(lua_State* L)
 {
     honey_texture* texture = lua_newuserdata(L, sizeof(honey_texture));
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_texture_mt_ref);
+    lua_setmetatable(L, -2);
     return 1;
 }
 
@@ -26,14 +30,17 @@ static int honey_lua_texture_create(lua_State* L)
     else if (strcmp(type, "depth") == 0)
         honey_texture_new_depth(texture, width, height, NULL);
     else {
-        char* error;
-        honey_format_string(&error,
-                            "unknown texture type '%s'",
-                            type);
-        lua_pushstring(L, error);
-        free(error);
-        lua_error(L);
+	honey_lua_throw_error
+	    (L, "unknown texture type '%s'", type);
     }
+    return 0;
+}
+
+static int honey_lua_texture_destroy(lua_State* L)
+{
+    honey_texture* texture;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &texture);
+    glDeleteTextures(1, &(texture->id));
     return 0;
 }
 
@@ -100,12 +107,20 @@ static int honey_lua_framebuffer_new(lua_State* L)
 void honey_setup_texture(lua_State* L)
 {
     honey_lua_create_table
-	(L, 5,
+	(L, 2,
+	 HONEY_TABLE, "__index", 3,
+	 HONEY_FUNCTION, "create", honey_lua_texture_create,
+	 HONEY_FUNCTION, "load", honey_lua_texture_load,
+	 HONEY_FUNCTION, "use", honey_lua_texture_use,
+
+	 HONEY_FUNCTION, "__gc", honey_lua_texture_destroy);
+    honey_texture_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    honey_lua_create_table
+	(L, 2,
 	 HONEY_FUNCTION, "new",  honey_lua_texture_new,
-	 HONEY_FUNCTION, "new_framebuffer",  honey_lua_framebuffer_new,
-	 HONEY_FUNCTION, "create",  honey_lua_texture_create,
-	 HONEY_FUNCTION, "load",  honey_lua_texture_load,
-	 HONEY_FUNCTION, "use",  honey_lua_texture_use);
+	 HONEY_FUNCTION, "new_framebuffer",  honey_lua_framebuffer_new);
+
     lua_setfield(L, -2, "texture");
 }
 

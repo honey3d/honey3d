@@ -11,7 +11,7 @@ local buffer = false
 honey.input.key.bind(honey.input.key.f, function(action) if action == 1 then buffer = not buffer end end)
 
 local tex = honey.texture.new()
-honey.texture.load(tex, 'checkerboard.png', false)
+tex:load('checkerboard.png', false)
 
 local sceneRoot = Node.new()
 

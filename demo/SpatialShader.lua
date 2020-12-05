@@ -76,7 +76,7 @@ end
 
 SpatialShader.prototype.drawMesh = function(self, mesh)
    self.shader:setMat4('model', mesh.transform)
-   honey.texture.use(self.albedo, 0)
+   self.albedo:use(0)
    honey.mesh.draw(mesh.mesh, self.shader)
 end
 

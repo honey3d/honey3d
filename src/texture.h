@@ -8,6 +8,8 @@
 
 #include "common.h"
 
+extern int honey_texture_mt_ref;
+
 enum honey_texture_result {
   TEXTURE_OK,
   TEXTURE_FAILED,
