@@ -57,7 +57,7 @@ int honey_glm_mat4_mul(lua_State* L)
     int choice = honey_lua_parse_arguments
 	(L, 2,
 	 2, HONEY_USERDATA, &self, HONEY_USERDATA, &mult,
-	 4, HONEY_USERDATA, &self, HONEY_USERDATA, &mult, HONEY_USERDATA, &dest);
+	 3, HONEY_USERDATA, &self, HONEY_USERDATA, &mult, HONEY_USERDATA, &dest);
 
     if (mult->type != MAT4)
 	honey_lua_throw_error

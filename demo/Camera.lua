@@ -1,7 +1,9 @@
+local Node = require('Node')
+
 local Camera = {}
 
 Camera.prototype = {}
-setmetatable(Camera.prototype, { __index = honey.nodeMetatable.__index })
+setmetatable(Camera.prototype, { __index = Node.prototype })
 
 Camera.prototype.updateView = function(self)
    self.basis = self.transform:basis()
@@ -16,7 +18,7 @@ Camera.mt.__index = Camera.prototype
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Camera.new = function(parent, position, rotation, scale, fov, aspect, near, far)
-   local camera = honey.node(parent, position, rotation, scale)
+   local camera = Node.new(parent, position, rotation, scale)
    setmetatable(camera, Camera.mt)
 
    camera.view = honey.glm.mat4()

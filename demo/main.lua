@@ -1,3 +1,4 @@
+local Node = require('Node')
 local FPSCamera = require('FPSCamera')
 local SpatialShader = require('SpatialShader')
 local ScreenQuad = require('ScreenQuad')
@@ -12,10 +13,7 @@ honey.input.key.bind(honey.input.key.f, function(action) if action == 1 then buf
 local tex = honey.texture.new()
 honey.texture.load(tex, 'checkerboard.png', false)
 
-local sceneRoot = honey.node(nil,
-			     honey.glm.vec3(),
-			     honey.glm.vec3(),
-			     honey.glm.vec3{1,1,1})
+local sceneRoot = Node.new()
 
 local shader = SpatialShader.new(tex)
 local lightDirection = honey.glm.vec3{1,1,1}
@@ -43,7 +41,8 @@ local plane2 = MeshInstance.new(suzanne,
                                 shader)
 
 suzanne.update = function(self, dt)
-   self:rotate('y', dt)
+   self:rotate('y', 10*dt)
+   print(self.rotation)
 end
 
 local total_frames = 0

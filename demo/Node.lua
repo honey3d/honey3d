@@ -1,6 +1,3 @@
-local Vector = require('Vector')
-local Matrix = require('Matrix')
-
 local Node = {}
 
 Node.prototype = {}
@@ -10,11 +7,11 @@ Node.prototype.updateTransform = function(self)
 
    self.transform:translate(self.position)
 
-   self.transform:rotate(Vector.Vec3.ZERO, Vector.Vec3.Z_UNIT, self.rotation:at(2))
-   self.transform:rotate(Vector.Vec3.ZERO, Vector.Vec3.Y_UNIT, self.rotation:at(1))
-   self.transform:rotate(Vector.Vec3.ZERO, Vector.Vec3.X_UNIT, self.rotation:at(0))
+   self.transform:rotateZ(self.rotation:get(2))
+   self.transform:rotateY(self.rotation:get(1))
+   self.transform:rotateX(self.rotation:get(0))
 
-   self.transform:scale(self.scale)
+   self.transform:scalev(self.scale)
 
    if self.parent ~= nil then
       self.parent.transform:mul(self.transform, self.transform)
@@ -50,16 +47,13 @@ Node.prototype.translate = function(self, translation)
    self.position:add(translation, self.position)
 end
 
-Node.prototype.pitch = function(self, angle)
-   self.rotation:setAt(0, self.rotation:at(0) + angle)
-end
+local rotationAxes = { x=0, y=1, z=2 }
 
-Node.prototype.yaw = function(self, angle)
-   self.rotation:setAt(1, self.rotation:at(1) + angle)
-end
-
-Node.prototype.roll = function(self, angle)
-   self.rotation:setAt(2, self.rotation:at(2) + angle)
+function Node.prototype.rotate(self, axis, angle)
+   local index = rotationAxes[axis]
+   print(index)
+   local oldAngle = self.rotation:get(index)
+   self.rotation:set(index, oldAngle + angle)
 end
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,9 +70,14 @@ Node.new = function(parent, position, rotation, scale)
 
    node.parent = parent
 
-   node.position = position
-   node.rotation = rotation
-   node.scale = scale
+   if not position then node.position = honey.glm.vec3{0,0,0}
+   else node.position = position end
+   
+   if not rotation then node.rotation = honey.glm.vec3{0,0,0}
+   else node.rotation = rotation end
+
+   if not scale then node.scale = honey.glm.vec3{1,1,1}
+   else node.scale = scale end
 
    node.children = {}
 
