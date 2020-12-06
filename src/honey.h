@@ -8,7 +8,6 @@
 
 #include "common.h"
 
-#include "camera.h"
 #include "glm_bindings.h"
 #include "input.h"
 #include "light.h"

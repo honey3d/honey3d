@@ -20,7 +20,6 @@ set(SOURCE_FILES
   src/glm_vec4_bindings.c
   src/glm_mat3_bindings.c
   src/glm_mat4_bindings.c
-  src/camera.c
   src/honey.c
   src/input.c
   src/honey_lua.c
