@@ -8,6 +8,8 @@
 
 #include "common.h"
 
+extern int honey_mesh_mt_ref;
+
 typedef struct {
     unsigned int n_vertices, n_indices;
   unsigned int vertex_array, vertex_buffer, element_buffer;

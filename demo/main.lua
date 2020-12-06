@@ -20,7 +20,7 @@ local lightDirection = honey.glm.vec3{1,1,1}
 lightDirection:normalize()
 shader:setVec3('directional_lights[0].direction', lightDirection)
 shader:setVec3('directional_lights[0].color', honey.glm.vec3{0,1,0})
-local meshes = honey.mesh.load('Suzanne.obj')
+local meshes = honey.mesh('Suzanne.obj')
 local suzanne = MeshInstance.new(sceneRoot,
                                  honey.glm.vec3{0,0,3},
                                  honey.glm.vec3{0,math.pi,0},
@@ -41,7 +41,7 @@ local plane2 = MeshInstance.new(suzanne,
                                 shader)
 
 suzanne.update = function(self, dt)
-   self:rotate('y', 10*dt)
+   self:rotate('y', dt)
 end
 
 local total_frames = 0

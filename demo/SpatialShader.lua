@@ -74,10 +74,10 @@ SpatialShader.prototype.setCamera = function(self, camera)
    self.shader:setMat4('projection', camera.projection)
 end
 
-SpatialShader.prototype.drawMesh = function(self, mesh)
-   self.shader:setMat4('model', mesh.transform)
+SpatialShader.prototype.drawMesh = function(self, meshInstance)
+   self.shader:setMat4('model', meshInstance.transform)
    self.albedo:use(0)
-   honey.mesh.draw(mesh.mesh, self.shader)
+   meshInstance.mesh:draw(self.shader)
 end
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

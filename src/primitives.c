@@ -8,6 +8,8 @@ static int honey_mesh_lua_plane(lua_State* L)
                               HONEY_NUMBER, &height);
 
     honey_mesh* mesh = lua_newuserdata(L, sizeof(honey_mesh));
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_mesh_mt_ref);
+    lua_setmetatable(L, -2);
     if (honey_mesh_new_textured_plane(mesh, width, height) != HONEY_OK) {
         lua_pushstring(L, "error encountered while building plane");
         lua_error(L);
@@ -24,6 +26,8 @@ static int honey_mesh_lua_cube(lua_State* L)
                               HONEY_NUMBER, &depth);
 
     honey_mesh* mesh = lua_newuserdata(L, sizeof(honey_mesh));
+    lua_rawgeti(L, LUA_REGISTRYINDEX, honey_mesh_mt_ref);
+    lua_setmetatable(L, -2);
     if (honey_mesh_new_textured_cube(mesh, width, height, depth) != HONEY_OK) {
         lua_pushstring(L, "error encountered while building plane");
         lua_error(L);

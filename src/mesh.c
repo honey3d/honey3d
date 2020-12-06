@@ -1,5 +1,7 @@
 #include "mesh.h"
 
+int honey_mesh_mt_ref = LUA_NOREF;
+
 static int honey_mesh_lua_draw(lua_State* L)
 {
     honey_mesh* mesh;
@@ -22,10 +24,14 @@ static int honey_mesh_lua_delete(lua_State* L)
 void honey_setup_mesh(lua_State* L)
 {
     honey_lua_create_table
-	(L, 3,
-	 HONEY_FUNCTION, "load",  honey_mesh_load,
-	 HONEY_FUNCTION, "draw",  honey_mesh_lua_draw,
-	 HONEY_FUNCTION, "delete",  honey_mesh_lua_delete);
+	(L, 2,
+	 HONEY_TABLE, "__index", 1,
+	 HONEY_FUNCTION, "draw", honey_mesh_lua_draw,
+
+	 HONEY_FUNCTION, "__gc", honey_mesh_lua_delete);
+    honey_mesh_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    lua_pushcfunction(L, honey_mesh_load);
     lua_setfield(L, -2, "mesh");
 }
 
@@ -107,6 +113,9 @@ static void process_nodes_recursively(lua_State* L,
 {
     for (int i=0; i<node->mNumMeshes; i++) {
         honey_mesh* mesh = lua_newuserdata(L, sizeof(honey_mesh));
+	lua_rawgeti(L, LUA_REGISTRYINDEX, honey_mesh_mt_ref);
+	lua_setmetatable(L, -2);
+	
         struct aiMesh* assimp_mesh = scene->mMeshes[node->mMeshes[i]];
         *mesh = assimp_to_honey_mesh(assimp_mesh, scene);
         lua_rawseti(L, -2, *n_meshes);
