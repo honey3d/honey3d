@@ -10,7 +10,6 @@
 
 #include "glm_bindings.h"
 #include "input.h"
-#include "light.h"
 #include "mesh.h"
 #include "primitives.h"
 #include "shader.h"

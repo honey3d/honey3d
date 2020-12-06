@@ -23,7 +23,6 @@ set(SOURCE_FILES
   src/honey.c
   src/input.c
   src/honey_lua.c
-  src/light.c
   src/mesh.c
   src/primitives.c
   src/shader.c
