@@ -1,7 +1,8 @@
 local Node = require('Node')
 local FPSCamera = require('FPSCamera')
 local SpatialShader = require('SpatialShader')
-local ScreenQuad = require('ScreenQuad')
+local Primitives = require('Primitives')
+-- local ScreenQuad = require('ScreenQuad')
 local MeshInstance = require('MeshInstance')
 FPSCamera.movement_speed = 5
 
@@ -20,25 +21,26 @@ local lightDirection = honey.glm.vec3{1,1,1}
 lightDirection:normalize()
 shader:setVec3('directional_lights[0].direction', lightDirection)
 shader:setVec3('directional_lights[0].color', honey.glm.vec3{0,1,0})
-local meshes = honey.mesh('Suzanne.obj')
+local meshes = honey.loadMesh('Suzanne.obj')
 local suzanne = MeshInstance.new(sceneRoot,
                                  honey.glm.vec3{0,0,3},
                                  honey.glm.vec3{0,math.pi,0},
                                  honey.glm.vec3{0.5,1,0.5},
                                  meshes[1],
                                  shader)
+print(suzanne.mesh)
 local plane = MeshInstance.new(suzanne,
                                honey.glm.vec3{1,0,0},
                                honey.glm.vec3{0,0,0},
                                honey.glm.vec3{1,1,1},
-                               honey.primitives.plane(4,4),
+                               Primitives.plane(4,4),
                                shader)
-local plane2 = MeshInstance.new(suzanne,
-                                honey.glm.vec3{5,0,0},
-                                honey.glm.vec3{0,math.pi,0},
-                                honey.glm.vec3{1,1,1},
-                                honey.primitives.plane(4,4),
-                                shader)
+-- local plane2 = MeshInstance.new(suzanne,
+--                                 honey.glm.vec3{5,0,0},
+--                                 honey.glm.vec3{0,math.pi,0},
+--                                 honey.glm.vec3{1,1,1},
+--                                 honey.primitives.plane(4,4),
+--                                 shader)
 
 suzanne.update = function(self, dt)
    self:rotate('y', dt)

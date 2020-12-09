@@ -11,7 +11,6 @@
 #include "glm_bindings.h"
 #include "input.h"
 #include "mesh.h"
-#include "primitives.h"
 #include "shader.h"
 #include "texture.h"
 #include "window.h"

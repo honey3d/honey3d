@@ -127,8 +127,6 @@ bool honey_setup(lua_State** L)
 
     honey_setup_mesh(*L);
 
-    honey_setup_primitives(*L);
-
     honey_setup_texture(*L);
 
     lua_pushcfunction(*L, honey_exit);

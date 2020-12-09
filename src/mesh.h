@@ -26,6 +26,8 @@ void honey_setup_mesh(lua_State* L);
  */
 int honey_mesh_load(lua_State* L);
 
+struct mesh;
+
 /** @brief Create a new mesh from vertex and index arrays.
  *
  * Note that this function creates copies of the vertex and index arrays, 
@@ -40,12 +42,7 @@ int honey_mesh_load(lua_State* L);
  * @param[in] n_indices The number of elements in the index array
  */
 honey_result honey_mesh_new(honey_mesh* mesh,
-                            float* vertices,
-                            unsigned int n_vertices,
-                            unsigned int n_attributes,
-                            unsigned int* attribute_sizes,
-                            unsigned int* indices,
-                            unsigned int n_indices);
+			    struct mesh m);
 
 /** @brief Draw a mesh on screen.
  *

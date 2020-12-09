@@ -24,7 +24,6 @@ set(SOURCE_FILES
   src/input.c
   src/honey_lua.c
   src/mesh.c
-  src/primitives.c
   src/shader.c
   src/texture.c
   src/window.c)
