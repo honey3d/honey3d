@@ -8,6 +8,7 @@
 
 #include "common.h"
 
+#include "cairo_bindings.h"
 #include "glm_bindings.h"
 #include "input.h"
 #include "mesh.h"

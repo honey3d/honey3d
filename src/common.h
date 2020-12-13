@@ -34,6 +34,9 @@
 // stb image
 #include "stb_image/stb_image.h"
 
+// cairo
+#include <cairo/cairo.h>
+
 typedef GLFWwindow* honey_window;
 
 typedef struct {

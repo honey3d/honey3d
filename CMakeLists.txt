@@ -15,6 +15,7 @@ add_library(stb_image src/stb_image/stb_image.c)
 
 set(SOURCE_FILES
   src/main.c
+  src/cairo_bindings.c
   src/glm_bindings.c
   src/glm_vec3_bindings.c
   src/glm_vec4_bindings.c
@@ -29,10 +30,12 @@ set(SOURCE_FILES
   src/window.c)
   
 add_executable(honey ${SOURCE_FILES})
+
+set(LIBRARIES ${LUA_LIBRARIES} assimp glad cairo stb_image m)
 if (WIN32)
-  set(LIBRARIES ${LUA_LIBRARIES} assimp glfw3 opengl32 glad stb_image m)
+  set(LIBRARIES ${LIBRARIES} glfw3 opengl32)
 else()
-  set(LIBRARIES ${LUA_LIBRARIES} assimp glfw GL glad stb_image dl m)
+  set(LIBRARIES ${LIBRARIES} glfw GL dl)
 endif()
 target_link_libraries(honey ${LIBRARIES})
 

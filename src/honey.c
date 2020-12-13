@@ -129,6 +129,8 @@ bool honey_setup(lua_State** L)
 
     honey_setup_texture(*L);
 
+    honey_setup_cairo(*L);
+
     lua_pushcfunction(*L, honey_exit);
     lua_setfield(*L, -2, "exit");
 
