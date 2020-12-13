@@ -17,6 +17,7 @@ void honey_setup_shader(lua_State* L);
 /** @brief Create a new shader from source.
  *
  * @param[in] vertex_source The GLSL code for the vertex shader.
+ * @param[in, optional] geometry_source The GLSL code for the geometry shader.
  * @param[in] fragment_source The GLSL code for the fragment shader.
  *
  * @returns OpenGL handle for the compiled shader.
