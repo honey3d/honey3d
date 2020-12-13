@@ -247,6 +247,32 @@ int honey_lua_parse_arguments(lua_State* L, unsigned int n, ...)
     return index;
 }
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+void honey_lua_parse_params(lua_State* L, int n, int m, ...)
+{
+    int table_index = lua_gettop(L);
+    
+    va_list args;
+    va_start(args, m);
+
+    for (int i=0; i<n; i++) {
+        const char* param = va_arg(args, const char*);
+        void (*function)(lua_State*, void*) = va_arg(args, void (*)(lua_State*, void*));
+        void* data = va_arg(args, void*);
+        
+        lua_getfield(L, table_index, param);
+        if (lua_isnil(L, -1) && n < m)
+            honey_lua_throw_error
+                (L, "required parameter '%s' was not found in param table!", param);
+
+        function(L, data);
+        lua_pop(L, 1);
+    }
+
+    va_end(args);
+}
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  * Table creation functions

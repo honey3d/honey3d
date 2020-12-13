@@ -153,6 +153,27 @@ typedef enum {
  */
 int honey_lua_parse_arguments(lua_State* L, unsigned int n, ...);
 
+/** @brief Process a param table.
+ *
+ * Please ensure that the param table is on top of the stack before calling this function.
+ *
+ * The first m elements of the param table are required, and their absence from 
+ * the table will trigger an error.
+ *
+ * The variadic portion of this function expects arguments as 
+ * param_name_1, function1, (void*) data1, param_name_2, function_2, (void*) data_2, ...
+ *
+ * Each function should be of the form void (*)(lua_State*, void*)
+ *
+ * @param[in] L The lua state to parse the table from.
+ * @param[in] n The number of params to parse.
+ * @param[in] m The number of required params.
+ * @param[inout] ... Variadic list of param processing functions, as described above.
+ *
+ * @returns Nothing, but throws a lua error if a required argument is not found.
+ */
+void honey_lua_parse_params(lua_State* L, int n, int m, ...);
+
 /** @brief Wrap C objects for lua. */
 typedef struct honey_lua_element {
     char* name;
