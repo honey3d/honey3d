@@ -263,9 +263,12 @@ void honey_lua_parse_params(lua_State* L, int n, int m, ...)
         void* data = va_arg(args, void*);
         
         lua_getfield(L, table_index, param);
-        if (lua_isnil(L, -1) && n < m)
-            honey_lua_throw_error
-                (L, "required parameter '%s' was not found in param table!", param);
+        if (lua_isnil(L, -1)) {
+            if (n < m)
+                honey_lua_throw_error
+                    (L, "required parameter '%s' was not found in param table!", param);
+            continue;
+        }
 
         if (!check_argument(L, type, -1))
             honey_lua_throw_error
