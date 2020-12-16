@@ -267,15 +267,15 @@ void honey_lua_parse_params(lua_State* L, int n, int m, ...)
             if (n < m)
                 honey_lua_throw_error
                     (L, "required parameter '%s' was not found in param table!", param);
-            continue;
         }
-
-        if (!check_argument(L, type, -1))
-            honey_lua_throw_error
-                (L, "parameter '%s' must be of type %s; got %s instead",
-                 param, type_to_string(type), lua_typename(L, lua_type(L, -1)));
+        else {
+            if (!check_argument(L, type, -1))
+                honey_lua_throw_error
+                    (L, "parameter '%s' must be of type %s; got %s instead",
+                     param, type_to_string(type), lua_typename(L, lua_type(L, -1)));
         
-        function(L, data);
+            function(L, data);
+        }
         lua_pop(L, 1);
     }
 

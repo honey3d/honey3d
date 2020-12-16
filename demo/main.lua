@@ -11,7 +11,7 @@ honey.input.key.bind(honey.input.key.escape, honey.exit)
 local buffer = false
 honey.input.key.bind(honey.input.key.f, function(action) if action == 1 then buffer = not buffer end end)
 
-local tex = honey.texture.load('checkerboard.png')
+                     local tex = honey.texture.load('lowres.png', {minFilter='nearest', magFilter='nearest'})
 
 local sceneRoot = Node.new()
 
@@ -28,18 +28,26 @@ local suzanne = MeshInstance.new(sceneRoot,
                                  meshes[1],
                                  shader)
 print(suzanne.mesh)
-local plane = MeshInstance.new(suzanne,
-                               honey.glm.vec3{1,0,0},
-                               honey.glm.vec3{0,0,0},
-                               honey.glm.vec3{1,1,1},
-                               Primitives.plane(4,4),
-                               shader)
--- local plane2 = MeshInstance.new(suzanne,
---                                 honey.glm.vec3{5,0,0},
---                                 honey.glm.vec3{0,math.pi,0},
---                                 honey.glm.vec3{1,1,1},
---                                 honey.primitives.plane(4,4),
---                                 shader)
+--local plane = MeshInstance.new(suzanne,
+--                               honey.glm.vec3{1,0,0},
+--                               honey.glm.vec3{0,0,0},
+--                               honey.glm.vec3{1,1,1},
+--                               Primitives.plane(4,4),
+--                               shader)
+
+MeshInstance.new(sceneRoot,
+                 honey.glm.vec3{0,0,3},
+                 honey.glm.vec3{0,0,0},
+                 honey.glm.vec3{1,1,1},
+                 Primitives.plane(4,4),
+                 shader)
+
+MeshInstance.new(sceneRoot,
+                 honey.glm.vec3{4,0,3},
+                 honey.glm.vec3{0,math.pi,0},
+                 honey.glm.vec3{1,1,1},
+                 Primitives.plane(4,4),
+                 shader)
 
 suzanne.update = function(self, dt)
    self:rotate('y', dt)

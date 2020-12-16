@@ -21,16 +21,15 @@ static void configure_params(lua_State* L, honey_texture_params* params);
 
 static void setup_texture(lua_State* L, honey_texture** tex, bool use_params)
 {
+    honey_texture_params params;
+    setup_default_texture_params(&params);
+    if (use_params)
+        configure_params(L, &params);
+        
     honey_texture *texture = lua_newuserdata(L, sizeof(honey_texture));
+    texture->params = params;
     *tex = texture;
-    setup_default_texture_params(&(texture->params));
-
-    if (use_params) {
-        lua_pushvalue(L, -2);
-        configure_params(L, &(texture->params));
-        lua_pop(L, 1);
-    }
-    
+        
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_texture_mt_ref);
     lua_setmetatable(L, -2);
 }
@@ -129,9 +128,13 @@ void honey_setup_texture(lua_State* L)
     honey_texture_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     honey_lua_create_table
-        (L, 2,
-         HONEY_FUNCTION, "new",  honey_lua_texture_new,
+        (L, 1,
          HONEY_FUNCTION, "load", honey_lua_texture_load);
+
+    honey_lua_create_table
+        (L, 1,
+         HONEY_FUNCTION, "__call",  honey_lua_texture_new);
+    lua_setmetatable(L, -2);
 
     lua_setfield(L, -2, "texture");
 }
@@ -357,17 +360,18 @@ static void configure_min_filter(lua_State* L, void* data)
 {
     honey_texture_params* params = (honey_texture_params*) data;
     const char* str = lua_tostring(L, -1);
-    if (strcmp(str, "nearest"))
+
+    if (strcmp(str, "nearest") == 0)
         params->min_filter = GL_NEAREST;
-    else if (strcmp(str, "linear"))
+    else if (strcmp(str, "linear") == 0)
         params->min_filter = GL_LINEAR;
-    else if (strcmp(str, "nearest-nearest"))
+    else if (strcmp(str, "nearest-nearest") == 0)
         params->min_filter = GL_NEAREST_MIPMAP_NEAREST;
-    else if (strcmp(str, "linear-nearest"))
+    else if (strcmp(str, "linear-nearest") == 0)
         params->min_filter = GL_LINEAR_MIPMAP_NEAREST;
-    else if (strcmp(str, "nearest-linear"))
+    else if (strcmp(str, "nearest-linear") == 0)
         params->min_filter = GL_NEAREST_MIPMAP_LINEAR;
-    else if (strcmp(str, "linear-linear"))
+    else if (strcmp(str, "linear-linear") == 0)
         params->min_filter = GL_LINEAR_MIPMAP_LINEAR;
     else
         honey_lua_throw_error
@@ -380,10 +384,13 @@ static void configure_mag_filter(lua_State* L, void* data)
 {
     honey_texture_params* params = (honey_texture_params*) data;
     const char* str = lua_tostring(L, -1);
-    if (strcmp(str, "nearest"))
-        params->min_filter = GL_NEAREST;
-    else if (strcmp(str, "linear"))
-        params->min_filter = GL_LINEAR;
+
+    if (strcmp(str, "nearest") == 0) {
+        printf("MAG FILTER NEAREST\n");
+        params->mag_filter = GL_NEAREST;
+    }
+    else if (strcmp(str, "linear") == 0)
+        params->mag_filter = GL_LINEAR;
     else
         honey_lua_throw_error
             (L, "unknown magFilter type: '%s'", str);
@@ -393,13 +400,13 @@ static void configure_mag_filter(lua_State* L, void* data)
 
 static void configure_wrap(lua_State* L, const char* string, int* wrap)
 {
-    if (strcmp(string, "clamp"))
+    if (strcmp(string, "clamp") == 0)
         *wrap = GL_CLAMP_TO_EDGE;
-    else if (strcmp(string, "clamp-border"))
+    else if (strcmp(string, "clamp-border") == 0)
         *wrap = GL_CLAMP_TO_BORDER;
-    else if (strcmp(string, "repeat"))
+    else if (strcmp(string, "repeat") == 0)
         *wrap = GL_REPEAT;
-    else if (strcmp(string, "repeat-mirror"))
+    else if (strcmp(string, "repeat-mirror") == 0)
         *wrap = GL_MIRRORED_REPEAT;
     else
         honey_lua_throw_error
@@ -444,7 +451,7 @@ static void configure_params(lua_State* L, honey_texture_params* params)
          HONEY_STRING, "type", configure_type, params,
          HONEY_BOOLEAN, "mipmaps", configure_mipmaps, params,
          HONEY_STRING, "minFilter", configure_min_filter, params,
-         HONEY_STRING, "magFilter", configure_min_filter, params,
+         HONEY_STRING, "magFilter", configure_mag_filter, params,
          HONEY_STRING, "sWrap", configure_wrap_s, params,
          HONEY_STRING, "tWrap", configure_wrap_t, params,
          HONEY_STRING, "rWrap", configure_wrap_r, params);
