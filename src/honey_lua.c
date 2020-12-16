@@ -257,6 +257,7 @@ void honey_lua_parse_params(lua_State* L, int n, int m, ...)
     va_start(args, m);
 
     for (int i=0; i<n; i++) {
+        honey_lua_type type = va_arg(args, honey_lua_type);
         const char* param = va_arg(args, const char*);
         void (*function)(lua_State*, void*) = va_arg(args, void (*)(lua_State*, void*));
         void* data = va_arg(args, void*);
@@ -266,6 +267,11 @@ void honey_lua_parse_params(lua_State* L, int n, int m, ...)
             honey_lua_throw_error
                 (L, "required parameter '%s' was not found in param table!", param);
 
+        if (!check_argument(L, type, -1))
+            honey_lua_throw_error
+                (L, "parameter '%s' must be of type %s; got %s instead",
+                 param, type_to_string(type), lua_typename(L, lua_type(L, -1)));
+        
         function(L, data);
         lua_pop(L, 1);
     }

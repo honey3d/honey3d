@@ -161,9 +161,10 @@ int honey_lua_parse_arguments(lua_State* L, unsigned int n, ...);
  * the table will trigger an error.
  *
  * The variadic portion of this function expects arguments as 
- * param_name_1, function1, (void*) data1, param_name_2, function_2, (void*) data_2, ...
+ * type_1, param_name_1, function1, (void*) data1, type_2, param_name_2, function_2, (void*) data_2, ...
  *
- * Each function should be of the form void (*)(lua_State*, void*)
+ * Each function should be of the form void (*)(lua_State*, void*), and should 
+ * not return with a modified stack.
  *
  * @param[in] L The lua state to parse the table from.
  * @param[in] n The number of params to parse.

@@ -8,6 +8,23 @@
 
 #include "common.h"
 
+#define HONEY_TEXTURE_DEFAULT_WIDTH 1024
+#define HONEY_TEXTURE_DEFAULT_HEIGHT 1024
+#define HONEY_TEXTURE_DEFAULT_CHANNELS 4
+#define HONEY_TEXTURE_DEFAULT_TYPE HONEY_TEXTURE_TYPE_RGBA
+#define HONEY_TEXTURE_DEFAULT_MIPMAPS true
+#define HONEY_TEXTURE_DEFAULT_MIN_FILTER GL_LINEAR
+#define HONEY_TEXTURE_DEFAULT_MAG_FILTER GL_LINEAR
+#define HONEY_TEXTURE_DEFAULT_WRAP_S GL_REPEAT
+#define HONEY_TEXTURE_DEFAULT_WRAP_T GL_REPEAT
+#define HONEY_TEXTURE_DEFAULT_WRAP_R GL_REPEAT
+
+#define HONEY_TEXTURE_TYPE_GREY GL_RED
+#define HONEY_TEXTURE_TYPE_RGB GL_RGB
+#define HONEY_TEXTURE_TYPE_RGBA GL_RGBA
+#define HONEY_TEXTURE_TYPE_DEPTH GL_DEPTH_COMPONENT
+
+
 extern int honey_texture_mt_ref;
 
 enum honey_texture_result {
@@ -17,72 +34,55 @@ enum honey_texture_result {
   N_TEXTURE_RESULTS };
 
 typedef struct {
-    unsigned int id;
-    enum {
-        GREY,
-        RGB,
-        RGBA,
-        DEPTH
-    } type;
     int width;
     int height;
     int channels;
+    int type;
+    bool mipmaps;
+    int min_filter;
+    int mag_filter;
+    int wrap_s;
+    int wrap_t;
+    int wrap_r;
+} honey_texture_params;
+
+typedef struct {
+    unsigned int id;
+    honey_texture_params params;
 } honey_texture;
 
 /** @brief Place the honey.texture bindings as a table on the stack. */
 void honey_setup_texture(lua_State* L);
 
-/** @brief Create a greyscale texture.
+/** @brief Generate a texture.
  *
  * @param[out] texture Pointer to the destination texture.
- * @param[in] width The width in pixels of the texture to create.
- * @param[in] height The height in pixels of the texture to create.
  * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
  *
  * @returns Nothing.
  */
-void honey_texture_new_greyscale(honey_texture* texture,
-                                 int width, int height,
-                                 unsigned char* data);
+void honey_texture_generate(honey_texture* texture,
+                            void* data);
 
-/** @brief Create an RGB texture.
+/** @brief Set the parameters of a texture.
  *
- * @param[out] texture Pointer to the destination texture.
- * @param[in] width The width in pixels of the texture to create.
- * @param[in] height The height in pixels of the texture to create.
- * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
+ * This function takes the parameters given in a texture's `params` field
+ * and applies them to it's OpenGL object. `honey_texture_generate` must be called
+ * before using this function.
  *
- * @returns Nothing.
+ * @param[inout] texture The texture to configure.
  */
-void honey_texture_new_rgb(honey_texture* texture,
-                           int width, int height,
-                           unsigned char* data);
+void honey_texture_configure(honey_texture* texture);
 
-/** @brief Create an RGBA texture.
+/** @brief Update the mipmaps of a texture.
  *
- * @param[out] texture Pointer to the destination texture.
- * @param[in] width The width in pixels of the texture to create.
- * @param[in] height The height in pixels of the texture to create.
- * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
+ * If a texture has params.mipmaps set to false, this function does nothing.
  *
- * @returns Nothing.
- */
-void honey_texture_new_rgba(honey_texture* texture,
-                            int width, int height,
-                            unsigned char* data);
-
-/** @brief Create a depth texture.
- *
- * @param[out] texture Pointer to the destination texture.
- * @param[in] width The width in pixels of the texture to create.
- * @param[in] height The height in pixels of the texture to create.
- * @param[in] data The data to populate the texture with, or NULL to leave it unpopulated.
+ * @param[inout] texture The texture to generate new mipmaps for.
  *
  * @returns Nothing.
  */
-void honey_texture_new_depth(honey_texture* texture,
-                             int width, int height,
-                             float* data);
+void honey_texture_update_mipmaps(honey_texture* texture);
 
 /** @brief Load a texture from disk.
  *

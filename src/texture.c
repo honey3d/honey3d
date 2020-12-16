@@ -2,39 +2,72 @@
 
 int honey_texture_mt_ref = LUA_NOREF;
 
-static int honey_lua_texture_new(lua_State* L)
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Texture parameter setup function declarations
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+static void setup_default_texture_params(honey_texture_params* params);
+static void configure_params(lua_State* L, honey_texture_params* params);
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Texture creation & destruction functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+static void setup_texture(lua_State* L, honey_texture** tex, bool use_params)
 {
-    honey_texture* texture = lua_newuserdata(L, sizeof(honey_texture));
+    honey_texture *texture = lua_newuserdata(L, sizeof(honey_texture));
+    *tex = texture;
+    setup_default_texture_params(&(texture->params));
+
+    if (use_params) {
+        lua_pushvalue(L, -2);
+        configure_params(L, &(texture->params));
+        lua_pop(L, 1);
+    }
+    
     lua_rawgeti(L, LUA_REGISTRYINDEX, honey_texture_mt_ref);
     lua_setmetatable(L, -2);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static int honey_lua_texture_new(lua_State* L)
+{
+    honey_texture* texture;
+    int choice = honey_lua_parse_arguments(L, 2, 0, 1, HONEY_TABLE, NULL);
+    setup_texture(L, &texture, choice == 1);
+
+    honey_texture_generate(texture, NULL);
     return 1;
 }
 
-static int honey_lua_texture_create(lua_State* L)
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static int honey_lua_texture_load(lua_State* L)
 {
     honey_texture* texture;
-    int width, height;
-    char* type;
-    honey_lua_parse_arguments(L, 1, 4,
-                              HONEY_USERDATA, &texture,
-                              HONEY_STRING, &type,
-                              HONEY_INTEGER, &width,
-                              HONEY_INTEGER, &height);
+    char* texture_path;
+    int choice = honey_lua_parse_arguments
+        (L, 2,
+         1, HONEY_STRING, &texture_path,
+         2, HONEY_STRING, &texture_path, HONEY_TABLE, NULL);
+    setup_texture(L, &texture, choice == 1);
+    
+    enum honey_texture_result result = honey_texture_load(texture, texture_path);
+    if (result != TEXTURE_OK)
+        honey_lua_throw_error(L, "failed to load '%s'",
+                              texture_path);
 
-    if (strcmp(type, "greyscale") == 0)
-        honey_texture_new_greyscale(texture, width, height, NULL);
-    else if (strcmp(type, "rgb") == 0)
-        honey_texture_new_rgb(texture, width, height, NULL);
-    else if (strcmp(type, "rgba") == 0)
-        honey_texture_new_rgba(texture, width, height, NULL);
-    else if (strcmp(type, "depth") == 0)
-        honey_texture_new_depth(texture, width, height, NULL);
-    else {
-	honey_lua_throw_error
-	    (L, "unknown texture type '%s'", type);
-    }
-    return 0;
+    return 1;
 }
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 static int honey_lua_texture_destroy(lua_State* L)
 {
@@ -44,26 +77,7 @@ static int honey_lua_texture_destroy(lua_State* L)
     return 0;
 }
 
-static int honey_lua_texture_load(lua_State* L)
-{
-    honey_texture* texture;
-    char* texture_path;
-    honey_lua_parse_arguments(L, 1, 3,
-                              HONEY_USERDATA, &texture,
-                              HONEY_STRING, &texture_path);
-    enum honey_texture_result result = honey_texture_load(texture, texture_path);
-    if (result != TEXTURE_OK) {
-        char* error;
-        honey_format_string(&error,
-                            "failed to load '%s'",
-                            texture_path);
-        lua_pushstring(L, error);
-        free(error);
-        lua_error(L);
-    }
-
-    return 0;
-}
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 static int honey_lua_texture_use(lua_State* L)
 {
@@ -107,109 +121,86 @@ static int honey_lua_framebuffer_new(lua_State* L)
 void honey_setup_texture(lua_State* L)
 {
     honey_lua_create_table
-	(L, 2,
-	 HONEY_TABLE, "__index", 3,
-	 HONEY_FUNCTION, "create", honey_lua_texture_create,
-	 HONEY_FUNCTION, "load", honey_lua_texture_load,
-	 HONEY_FUNCTION, "use", honey_lua_texture_use,
+        (L, 2,
+         HONEY_TABLE, "__index", 1,
+         HONEY_FUNCTION, "use", honey_lua_texture_use,
 
-	 HONEY_FUNCTION, "__gc", honey_lua_texture_destroy);
+         HONEY_FUNCTION, "__gc", honey_lua_texture_destroy);
     honey_texture_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     honey_lua_create_table
-	(L, 2,
-	 HONEY_FUNCTION, "new",  honey_lua_texture_new,
-	 HONEY_FUNCTION, "new_framebuffer",  honey_lua_framebuffer_new);
+        (L, 2,
+         HONEY_FUNCTION, "new",  honey_lua_texture_new,
+         HONEY_FUNCTION, "load", honey_lua_texture_load);
 
     lua_setfield(L, -2, "texture");
 }
 
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Non-lua texture functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
 
-static void generate_texture(honey_texture* texture,
-                             int width, int height,
-                             int format, int type,
-                             void* data)
+void honey_texture_generate(honey_texture* texture,
+                            void* data)
 {
-    unsigned int texture_id;
-    glGenTextures(1, &texture_id);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
+    honey_texture_params params = texture->params;
+    glGenTextures(1, &(texture->id));
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0,
-                 format,
-                 width, height, 0,
-                 format,
-                 type, data);
-
-    texture->id = texture_id;
-    texture->width = width;
-    texture->height = height;
-
-    switch(format) {
-    case GL_RED:
-        texture->type = GREY;
-        texture->channels = 1;
+    honey_texture_configure(texture);
+    
+    int type;
+    switch(params.type) {
+    case HONEY_TEXTURE_TYPE_GREY:
+    case HONEY_TEXTURE_TYPE_RGB:
+    case HONEY_TEXTURE_TYPE_RGBA:
+        type = GL_UNSIGNED_BYTE;
         break;
 
-    case GL_RGB:
-        texture->type = RGB;
-        texture->channels = 3;
-        break;
-
-    case GL_RGBA:
-        texture->type = RGBA;
-        texture->channels = 4;
-        break;
-
-    case GL_DEPTH_COMPONENT:
-        texture->type = DEPTH;
-        texture->channels = 1;
+    case HONEY_TEXTURE_TYPE_DEPTH:
+        type = GL_FLOAT;
         break;
 
     default:
+        // should never happen
         break;
     }
+    
+    glTexImage2D(GL_TEXTURE_2D, 0,
+                 params.type,
+                 params.width, params.height, 0,
+                 params.type,
+                 type, data);
+
+    honey_texture_update_mipmaps(texture);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void honey_texture_new_greyscale(honey_texture* texture,
-                                 int height, int width,
-                                 unsigned char* data)
+void honey_texture_configure(honey_texture* texture)
 {
-    generate_texture(texture, width, height, GL_RED, GL_UNSIGNED_BYTE, data);
+    honey_texture_params params = texture->params;
+    glBindTexture(GL_TEXTURE_2D, texture->id);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.mag_filter);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, params.wrap_s);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, params.wrap_t);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, params.wrap_r);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-void honey_texture_new_rgb(honey_texture* texture,
-                           int height, int width,
-                           unsigned char* data)
+void honey_texture_update_mipmaps(honey_texture* texture)
 {
-    generate_texture(texture, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-}
+    if (texture->params.mipmaps == false)
+        return;
 
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-void honey_texture_new_rgba(honey_texture* texture,
-                            int height, int width,
-                            unsigned char* data)
-{
-    generate_texture(texture, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-void honey_texture_new_depth(honey_texture* texture,
-                             int height, int width,
-                             float* data)
-{
-    generate_texture(texture, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, data);
+    glBindTexture(GL_TEXTURE_2D, texture->id);
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -217,30 +208,35 @@ void honey_texture_new_depth(honey_texture* texture,
 enum honey_texture_result honey_texture_load(honey_texture* texture,
                                              char* texture_path)
 {
-    int width, height, channels;
-    unsigned char* image_data = stbi_load(texture_path, &width, &height, &channels, 0);
+    honey_texture_params *params = &(texture->params);
+    int channels;
+
+    unsigned char* image_data = stbi_load(texture_path,
+                                          &(params->width),
+                                          &(params->height),
+                                          &channels, 0);
     if (image_data == NULL) {
         return TEXTURE_FAILED;
     }
 
     switch(channels) {
     case 1:
-        honey_texture_new_greyscale(texture, width, height, image_data);
+        params->type = HONEY_TEXTURE_TYPE_GREY;
         break;
 
     case 3:
-        honey_texture_new_rgb(texture, width, height, image_data);
+        params->type = HONEY_TEXTURE_TYPE_RGB;
         break;
 
     case 4:
-        honey_texture_new_rgba(texture, width, height, image_data);
+        params->type = HONEY_TEXTURE_TYPE_RGBA;
         break;
 
     default:
         return TEXTURE_CHANNEL_ERROR;
     }
 
-    glGenerateMipmap(GL_TEXTURE_2D);
+    honey_texture_generate(texture, image_data);
     stbi_image_free(image_data);
 
     return TEXTURE_OK;
@@ -280,3 +276,178 @@ void honey_texture_framebuffer_object_new(unsigned int* destination,
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Texture parameter setup function definitions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+static void setup_default_texture_params(honey_texture_params* params)
+{
+    params->width = HONEY_TEXTURE_DEFAULT_WIDTH;
+    params->height = HONEY_TEXTURE_DEFAULT_HEIGHT;
+    params->channels = HONEY_TEXTURE_DEFAULT_CHANNELS;
+    params->type = HONEY_TEXTURE_DEFAULT_TYPE;
+    params->mipmaps = HONEY_TEXTURE_DEFAULT_MIPMAPS;
+    params->min_filter = HONEY_TEXTURE_DEFAULT_MIN_FILTER;
+    params->mag_filter = HONEY_TEXTURE_DEFAULT_MAG_FILTER;
+    params->wrap_s = HONEY_TEXTURE_DEFAULT_WRAP_S;
+    params->wrap_t = HONEY_TEXTURE_DEFAULT_WRAP_T;
+    params->wrap_r = HONEY_TEXTURE_DEFAULT_WRAP_R;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+static void configure_width(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    params->width = lua_tointeger(L, -1);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_height(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    params->height = lua_tointeger(L, -1);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_type(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    const char* type_string = lua_tostring(L, -1);
+    if (strcmp(type_string, "grey") == 0) {
+        params->type = HONEY_TEXTURE_TYPE_GREY;
+        params->channels = 1;
+    }
+    else if (strcmp(type_string, "rgb") == 0) {
+        params->type = HONEY_TEXTURE_TYPE_RGB;
+        params->channels = 3;
+    }
+    else if (strcmp(type_string, "rgba") == 0) {
+        params->type = HONEY_TEXTURE_TYPE_RGBA;
+        params->channels = 4;
+    }
+    else if (strcmp(type_string, "depth") == 0) {
+        params->type = HONEY_TEXTURE_TYPE_DEPTH;
+        params->channels = 1;
+    }
+    else {
+        honey_lua_throw_error
+            (L, "unknown texture type: '%s'", type_string);
+    }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_mipmaps(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    params->mipmaps = lua_toboolean(L, -1);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_min_filter(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    const char* str = lua_tostring(L, -1);
+    if (strcmp(str, "nearest"))
+        params->min_filter = GL_NEAREST;
+    else if (strcmp(str, "linear"))
+        params->min_filter = GL_LINEAR;
+    else if (strcmp(str, "nearest-nearest"))
+        params->min_filter = GL_NEAREST_MIPMAP_NEAREST;
+    else if (strcmp(str, "linear-nearest"))
+        params->min_filter = GL_LINEAR_MIPMAP_NEAREST;
+    else if (strcmp(str, "nearest-linear"))
+        params->min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    else if (strcmp(str, "linear-linear"))
+        params->min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    else
+        honey_lua_throw_error
+            (L, "unknown minFilter type: '%s'", str);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_mag_filter(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    const char* str = lua_tostring(L, -1);
+    if (strcmp(str, "nearest"))
+        params->min_filter = GL_NEAREST;
+    else if (strcmp(str, "linear"))
+        params->min_filter = GL_LINEAR;
+    else
+        honey_lua_throw_error
+            (L, "unknown magFilter type: '%s'", str);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_wrap(lua_State* L, const char* string, int* wrap)
+{
+    if (strcmp(string, "clamp"))
+        *wrap = GL_CLAMP_TO_EDGE;
+    else if (strcmp(string, "clamp-border"))
+        *wrap = GL_CLAMP_TO_BORDER;
+    else if (strcmp(string, "repeat"))
+        *wrap = GL_REPEAT;
+    else if (strcmp(string, "repeat-mirror"))
+        *wrap = GL_MIRRORED_REPEAT;
+    else
+        honey_lua_throw_error
+            (L, "unknown wrapping type: '%s'", string);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_wrap_s(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    const char* str = lua_tostring(L, -1);
+    configure_wrap(L, str, &(params->wrap_s));
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_wrap_t(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    const char* str = lua_tostring(L, -1);
+    configure_wrap(L, str, &(params->wrap_t));
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_wrap_r(lua_State* L, void* data)
+{
+    honey_texture_params* params = (honey_texture_params*) data;
+    const char* str = lua_tostring(L, -1);
+    configure_wrap(L, str, &(params->wrap_r));
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+static void configure_params(lua_State* L, honey_texture_params* params)
+{
+    honey_lua_parse_params
+        (L, 8, 0,
+         HONEY_INTEGER, "width", configure_width, params,
+         HONEY_INTEGER, "height", configure_height, params,
+         HONEY_STRING, "type", configure_type, params,
+         HONEY_BOOLEAN, "mipmaps", configure_mipmaps, params,
+         HONEY_STRING, "minFilter", configure_min_filter, params,
+         HONEY_STRING, "magFilter", configure_min_filter, params,
+         HONEY_STRING, "sWrap", configure_wrap_s, params,
+         HONEY_STRING, "tWrap", configure_wrap_t, params,
+         HONEY_STRING, "rWrap", configure_wrap_r, params);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
