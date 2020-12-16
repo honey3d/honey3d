@@ -9,9 +9,15 @@ FPSCamera.movement_speed = 5
 honey.input.key.bind(honey.input.key.escape, honey.exit)
 
 local buffer = false
-honey.input.key.bind(honey.input.key.f, function(action) if action == 1 then buffer = not buffer end end)
-
-                     local tex = honey.texture.load('lowres.png', {minFilter='nearest', magFilter='nearest'})
+honey.input.key.bind(honey.input.key.f,
+                     function(action)
+                        if action == 1 then
+                           buffer = not buffer
+                        end
+end)
+                     
+local tex = honey.texture.load('lowres.png',
+                               {minFilter='nearest', magFilter='nearest'})
 
 local sceneRoot = Node.new()
 

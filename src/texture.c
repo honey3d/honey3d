@@ -385,10 +385,8 @@ static void configure_mag_filter(lua_State* L, void* data)
     honey_texture_params* params = (honey_texture_params*) data;
     const char* str = lua_tostring(L, -1);
 
-    if (strcmp(str, "nearest") == 0) {
-        printf("MAG FILTER NEAREST\n");
+    if (strcmp(str, "nearest") == 0)
         params->mag_filter = GL_NEAREST;
-    }
     else if (strcmp(str, "linear") == 0)
         params->mag_filter = GL_LINEAR;
     else
