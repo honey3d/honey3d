@@ -9,9 +9,13 @@ int honey_setup_cairo(lua_State* L)
 {
     honey_lua_create_table
         (L, 2,
-         HONEY_TABLE, "__index", 2,
+         HONEY_TABLE, "__index", 6,
          HONEY_FUNCTION, "getTexture", honey_cairo_get_texture,
          HONEY_FUNCTION, "updateTexture", honey_cairo_update_texture,
+         HONEY_FUNCTION, "moveTo", honey_cairo_move_to,
+         HONEY_FUNCTION, "lineTo", honey_cairo_line_to,
+         HONEY_FUNCTION, "stroke", honey_cairo_stroke,
+         HONEY_FUNCTION, "setColor", honey_cairo_set_color,
 
          HONEY_FUNCTION, "__gc", honey_cairo_destroy);
     honey_cairo_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -140,7 +144,7 @@ int honey_cairo_get_texture(lua_State* L)
 
 int honey_cairo_destroy(lua_State* L)
 {
-    cairo_surface_t** cr;
+    cairo_t** cr;
     honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
 
     cairo_destroy(*cr);
@@ -148,4 +152,66 @@ int honey_cairo_destroy(lua_State* L)
     return 0;
 }
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * Drawing functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+int honey_cairo_move_to(lua_State* L)
+{
+    cairo_t** cr;
+    float x, y;
+    honey_lua_parse_arguments
+        (L, 1, 3, HONEY_USERDATA, &cr, HONEY_NUMBER, &x, HONEY_NUMBER, &y);
+
+    cairo_move_to(*cr, x, y);
+    return 0;
+}
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_line_to(lua_State* L)
+{
+    cairo_t** cr;
+    float x, y;
+    honey_lua_parse_arguments
+        (L, 1, 3, HONEY_USERDATA, &cr, HONEY_NUMBER, &x, HONEY_NUMBER, &y);
+
+    cairo_line_to(*cr, x, y);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_stroke(lua_State* L)
+{
+    cairo_t** cr;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
+
+    cairo_stroke(*cr);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_set_color(lua_State* L)
+{
+    cairo_t** cr;
+    float r, g, b, a;
+    int choice = honey_lua_parse_arguments
+        (L, 2,
+         4,
+         HONEY_USERDATA, &cr,
+         HONEY_NUMBER, &r, HONEY_NUMBER, &g, HONEY_NUMBER, &b,
+         5,
+         HONEY_USERDATA, &cr,
+         HONEY_NUMBER, &r, HONEY_NUMBER, &g, HONEY_NUMBER, &b, HONEY_NUMBER, &a);
+
+    if (choice == 0)
+        cairo_set_source_rgb(*cr, r, g, b);
+    else
+        cairo_set_source_rgba(*cr, r, g, b, a);
+
+    return 0;
+}
