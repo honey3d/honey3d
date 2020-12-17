@@ -14,6 +14,8 @@ int honey_setup_cairo(lua_State* L);
 
 int honey_cairo_new(lua_State* L);
 
+int honey_cairo_update_texture(lua_State* L);
+
 int honey_cairo_get_texture(lua_State* L);
 
 int honey_cairo_destroy(lua_State* L);
