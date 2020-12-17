@@ -3,6 +3,8 @@
 
 int honey_cairo_mt_ref = LUA_NOREF;
 
+static const cairo_user_data_key_t TEXTURE_KEY;
+
 int honey_setup_cairo(lua_State* L)
 {
     honey_lua_create_table
@@ -19,15 +21,62 @@ int honey_setup_cairo(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+struct texture_ref {
+    int id;
+    lua_State* L;
+};
+
+static void destroy_texture_ref(void* data)
+{
+    struct texture_ref* ref = data;
+    luaL_unref(ref->L, LUA_REGISTRYINDEX, ref->id);
+    free(ref);
+}
+
 int honey_cairo_new(lua_State* L)
 {
-    int width, height;
-    honey_lua_parse_arguments(L, 1, 2, HONEY_INTEGER, &width, HONEY_INTEGER, &height);
+    int choice = honey_lua_parse_arguments(L, 2, 0, 1, HONEY_TABLE, NULL);
 
+    lua_pushcfunction(L, honey_lua_texture_new);
+    if (choice == 0)
+	honey_lua_pcall(L, 0, 1);
+    else {
+	lua_pushvalue(L, 1);
+	honey_lua_pcall(L, 1, 1);
+    }
+
+    /* configure texture swizzling ARGB -> RGBA */
+    honey_texture* texture = lua_touserdata(L, -1);
+    glBindTexture(GL_TEXTURE_2D, texture->id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_GREEN);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_BLUE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_ALPHA);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
+
+    /* setup texture reference */
+    struct texture_ref* ref = malloc(sizeof(struct texture_ref));
+    if (ref == NULL)
+	honey_lua_throw_error
+	    (L, "failed to allocate memory for texture handle!");
+    
+    ref->id = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    /* create cairo surface */
     cairo_surface_t** surface = lua_newuserdata(L, sizeof(cairo_surface_t*));
-    *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-
+    *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+					  texture->params.width,
+					  texture->params.height);
+    
     cairo_status_t status = cairo_surface_status(*surface);
+    if (status != CAIRO_STATUS_SUCCESS)
+        honey_lua_throw_error
+            (L, "libcairo error: %s", cairo_status_to_string(status));
+
+    /* bind texture ref to surface userdata */
+    status = cairo_surface_set_user_data(*surface,
+					 &TEXTURE_KEY,
+					 ref,
+					 destroy_texture_ref);
     if (status != CAIRO_STATUS_SUCCESS)
         honey_lua_throw_error
             (L, "libcairo error: %s", cairo_status_to_string(status));
@@ -40,18 +89,37 @@ int honey_cairo_new(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-int honey_cairo_get_texture(lua_State* L)
+int honey_cairo_update_texture(lua_State* L)
 {
-    /* todo
     cairo_surface_t** surface;
     honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &surface);
 
-    unsigned char* data = cairo_image_surface_get_data(*surface);
-    honey_texture* texture = lua_newuserdata(L, sizeof(honey_texture));
+    struct texture_ref *ref = cairo_surface_get_user_data(*surface, &TEXTURE_KEY);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, ref->id);
+    honey_texture* texture = lua_touserdata(L, -1);
+    lua_pop(L, 1);
 
-    glGenTextures(1, &(texture->id));
     glBindTexture(GL_TEXTURE_2D, texture->id);
-    */
+    unsigned char* image_data = cairo_image_surface_get_data(*surface);
+    glTexSubImage2D(GL_TEXTURE_2D,
+		    0, 0, 0,
+		    texture->params.width,
+		    texture->params.height,
+		    GL_RGBA,
+		    GL_UNSIGNED_BYTE,
+		    image_data);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_get_texture(lua_State* L)
+{
+    cairo_surface_t** surface;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &surface);
+
+    struct texture_ref *ref = cairo_surface_get_user_data(*surface, &TEXTURE_KEY);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, ref->id);
     return 1;
 }
 

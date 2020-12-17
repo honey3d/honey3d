@@ -54,6 +54,8 @@ typedef struct {
 /** @brief Place the honey.texture bindings as a table on the stack. */
 void honey_setup_texture(lua_State* L);
 
+int honey_lua_texture_new(lua_State* L);
+
 /** @brief Generate a texture.
  *
  * @param[out] texture Pointer to the destination texture.

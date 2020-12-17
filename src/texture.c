@@ -36,7 +36,7 @@ static void setup_texture(lua_State* L, honey_texture** tex, bool use_params)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-static int honey_lua_texture_new(lua_State* L)
+int honey_lua_texture_new(lua_State* L)
 {
     honey_texture* texture;
     int choice = honey_lua_parse_arguments(L, 2, 0, 1, HONEY_TABLE, NULL);
