@@ -25,9 +25,8 @@ cairo:moveTo(1024,0)
 cairo:lineTo(0,1024)
 cairo:stroke()
 
-cairo:setColor(1, 0, 1, 0.2)
-cairo:moveTo(0,0)
-cairo:lineTo(1024,1024)
+cairo:setLineWidth(20);
+cairo:arc(512, 512, 256);
 cairo:stroke()
 
 cairo:updateTexture()

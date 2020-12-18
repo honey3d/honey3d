@@ -26,8 +26,12 @@ int honey_cairo_move_to(lua_State* L);
 
 int honey_cairo_line_to(lua_State* L);
 
+int honey_cairo_arc(lua_State* L);
+
 int honey_cairo_stroke(lua_State* L);
 
 int honey_cairo_set_color(lua_State* L);
+
+int honey_cairo_set_line_width(lua_State* L);
 
 #endif

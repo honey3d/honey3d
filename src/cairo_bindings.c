@@ -9,13 +9,15 @@ int honey_setup_cairo(lua_State* L)
 {
     honey_lua_create_table
         (L, 2,
-         HONEY_TABLE, "__index", 6,
+         HONEY_TABLE, "__index", 8,
          HONEY_FUNCTION, "getTexture", honey_cairo_get_texture,
          HONEY_FUNCTION, "updateTexture", honey_cairo_update_texture,
          HONEY_FUNCTION, "moveTo", honey_cairo_move_to,
          HONEY_FUNCTION, "lineTo", honey_cairo_line_to,
+	 HONEY_FUNCTION, "arc", honey_cairo_arc,
          HONEY_FUNCTION, "stroke", honey_cairo_stroke,
          HONEY_FUNCTION, "setColor", honey_cairo_set_color,
+	 HONEY_FUNCTION, "setLineWidth", honey_cairo_set_line_width,
 
          HONEY_FUNCTION, "__gc", honey_cairo_destroy);
     honey_cairo_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -188,6 +190,31 @@ int honey_cairo_line_to(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+int honey_cairo_arc(lua_State* L)
+{
+    cairo_t** cr;
+    float cx, cy, radius, angle1, angle2;
+    int choice = honey_lua_parse_arguments
+	(L, 2,
+	 4,
+	 HONEY_USERDATA, &cr,
+	 HONEY_NUMBER, &cx, HONEY_NUMBER, &cy, HONEY_NUMBER, &radius,
+	 6,
+	 HONEY_USERDATA, &cr,
+	 HONEY_NUMBER, &cx, HONEY_NUMBER, &cy, HONEY_NUMBER, &radius,
+	 HONEY_NUMBER, &angle1, HONEY_NUMBER, &angle2);
+
+    if (choice == 0) {
+	angle1 = 0;
+	angle2 = 6.2831;
+    }
+
+    cairo_arc(*cr, cx, cy, radius, angle1, angle2);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 int honey_cairo_stroke(lua_State* L)
 {
     cairo_t** cr;
@@ -218,3 +245,16 @@ int honey_cairo_set_color(lua_State* L)
 
     return 0;
 }
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_set_line_width(lua_State* L)
+{
+    cairo_t** cr;
+    float width;
+    honey_lua_parse_arguments(L, 1, 2, HONEY_USERDATA, &cr, HONEY_NUMBER, &width);
+
+    cairo_set_line_width(*cr, width);
+    return 0;
+}
+			      
