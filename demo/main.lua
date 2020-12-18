@@ -19,9 +19,22 @@ end)
 local tex = honey.texture.load('lowres.png',
                                {minFilter='nearest', magFilter='nearest'})
 
+local cairo = honey.cairo()
+cairo:setColor(1, 1, 1)
+cairo:moveTo(1024,0)
+cairo:lineTo(0,1024)
+cairo:stroke()
+
+cairo:setColor(1, 0, 1, 0.2)
+cairo:moveTo(0,0)
+cairo:lineTo(1024,1024)
+cairo:stroke()
+
+cairo:updateTexture()
+
 local sceneRoot = Node.new()
 
-local shader = SpatialShader.new(tex)
+local shader = SpatialShader.new(cairo:getTexture())
 local lightDirection = honey.glm.vec3{1,1,1}
 lightDirection:normalize()
 shader:setVec3('directional_lights[0].direction', lightDirection)
@@ -70,6 +83,7 @@ function honey.update(dt)
    sceneRoot:updateCascade(dt)
    if total_time > 1 then
       print('FPS: '..tostring(total_frames/total_time))
+      print(cairo)
       total_time = 0
       total_frames = 0
    end
