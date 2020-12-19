@@ -19,14 +19,15 @@ end)
 local tex = honey.texture.load('lowres.png',
                                {minFilter='nearest', magFilter='nearest'})
 
-local cairo = honey.cairo()
+local cairo = honey.cairo({minFilter='nearest', magFilter='nearest'})
 cairo:setColor(1, 1, 1)
 cairo:moveTo(1024,0)
 cairo:lineTo(0,1024)
 cairo:stroke()
 
-cairo:setLineWidth(20);
-cairo:arc(512, 512, 256);
+cairo:setLineWidth(20)
+cairo:setColor(0,0,0)
+cairo:arc(512, 512, 256)
 cairo:stroke()
 
 cairo:updateTexture()
@@ -82,7 +83,6 @@ function honey.update(dt)
    sceneRoot:updateCascade(dt)
    if total_time > 1 then
       print('FPS: '..tostring(total_frames/total_time))
-      print(cairo)
       total_time = 0
       total_frames = 0
    end

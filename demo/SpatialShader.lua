@@ -34,7 +34,7 @@ out vec4 color;
 
 void main()
 {
-    color = vec4(texture(albedo, UV).xyz, 1);
+    color = texture(albedo, UV);
 } ]]
 
 local SpatialShader = {}

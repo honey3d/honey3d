@@ -32,14 +32,15 @@ Node.prototype.updateCascade = function(self, dt)
     end
 end
 
-Node.prototype.drawCascade = function(self, camera, shader)
-    if self.draw then
+Node.prototype.drawCascade = function(self, camera, shader, filter)
+   filter = filter or function(node) return true end
+   if self.draw and filter(self) then
         self:draw(camera, shader)
     end
     
    -- do not draw base nodes, but recursively draw children.
    for _, child in ipairs(self.children) do
-      child:drawCascade(camera, shader)
+      child:drawCascade(camera, shader, filter)
    end
 end
 
