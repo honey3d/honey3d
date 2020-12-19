@@ -91,7 +91,55 @@ void honey_lua_throw_error(lua_State* L,
     }
     lua_error(L);
 }
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+bool honey_string_to_enum(int* k, char* string, int n, ...)
+{
+    va_list args;
+    va_start(args, n);
+
+    bool success = false;
     
+    for (int i=0; i<n; i++) {
+	const char* str = va_arg(args, const char*);
+	int val         = va_arg(args, const char*);
+
+	if (strcmp(str, string) == 0) {
+	    *k = val;
+	    success = true;
+	    break;
+	}
+    }
+
+    va_end(args);
+    return success;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+bool honey_enum_to_string(char** string, int k, int n, ...)
+{
+    va_list args;
+    va_start(args, n);
+
+    bool success = false;
+    
+    for (int i=0; i<n; i++) {
+	const char* str = va_arg(args, const char*);
+	int val         = va_arg(args, const char*);
+
+	if (k == val) {
+	    *string = str;
+	    success = true;
+	    break;
+	}
+    }
+
+    va_end(args);
+    return success;
+}
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  * Argument parsing functions

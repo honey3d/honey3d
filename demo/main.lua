@@ -19,15 +19,13 @@ end)
 local tex = honey.texture.load('lowres.png',
                                {minFilter='nearest', magFilter='nearest'})
 
-local cairo = honey.cairo({minFilter='nearest', magFilter='nearest'})
-cairo:setColor(1, 1, 1)
-cairo:moveTo(1024,0)
-cairo:lineTo(0,1024)
-cairo:stroke()
-
-cairo:setLineWidth(20)
+local cairo = honey.cairo()
+cairo:setLinecap('butt')
+cairo:setLineWidth(50)
 cairo:setColor(0,0,0)
 cairo:arc(512, 512, 256)
+cairo:moveTo(256,256)
+cairo:lineTo(1024-256,1024-256)
 cairo:stroke()
 
 cairo:updateTexture()

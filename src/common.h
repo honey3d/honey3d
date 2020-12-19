@@ -202,6 +202,32 @@ typedef struct honey_lua_element {
 void honey_lua_push_element(lua_State* L,
 			    honey_lua_element element);
 
+/** @brief Get an enum value from a string.
+ *
+ * This function expects the variadic arguments of the form STR1, VAL1, STR2, VAL2, ...
+ *
+ * @param[out] k The result of the conversion.
+ * @param[in] string The string to check.
+ * @param[in] n The number of variadic pairs provided.
+ * @param[in] ... Variadic arguments as described above.
+ *
+ * @returns true if the string parsed successfully; false otherwise.
+ */
+bool honey_string_to_enum(int* k, char* string, int n, ...);
+
+/** @brief Get an enum value from a string.
+ *
+ * This function expects the variadic arguments of the form STR1, VAL1, STR2, VAL2, ...
+ *
+ * @param[in] string The resulting string.
+ * @param[out] k The integer to check.
+ * @param[in] n The number of variadic pairs provided.
+ * @param[in] ... Variadic arguments as described above.
+ *
+ * @returns true if the integer parsed successfully; false otherwise.
+ */
+bool honey_enum_to_string(char** string, int k, int n, ...);
+
 /** @brief Create and populate a lua table.
  *
  * This function expects a list of the form `type, name, element, type, name, element...`.

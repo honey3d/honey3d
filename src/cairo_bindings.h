@@ -20,6 +20,28 @@ int honey_cairo_get_texture(lua_State* L);
 
 int honey_cairo_destroy(lua_State* L);
 
+/* context config functions */
+
+int honey_cairo_save(lua_State* L);
+
+int honey_cairo_restore(lua_State* L);
+
+int honey_cairo_set_operator(lua_State* L);
+
+int honey_cairo_get_operator(lua_State* L);
+
+int honey_cairo_set_antialias(lua_State* L);
+
+int honey_cairo_get_antialias(lua_State* L);
+
+int honey_cairo_set_color(lua_State* L);
+
+int honey_cairo_set_line_width(lua_State* L);
+
+int honey_cairo_set_linecap(lua_State* L);
+
+int honey_cairo_get_linecap(lua_State* L);
+
 /* drawing functions */
 
 int honey_cairo_move_to(lua_State* L);
@@ -30,8 +52,6 @@ int honey_cairo_arc(lua_State* L);
 
 int honey_cairo_stroke(lua_State* L);
 
-int honey_cairo_set_color(lua_State* L);
-
-int honey_cairo_set_line_width(lua_State* L);
+int honey_cairo_fill(lua_State* L);
 
 #endif

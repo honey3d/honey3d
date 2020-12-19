@@ -9,15 +9,28 @@ int honey_setup_cairo(lua_State* L)
 {
     honey_lua_create_table
         (L, 2,
-         HONEY_TABLE, "__index", 8,
+         HONEY_TABLE, "__index", 17,
          HONEY_FUNCTION, "getTexture", honey_cairo_get_texture,
          HONEY_FUNCTION, "updateTexture", honey_cairo_update_texture,
+
+	 /* config functions */
+	 HONEY_FUNCTION, "save", honey_cairo_save,
+	 HONEY_FUNCTION, "restore", honey_cairo_restore,
+	 HONEY_FUNCTION, "setOperator", honey_cairo_set_operator,
+	 HONEY_FUNCTION, "getOperator", honey_cairo_get_operator,
+	 HONEY_FUNCTION, "setAntialias", honey_cairo_set_antialias,
+	 HONEY_FUNCTION, "getAntialias", honey_cairo_get_antialias,
+	 HONEY_FUNCTION, "setColor", honey_cairo_set_color,
+	 HONEY_FUNCTION, "setLinecap", honey_cairo_set_linecap,
+	 HONEY_FUNCTION, "getLinecap", honey_cairo_get_linecap,
+	 HONEY_FUNCTION, "setLineWidth", honey_cairo_set_line_width,
+
+	 /* drawing functions */
          HONEY_FUNCTION, "moveTo", honey_cairo_move_to,
          HONEY_FUNCTION, "lineTo", honey_cairo_line_to,
 	 HONEY_FUNCTION, "arc", honey_cairo_arc,
          HONEY_FUNCTION, "stroke", honey_cairo_stroke,
-         HONEY_FUNCTION, "setColor", honey_cairo_set_color,
-	 HONEY_FUNCTION, "setLineWidth", honey_cairo_set_line_width,
+	 HONEY_FUNCTION, "fill", honey_cairo_fill,
 
          HONEY_FUNCTION, "__gc", honey_cairo_destroy);
     honey_cairo_mt_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -159,6 +172,234 @@ int honey_cairo_destroy(lua_State* L)
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+ * Context config functions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+int honey_cairo_set_operator(lua_State* L)
+{
+    cairo_t** cr;
+    char* op_string;
+    honey_lua_parse_arguments(L, 1, 2, HONEY_USERDATA, &cr, HONEY_STRING, &op_string);
+
+    cairo_operator_t op;
+    
+    bool ok = honey_string_to_enum
+	(&op, op_string, 29,
+	 "clear", CAIRO_OPERATOR_CLEAR,
+	 "source", CAIRO_OPERATOR_SOURCE,
+	 "over", CAIRO_OPERATOR_OVER,
+	 "in", CAIRO_OPERATOR_IN,
+	 "out", CAIRO_OPERATOR_OUT,
+	 "atop", CAIRO_OPERATOR_ATOP,
+	 "dest", CAIRO_OPERATOR_DEST,
+	 "dest-over", CAIRO_OPERATOR_DEST_OVER,
+	 "dest-in", CAIRO_OPERATOR_DEST_IN,
+	 "dest-out", CAIRO_OPERATOR_DEST_OUT,
+	 "dest-atop", CAIRO_OPERATOR_DEST_ATOP,
+	 "xor", CAIRO_OPERATOR_XOR,
+	 "add", CAIRO_OPERATOR_ADD,
+	 "saturate", CAIRO_OPERATOR_SATURATE,
+	 "multiply", CAIRO_OPERATOR_MULTIPLY,
+	 "screen", CAIRO_OPERATOR_SCREEN,
+	 "overlay", CAIRO_OPERATOR_OVERLAY,
+	 "darken", CAIRO_OPERATOR_DARKEN,
+	 "lighten", CAIRO_OPERATOR_LIGHTEN,
+	 "color-dodge", CAIRO_OPERATOR_COLOR_DODGE,
+	 "color-burn", CAIRO_OPERATOR_COLOR_BURN,
+	 "hard-light", CAIRO_OPERATOR_HARD_LIGHT,
+	 "soft-light", CAIRO_OPERATOR_SOFT_LIGHT,
+	 "difference", CAIRO_OPERATOR_DIFFERENCE,
+	 "exclusion", CAIRO_OPERATOR_EXCLUSION,
+	 "hsl-hue", CAIRO_OPERATOR_HSL_HUE,
+	 "hsl-saturation", CAIRO_OPERATOR_HSL_SATURATION,
+	 "hsl-color", CAIRO_OPERATOR_HSL_COLOR,
+	 "hsl-luminosity", CAIRO_OPERATOR_HSL_LUMINOSITY);
+
+ 
+    if (!ok)
+	honey_lua_throw_error(L, "unknown cairo operator '%s'", op_string);
+
+    cairo_set_operator(*cr, op);
+    
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_get_operator(lua_State* L)
+{
+    cairo_t** cr;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
+
+    cairo_operator_t op = cairo_get_operator(*cr);
+    char* string;
+    bool ok = honey_enum_to_string
+	(&string, op, 29,
+	 "clear", CAIRO_OPERATOR_CLEAR,
+	 "source", CAIRO_OPERATOR_SOURCE,
+	 "over", CAIRO_OPERATOR_OVER,
+	 "in", CAIRO_OPERATOR_IN,
+	 "out", CAIRO_OPERATOR_OUT,
+	 "atop", CAIRO_OPERATOR_ATOP,
+	 "dest", CAIRO_OPERATOR_DEST,
+	 "dest-over", CAIRO_OPERATOR_DEST_OVER,
+	 "dest-in", CAIRO_OPERATOR_DEST_IN,
+	 "dest-out", CAIRO_OPERATOR_DEST_OUT,
+	 "dest-atop", CAIRO_OPERATOR_DEST_ATOP,
+	 "xor", CAIRO_OPERATOR_XOR,
+	 "add", CAIRO_OPERATOR_ADD,
+	 "saturate", CAIRO_OPERATOR_SATURATE,
+	 "multiply", CAIRO_OPERATOR_MULTIPLY,
+	 "screen", CAIRO_OPERATOR_SCREEN,
+	 "overlay", CAIRO_OPERATOR_OVERLAY,
+	 "darken", CAIRO_OPERATOR_DARKEN,
+	 "lighten", CAIRO_OPERATOR_LIGHTEN,
+	 "color-dodge", CAIRO_OPERATOR_COLOR_DODGE,
+	 "color-burn", CAIRO_OPERATOR_COLOR_BURN,
+	 "hard-light", CAIRO_OPERATOR_HARD_LIGHT,
+	 "soft-light", CAIRO_OPERATOR_SOFT_LIGHT,
+	 "difference", CAIRO_OPERATOR_DIFFERENCE,
+	 "exclusion", CAIRO_OPERATOR_EXCLUSION,
+	 "hsl-hue", CAIRO_OPERATOR_HSL_HUE,
+	 "hsl-saturation", CAIRO_OPERATOR_HSL_SATURATION,
+	 "hsl-color", CAIRO_OPERATOR_HSL_COLOR,
+	 "hsl-luminosity", CAIRO_OPERATOR_HSL_LUMINOSITY);
+
+    if (!ok)
+	honey_lua_throw_error(L, "unknown operator '%d'", op);
+    
+    return 1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_set_antialias(lua_State* L)
+{
+    cairo_t** cr;
+    char* aa_string;
+    honey_lua_parse_arguments(L, 1, 2, HONEY_USERDATA, &cr, HONEY_STRING, &aa_string);
+
+    cairo_antialias_t aa;
+
+    bool noerror = honey_string_to_enum
+	(&aa, aa_string, 7,
+	 "default", CAIRO_ANTIALIAS_DEFAULT,
+	 "none", CAIRO_ANTIALIAS_NONE,
+	 "gray", CAIRO_ANTIALIAS_GRAY,
+	 "subpixel", CAIRO_ANTIALIAS_SUBPIXEL,
+	 "fast", CAIRO_ANTIALIAS_FAST,
+	 "good", CAIRO_ANTIALIAS_GOOD,
+	 "best", CAIRO_ANTIALIAS_BEST);
+
+    if (!noerror)
+	honey_lua_throw_error(L, "unknown antialias type '%s'", aa_string);
+
+    cairo_set_antialias(*cr, aa);
+    
+    return 0;
+	
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_get_antialias(lua_State* L)
+{
+    cairo_t** cr;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
+
+    cairo_antialias_t aa = cairo_get_antialias(*cr);
+    char* string;
+    
+    bool noerror = honey_enum_to_string
+	(&string, aa, 7,
+	 "default", CAIRO_ANTIALIAS_DEFAULT,
+	 "none", CAIRO_ANTIALIAS_NONE,
+	 "gray", CAIRO_ANTIALIAS_GRAY,
+	 "subpixel", CAIRO_ANTIALIAS_SUBPIXEL,
+	 "fast", CAIRO_ANTIALIAS_FAST,
+	 "good", CAIRO_ANTIALIAS_GOOD,
+	 "best", CAIRO_ANTIALIAS_BEST);
+
+    if (!noerror)
+	honey_lua_throw_error(L, "unknown antialias type '%d'", aa);
+
+    lua_pushstring(L, string);
+    
+    return 1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_save(lua_State* L)
+{
+    cairo_t** cr;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
+
+    cairo_save(*cr);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_restore(lua_State* L)
+{
+    cairo_t** cr;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
+
+    cairo_restore(*cr);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_set_linecap(lua_State* L)
+{
+    cairo_t** cr;
+    char* cap_string;
+    honey_lua_parse_arguments(L, 1, 2, HONEY_USERDATA, &cr, HONEY_STRING, &cap_string);
+
+    cairo_line_cap_t cap;
+
+    bool ok = honey_string_to_enum
+	(&cap, cap_string, 3,
+	 "butt", CAIRO_LINE_CAP_BUTT,
+	 "round", CAIRO_LINE_CAP_ROUND,
+	 "square", CAIRO_LINE_CAP_SQUARE);
+
+    if (!ok)
+	honey_lua_throw_error(L, "unknown linecap type '%s'", cap_string);
+
+    cairo_set_line_cap(*cr, cap);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_get_linecap(lua_State* L)
+{
+    cairo_t** cr;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
+
+    cairo_line_cap_t cap = cairo_get_line_cap(*cr);
+    char* cap_string;
+
+    bool ok = honey_enum_to_string
+	(&cap_string, cap, 3,
+	 "butt", CAIRO_LINE_CAP_BUTT,
+	 "round", CAIRO_LINE_CAP_ROUND,
+	 "square", CAIRO_LINE_CAP_SQUARE);
+
+    if (!ok)
+	honey_lua_throw_error(L, "unknown linecap type '%d'", cap);
+
+    lua_pushstring(L, cap_string);
+    return 1;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
  * Drawing functions
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -223,6 +464,17 @@ int honey_cairo_stroke(lua_State* L)
     cairo_stroke(*cr);
 }
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_fill(lua_State* L)
+{
+    cairo_t** cr;
+    honey_lua_parse_arguments(L, 1, 1, HONEY_USERDATA, &cr);
+
+    cairo_fill(*cr);
+    return 0;
+}
+			      
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 int honey_cairo_set_color(lua_State* L)
