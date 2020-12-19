@@ -23,10 +23,13 @@ local cairo = honey.cairo()
 cairo:setLinecap('butt')
 cairo:setLineWidth(50)
 cairo:setColor(0,0,0)
-cairo:arc(512, 512, 256)
 cairo:moveTo(256,256)
 cairo:lineTo(1024-256,1024-256)
 cairo:stroke()
+
+cairo:setColor(1,1,1,0.5)
+cairo:arc(512,512,256,0, 2*math.pi)
+cairo:fill()
 
 cairo:updateTexture()
 

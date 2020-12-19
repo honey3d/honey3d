@@ -9,7 +9,7 @@ int honey_setup_cairo(lua_State* L)
 {
     honey_lua_create_table
         (L, 2,
-         HONEY_TABLE, "__index", 17,
+         HONEY_TABLE, "__index", 18,
          HONEY_FUNCTION, "getTexture", honey_cairo_get_texture,
          HONEY_FUNCTION, "updateTexture", honey_cairo_update_texture,
 
@@ -28,6 +28,7 @@ int honey_setup_cairo(lua_State* L)
 	 /* drawing functions */
          HONEY_FUNCTION, "moveTo", honey_cairo_move_to,
          HONEY_FUNCTION, "lineTo", honey_cairo_line_to,
+	 HONEY_FUNCTION, "curveTo", honey_cairo_curve_to,
 	 HONEY_FUNCTION, "arc", honey_cairo_arc,
          HONEY_FUNCTION, "stroke", honey_cairo_stroke,
 	 HONEY_FUNCTION, "fill", honey_cairo_fill,
@@ -426,6 +427,22 @@ int honey_cairo_line_to(lua_State* L)
         (L, 1, 3, HONEY_USERDATA, &cr, HONEY_NUMBER, &x, HONEY_NUMBER, &y);
 
     cairo_line_to(*cr, x, y);
+    return 0;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+int honey_cairo_curve_to(lua_State* L)
+{
+    cairo_t** cr;
+    float x1, y1, x2, y2, x3, y3;
+    honey_lua_parse_arguments
+	(L, 1, 7, HONEY_USERDATA, &cr,
+	 HONEY_NUMBER, x1, HONEY_NUMBER, y1,
+	 HONEY_NUMBER, x2, HONEY_NUMBER, y2,
+	 HONEY_NUMBER, x3, HONEY_NUMBER, y3);
+
+    cairo_curve_to(*cr, x1, y1, x2, y2, x3, y3);
     return 0;
 }
 
