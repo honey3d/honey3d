@@ -1,11 +1,15 @@
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "logging/logging.h"
 
 
-const char * honey_log_level_str_(struct honey_log_info *info)
+struct honey_log_info_t honey_log_info;
+
+
+const char * honey_log_level_str()
 {
-   switch(info->log_level) {
+   switch(honey_log_info.log_level) {
    case DEBUG:
       return "DEBUG";
       break;
@@ -29,5 +33,17 @@ const char * honey_log_level_str_(struct honey_log_info *info)
    default:
       return NULL;
       break;
+   }
+}
+
+
+void honey_debug(const char *fmt, ...)
+{
+   if (honey_log_info.log_level >= DEBUG) {
+      va_list args;
+      va_start(args, fmt);
+      fprintf(honey_log_info.debug_out, "[DEBUG] ");
+      vfprintf(honey_log_info.debug_out, fmt, args);
+      va_end(args);
    }
 }

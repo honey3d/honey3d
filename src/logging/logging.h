@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-struct honey_log_info {
+struct honey_log_info_t {
    enum { FATAL, ERROR, WARN, INFO, DEBUG } log_level;
    FILE *debug_out;
    FILE *info_out;
@@ -13,16 +13,14 @@ struct honey_log_info {
    FILE *fatal_out;
 };
 
-const char * honey_log_level_str_(struct honey_log_info *info);
+extern struct honey_log_info_t honey_log_info;
 
-#define honey_log_(info, required_level, prefix, ...) do {	\
-      if (info.log_level >= required_level) {			\
-	 fprintf(info.debug_out, prefix " " __VA_ARGS__);	\
-      }								\
-   } while(0)
+const char * honey_log_level_str();
 
-#define honey_debug_(info, ...)				\
-   honey_log_(info, DEBUG, "[DEBUG]", __VA_ARGS__)
-   
+void honey_debug(const char *fmt, ...);
+void honey_info(const char *fmt, ...);
+void honey_warn(const char *fmt, ...);
+void honey_error(const char *fmt, ...);
+void honey_fatal(const char *fmt, ...);
 
 #endif

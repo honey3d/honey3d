@@ -10,6 +10,7 @@
 /* test declarations */
 
 mu_test test_log_get_level();
+mu_test test_log_set_defaults();
 mu_test test_log_debug();
 
 
@@ -22,26 +23,24 @@ void honey_logging_tests()
 }
 
 
-/* test definitions */
+/* ~~~~~~~~ test definitions ~~~~~~~~ */
 
 mu_test test_log_get_level()
 {
-   struct honey_log_info info;
+   honey_log_info.log_level = DEBUG;
+   mu_assert_streq("DEBUG", honey_log_level_str());
 
-   info.log_level = DEBUG;
-   mu_assert_streq("DEBUG", honey_log_level_str_(&info));
+   honey_log_info.log_level = INFO;
+   mu_assert_streq("INFO", honey_log_level_str());
 
-   info.log_level = INFO;
-   mu_assert_streq("INFO", honey_log_level_str_(&info));
+   honey_log_info.log_level = WARN;
+   mu_assert_streq("WARN", honey_log_level_str());
 
-   info.log_level = WARN;
-   mu_assert_streq("WARN", honey_log_level_str_(&info));
+   honey_log_info.log_level = ERROR;
+   mu_assert_streq("ERROR", honey_log_level_str());
 
-   info.log_level = ERROR;
-   mu_assert_streq("ERROR", honey_log_level_str_(&info));
-
-   info.log_level = FATAL;
-   mu_assert_streq("FATAL", honey_log_level_str_(&info));
+   honey_log_info.log_level = FATAL;
+   mu_assert_streq("FATAL", honey_log_level_str());
 
    return 0;
 }
@@ -56,16 +55,15 @@ mu_test test_log_debug()
    stream = open_memstream(&buffer, &len);
    mu_assert_unequal(stream, NULL);
 
-   struct honey_log_info info;
-   info.debug_out = stream;
-   info.log_level = FATAL;
+   honey_log_info.debug_out = stream;
+   honey_log_info.log_level = FATAL;
 
-   honey_debug_(info, "hello, world!");
+   honey_debug("hello, %s!", "world");
    fflush(stream);
    mu_assert_streq(buffer, "");
 
-   info.log_level = DEBUG;
-   honey_debug_(info, "hello, world!");
+   honey_log_info.log_level = DEBUG;
+   honey_debug("hello, %s!", "world");
    fclose(stream);
    mu_assert_streq(buffer, "[DEBUG] hello, world!");
    free(buffer);
