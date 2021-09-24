@@ -58,7 +58,13 @@ mu_test test_log_debug()
 
    struct honey_log_info info;
    info.debug_out = stream;
+   info.log_level = FATAL;
 
+   honey_debug_(info, "hello, world!");
+   fflush(stream);
+   mu_assert_streq(buffer, "");
+
+   info.log_level = DEBUG;
    honey_debug_(info, "hello, world!");
    fclose(stream);
    mu_assert_streq(buffer, "[DEBUG] hello, world!");
