@@ -40,3 +40,15 @@ endif()
 target_link_libraries(honey ${LIBRARIES})
 
 
+# build tests (optional)
+
+set(TEST_ROOT ${CMAKE_SOURCE_DIR}/src/test)
+set(TEST_SOURCES
+  ${TEST_ROOT}/test_main.c
+  ${TEST_ROOT}/logging/logging_tests.c
+  )
+add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCES})
+set_target_properties(test PROPERTIES
+  C_STANDARD 99
+  CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
+target_link_libraries(test ${LUA_LIBRARIES} honeysuckle)
