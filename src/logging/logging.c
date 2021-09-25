@@ -37,13 +37,42 @@ const char * honey_log_level_str()
 }
 
 
-void honey_debug(const char *fmt, ...)
+void honey_log_set_level(enum honey_log_level_t level)
 {
-   if (honey_log_info.log_level >= DEBUG) {
+   honey_log_info.log_level = level;
+}
+
+
+enum honey_log_level_t honey_log_get_level()
+{
+   return honey_log_info.log_level;
+}
+
+
+void honey_log_set_file(FILE* file)
+{
+   honey_log_info.log_file = file;
+}
+
+
+FILE * honey_log_get_file()
+{
+   return honey_log_info.log_file;
+}
+
+
+void honey_log(enum honey_log_level_t required_level,
+	       const char *prefix,
+	       const char *fmt, ...)
+{
+   if (honey_log_info.log_file == NULL)
+      return;
+   
+   if (honey_log_info.log_level >= required_level) {
       va_list args;
       va_start(args, fmt);
-      fprintf(honey_log_info.debug_out, "[DEBUG] ");
-      vfprintf(honey_log_info.debug_out, fmt, args);
+      fprintf(honey_log_info.log_file, prefix);
+      vfprintf(honey_log_info.log_file, fmt, args);
       va_end(args);
    }
 }

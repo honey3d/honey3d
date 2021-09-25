@@ -27,19 +27,24 @@ void honey_logging_tests()
 
 mu_test test_log_get_level()
 {
-   honey_log_info.log_level = DEBUG;
+   honey_log_set_level(DEBUG);
+   mu_assert_equal(DEBUG, honey_log_get_level());
    mu_assert_streq("DEBUG", honey_log_level_str());
 
-   honey_log_info.log_level = INFO;
+   honey_log_set_level(INFO);
+   mu_assert_equal(INFO, honey_log_get_level());
    mu_assert_streq("INFO", honey_log_level_str());
 
-   honey_log_info.log_level = WARN;
+   honey_log_set_level(WARN);
+   mu_assert_equal(WARN, honey_log_get_level());
    mu_assert_streq("WARN", honey_log_level_str());
 
-   honey_log_info.log_level = ERROR;
+   honey_log_set_level(ERROR);
+   mu_assert_equal(ERROR, honey_log_get_level());
    mu_assert_streq("ERROR", honey_log_level_str());
 
-   honey_log_info.log_level = FATAL;
+   honey_log_set_level(FATAL);
+   mu_assert_equal(FATAL, honey_log_get_level());
    mu_assert_streq("FATAL", honey_log_level_str());
 
    return 0;
@@ -55,14 +60,18 @@ mu_test test_log_debug()
    stream = open_memstream(&buffer, &len);
    mu_assert_unequal(stream, NULL);
 
-   honey_log_info.debug_out = stream;
-   honey_log_info.log_level = FATAL;
+   honey_log_set_file(stream);
+   mu_assert_equal(honey_log_get_file(), stream);
+   
+   honey_log_set_level(FATAL);
+   mu_assert_equal(honey_log_get_level(), FATAL);
 
    honey_debug("hello, %s!", "world");
    fflush(stream);
    mu_assert_streq(buffer, "");
 
-   honey_log_info.log_level = DEBUG;
+   honey_log_set_level(DEBUG);
+   mu_assert_equal(honey_log_get_level(), DEBUG);
    honey_debug("hello, %s!", "world");
    fclose(stream);
    mu_assert_streq(buffer, "[DEBUG] hello, world!");

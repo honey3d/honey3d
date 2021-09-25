@@ -3,24 +3,28 @@
 
 #include <stdio.h>
 
+enum honey_log_level_t
+   { FATAL, ERROR, WARN, INFO, DEBUG };
 
 struct honey_log_info_t {
-   enum { FATAL, ERROR, WARN, INFO, DEBUG } log_level;
-   FILE *debug_out;
-   FILE *info_out;
-   FILE *warn_out;
-   FILE *error_out;
-   FILE *fatal_out;
+   enum honey_log_level_t log_level;
+   FILE *log_file;
 };
 
 extern struct honey_log_info_t honey_log_info;
 
 const char * honey_log_level_str();
 
-void honey_debug(const char *fmt, ...);
-void honey_info(const char *fmt, ...);
-void honey_warn(const char *fmt, ...);
-void honey_error(const char *fmt, ...);
-void honey_fatal(const char *fmt, ...);
+void honey_log_set_level(enum honey_log_level_t level);
+enum honey_log_level_t honey_log_get_level();
+
+void honey_log_set_file(FILE *file);
+FILE * honey_log_get_file();
+
+void honey_log(enum honey_log_level_t required_level,
+	       const char *prefix,
+	       const char *fmt, ...);
+
+#define honey_debug(...) honey_log(DEBUG, "[DEBUG] ", __VA_ARGS__)
 
 #endif
