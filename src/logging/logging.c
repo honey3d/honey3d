@@ -7,7 +7,7 @@
 struct honey_log_info_t honey_log_info;
 
 
-const char * honey_log_level_str()
+static const char * honey_log_level_str_(enum honey_log_level_t level)
 {
    switch(honey_log_info.log_level) {
    case DEBUG:
@@ -34,6 +34,10 @@ const char * honey_log_level_str()
       return NULL;
       break;
    }
+}
+
+const char * honey_log_level_str() {
+   return honey_log_level_str_(honey_log_info.log_level);
 }
 
 
@@ -71,7 +75,8 @@ void honey_log(enum honey_log_level_t required_level,
    if (honey_log_info.log_level >= required_level) {
       va_list args;
       va_start(args, fmt);
-      fprintf(honey_log_info.log_file, prefix);
+      fprintf(honey_log_info.log_file, "%-8s",
+	      prefix);
       vfprintf(honey_log_info.log_file, fmt, args);
       va_end(args);
    }

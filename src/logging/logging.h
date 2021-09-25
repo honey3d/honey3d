@@ -15,6 +15,7 @@ extern struct honey_log_info_t honey_log_info;
 
 const char * honey_log_level_str();
 
+
 void honey_log_set_level(enum honey_log_level_t level);
 enum honey_log_level_t honey_log_get_level();
 
@@ -25,6 +26,7 @@ void honey_log(enum honey_log_level_t required_level,
 	       const char *prefix,
 	       const char *fmt, ...);
 
-#define honey_debug(...) honey_log(DEBUG, "[DEBUG] ", __VA_ARGS__)
+#define honey_debug(...) honey_log(DEBUG, "[DEBUG]", __VA_ARGS__)
+#define honey_info(...)  honey_log(INFO, "[INFO]", __VA_ARGS__)
 
 #endif
