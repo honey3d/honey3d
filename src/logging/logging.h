@@ -28,5 +28,8 @@ void honey_log(enum honey_log_level_t required_level,
 
 #define honey_debug(...) honey_log(DEBUG, "[DEBUG]", __VA_ARGS__)
 #define honey_info(...)  honey_log(INFO, "[INFO]", __VA_ARGS__)
+#define honey_warn(...)  honey_log(WARN, "[WARN]", __VA_ARGS__)
+#define honey_error(...)  honey_log(ERROR, "[ERROR]", __VA_ARGS__)
+#define honey_fatal(...)  honey_log(FATAL, "[FATAL]", __VA_ARGS__)
 
 #endif
