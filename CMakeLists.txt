@@ -46,6 +46,9 @@ target_link_libraries(honey ${LIBRARIES})
 set(TEST_ROOT ${CMAKE_SOURCE_DIR}/src/test)
 set(TEST_SOURCES
   ${TEST_ROOT}/test_main.c
+  ${TEST_ROOT}/mock_queue.c
+
+  ${TEST_ROOT}/mock_queue_tests.c
   ${TEST_ROOT}/logging/logging_tests.c
 
   ${SRC_ROOT}/logging/logging.c
