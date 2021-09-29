@@ -4,6 +4,7 @@
 mu_test mock_queue_int();
 mu_test mock_queue_int_seq();
 mu_test mock_queue_pop_multi();
+mu_test mock_queue_clean_finish();
 
 
 void mock_queue_tests()
@@ -12,6 +13,7 @@ void mock_queue_tests()
    mu_run_test("push and pop integer to mock queue", mock_queue_int);
    mu_run_test("push and pop integer sequence", mock_queue_int_seq);
    mu_run_test("pop multiple times with empty queue", mock_queue_pop_multi);
+   mu_run_test("clean up mock queue", mock_queue_clean_finish);
 }
 
 
@@ -77,5 +79,23 @@ mu_test mock_queue_pop_multi()
    mock_pop();
 
    mu_assert_equal(mock_queue_len(), 0);
+   return 0;
+}
+
+
+mu_test mock_queue_clean_finish()
+{
+   mu_assert_equal(mock_queue_len(), 0);
+
+   mock_queue(int, 5);
+   mock_queue(int, 5);
+   mock_queue(int, 5);
+
+   mu_assert_equal(mock_queue_len(), 3);
+
+   mock_queue_cleanup();
+
+   mu_assert_equal(mock_queue_len(), 0);
+
    return 0;
 }

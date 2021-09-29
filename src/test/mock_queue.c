@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "mock_queue.h"
 
@@ -35,7 +36,13 @@ void mock_queue_data(size_t size, void *data)
       return;
    }
 
-   node->data = data;
+   node->data = malloc(size);
+   if (node->data == NULL) {
+      fprintf(stderr, "WARNING: memory allocation of %zu bytes for mock queue data failed!\n", size);
+      return;
+   }
+
+   memcpy(node->data, data, size);
    node->next = NULL;
    mock_queue_tail->next = node;
    mock_queue_tail = node;
@@ -66,4 +73,11 @@ void mock_pop()
       // no more nodes, bring tail back to head
       mock_queue_tail = &mock_queue_head;
    mock_queue_length -= 1;
+}
+
+
+void mock_queue_cleanup()
+{
+   while(mock_queue_length != 0)
+      mock_pop();
 }
