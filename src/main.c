@@ -1,21 +1,7 @@
-#include "honey.h"
+#include <stdio.h>
 
-int main(int argc, char** argv)
+int main()
 {
-    honey_options opts;
-    if (!honey_parse_options(&opts, argc, argv)) {
-        return 0;
-    }
-
-    lua_State* L;
-
-    if (!honey_setup(&L))
-        return 1;
-
-    bool success = honey_run(L, opts);
-
-    if (!success)
-        return 1;
-    
-    return 0;
+   printf("hello, world!\n");
+   return 0;
 }

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define UNIT_TEST
+
 #define STR_IMPL(x) #x
 #define STR(x) STR_IMPL(x)
 
