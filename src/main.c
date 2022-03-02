@@ -53,6 +53,7 @@ int main(int argc, char **argv)
       goto close; /* sorry */
    }
 
+   /* ensure window exists */
    if (!window.created) {
       lua_getglobal(L, "honey");
       lua_getfield(L, -1, "window");
@@ -60,8 +61,10 @@ int main(int argc, char **argv)
       lua_pushinteger(L, 640);
       lua_pushinteger(L, 480);
       hs_call(L, 2, 0);
+      lua_pop(L, 2);
    }
 
+   /* load main callback functions */
    int update = get_func(L, "update");
    if (update) honey_info("honey.update: %s\n", lua_tostring(L, update));
    else honey_info("honey.update: (nil)\n");
@@ -69,6 +72,7 @@ int main(int argc, char **argv)
    if (draw) honey_info("honey.draw: %s\n", lua_tostring(L, draw));
    else honey_info("honey.draw: (nil)\n");
 
+   /* main loop */
    while(!glfwWindowShouldClose(window.window))
       loop(L, update, draw);
 
