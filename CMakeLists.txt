@@ -19,6 +19,7 @@ add_library(glad ${SRC_ROOT}/gl/glad/glad.c)
 set(HONEY_LIB_FILES
   ${SRC_ROOT}/logging/logging.c
   ${SRC_ROOT}/gl/honey_gl.c
+  ${SRC_ROOT}/options/honey_options.c
   )
 
 set(SOURCE_FILES
@@ -28,7 +29,7 @@ set(SOURCE_FILES
   
 add_executable(honey ${SOURCE_FILES})
 
-set(LIBRARIES ${LUA_LIBRARIES} assimp glad cairo stb_image m)
+set(LIBRARIES ${LUA_LIBRARIES} honeysuckle glad cairo m)
 if (WIN32)
   set(LIBRARIES ${LIBRARIES} glfw3 opengl32)
 else()

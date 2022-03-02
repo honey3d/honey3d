@@ -1,18 +1,17 @@
 #ifndef HONEY_GL_H
 #define HONEY_GL_H
 
-#include <stdbool.h>
-
-#ifdef UNIT_TEST
-#include "test/mock/mock_GLFW.h"
-#else
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
-#endif
 
-extern int honey_gl_window_ref;
+struct honey_window {
+   GLFWwindow * window;
+   bool created;
+   lua_State *L;
+};
 
-bool honey_gl_setup();
+extern struct honey_window window;
 
+void setup_window(lua_State *L, int tbl_index);
 
 #endif
