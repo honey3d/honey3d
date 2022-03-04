@@ -8,12 +8,14 @@ find_package(OpenGL REQUIRED)
 find_package(Lua51 REQUIRED)
 
 include_directories(${LUA_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/src)
+# link to third-party included libraries
+link_directories(${SRC_ROOT}/mesh/assimp-master/lib)
 
 set(SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 
 add_library(glad ${SRC_ROOT}/gl/glad/glad.c)
 # add_library(stb_image src/stb_image/stb_image.c)
-
+add_subdirectory(${SRC_ROOT}/mesh/assimp-master)
 
 
 set(HONEY_LIB_FILES
@@ -29,7 +31,7 @@ set(SOURCE_FILES
   
 add_executable(honey ${SOURCE_FILES})
 
-set(LIBRARIES ${LUA_LIBRARIES} honeysuckle glad cairo m)
+set(LIBRARIES ${LUA_LIBRARIES} honeysuckle assimp glad cairo m)
 if (WIN32)
   set(LIBRARIES ${LIBRARIES} glfw3 opengl32)
 else()
