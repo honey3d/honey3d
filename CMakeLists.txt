@@ -20,7 +20,7 @@ add_subdirectory(${SRC_ROOT}/mesh/assimp-master)
 
 set(HONEY_LIB_FILES
   ${SRC_ROOT}/logging/logging.c
-  ${SRC_ROOT}/gl/honey_gl.c
+  ${SRC_ROOT}/gl/honey_window.c
   ${SRC_ROOT}/options/honey_options.c
   )
 

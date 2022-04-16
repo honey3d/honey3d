@@ -41,15 +41,16 @@ int main(int argc, char **argv)
    /* load main script */
    honey_debug("loading '%s'\n", options.main_script);
 
-   if (luaL_loadfile(L, options.main_script)) {
+   if (luaL_loadfile(L, options.main_script) != 0) {
       const char *error = lua_tostring(L, -1);
       honey_fatal("%s\n", error);
       return 1;
    }
 
-   if (!hs_call(L, 0, 0)) {
+   if (hs_call(L, 0, 0) != 0) {
+      honey_debug("stack size: %d\n", lua_gettop(L));
       const char *error = lua_tostring(L, -1);
-      honey_fatal("unhandled error: %s", error);
+      honey_fatal("error loading main file: %s\n", error);
       goto close; /* sorry */
    }
 

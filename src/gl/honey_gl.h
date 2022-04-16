@@ -13,5 +13,6 @@ struct honey_window {
 extern struct honey_window window;
 
 void setup_window(lua_State *L, int tbl_index);
+void setup_gl(lua_State *L, int tbl_index);
 
 #endif
