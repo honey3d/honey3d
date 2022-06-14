@@ -8,3 +8,4 @@ build/*
 *#
 *.#*
 demo/plagiarism.dae
+*.swp
