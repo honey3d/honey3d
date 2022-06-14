@@ -20,11 +20,17 @@ add_library(glad ${SRC_ROOT}/gl/glad/glad.c)
 # add_library(stb_image src/stb_image/stb_image.c)
 add_subdirectory(${LIB_ROOT}/assimp)
 add_subdirectory(${LIB_ROOT}/honeysuckle)
+add_subdirectory(${LIB_ROOT}/cglm)
 
 
 set(HONEY_LIB_FILES
   ${SRC_ROOT}/logging/logging.c
+  
   ${SRC_ROOT}/gl/honey_window.c
+  ${SRC_ROOT}/gl/honey_shader.c
+  ${SRC_ROOT}/gl/honey_gl_error.c
+  ${SRC_ROOT}/gl/honey_gl.c
+  
   ${SRC_ROOT}/options/honey_options.c
   )
 
