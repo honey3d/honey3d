@@ -3,6 +3,12 @@
 
 int _honey_log_level = HONEY_WARN;
 
+void honey_set_log_level(int level)
+{
+	_honey_log_level = level;
+}
+
+
 void honey_log(int level, const char *fmt, ...) {
 	//if (level > _honey_log_level) return;
 

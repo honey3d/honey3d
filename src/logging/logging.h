@@ -10,6 +10,7 @@
 
 extern int _honey_log_level;
 
+void honey_set_log_level(int level);
 void honey_log(int level, const char *fmt, ...);
 
 #define honey_fatal(...) honey_log(HONEY_FATAL, "[FATAL] "__VA_ARGS__)

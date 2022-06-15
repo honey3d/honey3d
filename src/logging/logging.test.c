@@ -93,6 +93,7 @@ void test_log_fatal_succeeds()
 	clean_mock(&vfprintf_mock_data);
 	vfprintf_mock_data = lily_mock_create();
 
+	honey_set_log_level(HONEY_FATAL);
 	honey_fatal("some message");
 	lily_assert_int_equal(vfprintf_mock_data->n_calls, 1);
 
