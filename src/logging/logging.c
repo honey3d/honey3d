@@ -10,7 +10,7 @@ void honey_set_log_level(int level)
 
 
 void honey_log(int level, const char *fmt, ...) {
-	//if (level > _honey_log_level) return;
+	if (level > _honey_log_level) return;
 
 	va_list args;
 	va_start(args, fmt);

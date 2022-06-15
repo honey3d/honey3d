@@ -70,12 +70,16 @@ void clean_mock(lily_mock_t **m)
 	}
 }
 
-void test_log_fatal_succeeds();
+void level_fatal_log_fatal_succeeds();
+void level_neg_log_fatal_fails();
 
 void suite_logging()
 {
 	vfprintf_mock_data = NULL;
-	lily_run_test(test_log_fatal_succeeds);
+
+	lily_run_test(level_neg_log_fatal_fails);
+	lily_run_test(level_fatal_log_fatal_succeeds);
+
 	if (vfprintf_mock_data != NULL)
 		lily_mock_destroy(vfprintf_mock_data);
 }
@@ -88,7 +92,7 @@ void suite_logging()
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
-void test_log_fatal_succeeds()
+void level_fatal_log_fatal_succeeds()
 {
 	clean_mock(&vfprintf_mock_data);
 	vfprintf_mock_data = lily_mock_create();
@@ -106,6 +110,17 @@ void test_log_fatal_succeeds()
 	lily_get_call(vfprintf_mock_data, args, 0);
 
 	lily_assert_ptr_equal(file, stderr);
-	lily_assert_string_equal(fmt, "[FATAL] some message");
+	lily_assert_string_equal((char*) fmt, "[FATAL] some message");
 	lily_assert_int_equal(n_strings, 0);
+}
+
+
+void level_neg_log_fatal_fails()
+{
+	clean_mock(&vfprintf_mock_data);
+	vfprintf_mock_data = lily_mock_create();
+
+	honey_set_log_level(-1);
+	honey_fatal("some message");
+	lily_assert_int_equal(vfprintf_mock_data->n_calls, 0);
 }
