@@ -92,7 +92,7 @@ void level_fatal_log_fatal_succeeds()
 	USE_MOCK(mock_vfprintf);
 
 	honey_set_log_level(HONEY_FATAL);
-	honey_fatal("some message");
+	honey_log_fatal("some message");
 	lily_assert_int_equal(mock_vfprintf_data->n_calls, 1);
 
 	FILE *file; const char *fmt; int n_strings;
@@ -114,6 +114,6 @@ void level_neg_log_fatal_fails()
 	USE_MOCK(mock_vfprintf);
 
 	honey_set_log_level(-1);
-	honey_fatal("some message");
+	honey_log_fatal("some message");
 	lily_assert_int_equal(mock_vfprintf_data->n_calls, 0);
 }

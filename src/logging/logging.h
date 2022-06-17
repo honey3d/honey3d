@@ -13,11 +13,11 @@ extern int _honey_log_level;
 void honey_set_log_level(int level);
 void honey_log(int level, const char *fmt, ...);
 
-#define honey_fatal(...) honey_log(HONEY_FATAL, "[FATAL] "__VA_ARGS__)
-#define honey_error(...) honey_log(HONEY_ERROR, "[ERROR] "__VA_ARGS__)
-#define honey_warn(...)  honey_log(HONEY_WARN,  "[WARN] " __VA_ARGS__)
-#define honey_info(...)  honey_log(HONEY_INFO,  "[INFO] " __VA_ARGS__)
-#define honey_debug(...) honey_log(HONEY_DEBUG, "[DEBUG] "__VA_ARGS__)
-#define honey_trace(...) honey_log(HONEY_TRACE, "[TRACE] "__VA_ARGS__)
+#define honey_log_fatal(...) honey_log(HONEY_FATAL, "[FATAL] "__VA_ARGS__)
+#define honey_log_error(...) honey_log(HONEY_ERROR, "[ERROR] "__VA_ARGS__)
+#define honey_log_warn(...)  honey_log(HONEY_WARN,  "[WARN] " __VA_ARGS__)
+#define honey_log_info(...)  honey_log(HONEY_INFO,  "[INFO] " __VA_ARGS__)
+#define honey_log_debug(...) honey_log(HONEY_DEBUG, "[DEBUG] "__VA_ARGS__)
+#define honey_log_trace(...) honey_log(HONEY_TRACE, "[TRACE] "__VA_ARGS__)
 
 #endif
