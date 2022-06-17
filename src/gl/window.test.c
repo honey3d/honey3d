@@ -57,11 +57,13 @@ int mock_hs_throw_error(lua_State *L, const char *format_string, ...)
 /* ~~~~~~~~ TESTS ~~~~~~~~ */
 void gl_init_succeeds();
 void gl_init_fail_glfwInit();
+void glfw_window_hints_table();
 
 void suite_window()
 {
 	lily_run_test(gl_init_succeeds);
 	lily_run_test(gl_init_fail_glfwInit);
+	lily_run_test(glfw_window_hints_table);
 
 	CLEAN_MOCK(mock_glfwInit);
 }
@@ -104,4 +106,31 @@ void gl_init_fail_glfwInit()
 	lily_get_call(mock_hs_throw_error_data, args, 0);
 
 	lily_assert_string_equal((char*) fmt, "failed to initialize GLFW");
+}
+
+
+int get_int(lua_State *L, int table_index, const char *key)
+{
+	lua_getfield(L, table_index, key);
+	lily_assert_true(lua_isnumber(L, -1));
+	int n = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	return n;
+}
+
+void glfw_window_hints_table()
+{
+	lua_State *L = luaL_newstate();
+
+	lily_assert_int_equal(lua_gettop(L), 0);
+	create_glfw_window_hints_table(L);
+	lily_assert_int_equal(lua_gettop(L), 1);
+	lily_assert_true(lua_istable(L, -1));
+
+	lily_assert_int_equal(
+		get_int(L, 1, "resizable"),
+		GLFW_RESIZABLE
+	);
+
+	lua_close(L);
 }
