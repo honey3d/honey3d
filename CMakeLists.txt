@@ -53,6 +53,7 @@ set(TEST_SOURCES
 	${SRC_ROOT}/test/honey-test.c
 
 	${SRC_ROOT}/logging/logging.test.c
+	${SRC_ROOT}/gl/window.test.c
 )
 
 add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCES})
