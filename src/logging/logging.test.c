@@ -2,7 +2,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "test/lily-test.h"
 #include "test/honey-test.h"
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -24,8 +23,7 @@ void mock_vfprintf(FILE*, const char*, va_list vl);
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 
-lily_mock_t *vfprintf_mock_data;
-void mock_vfprintf(FILE *file, const char *fmt, va_list vl)
+MOCK(mock_vfprintf)(FILE *file, const char *fmt, va_list vl)
 {
 	/* to avoid basically just re-implementing printf parsing here,
 	   i am limiting this function to be able to receive strings only */
@@ -44,10 +42,10 @@ void mock_vfprintf(FILE *file, const char *fmt, va_list vl)
 		{ sizeof(const char*), &fmt },
 		{ sizeof(int), &n_args },
 	};
-	lily_mock_call(vfprintf_mock_data, args);
+	lily_mock_call(mock_vfprintf_data, args);
 
 	/* store format arguments */
-	lily_queue_t *queue = vfprintf_mock_data->values;
+	lily_queue_t *queue = mock_vfprintf_data->values;
 	for (int i=0; i<n_args; i++) {
 		char *str = va_arg(vl, char*);
 		lily_enqueue(queue, char*, str);
@@ -75,13 +73,10 @@ void level_neg_log_fatal_fails();
 
 void suite_logging()
 {
-	vfprintf_mock_data = NULL;
-
 	lily_run_test(level_neg_log_fatal_fails);
 	lily_run_test(level_fatal_log_fatal_succeeds);
 
-	if (vfprintf_mock_data != NULL)
-		lily_mock_destroy(vfprintf_mock_data);
+	CLEAN_MOCK(mock_vfprintf);
 }
 
 
@@ -94,12 +89,11 @@ void suite_logging()
 
 void level_fatal_log_fatal_succeeds()
 {
-	clean_mock(&vfprintf_mock_data);
-	vfprintf_mock_data = lily_mock_create();
+	USE_MOCK(mock_vfprintf);
 
 	honey_set_log_level(HONEY_FATAL);
 	honey_fatal("some message");
-	lily_assert_int_equal(vfprintf_mock_data->n_calls, 1);
+	lily_assert_int_equal(mock_vfprintf_data->n_calls, 1);
 
 	FILE *file; const char *fmt; int n_strings;
 	struct lily_mock_arg_t args[] = {
@@ -107,7 +101,7 @@ void level_fatal_log_fatal_succeeds()
 		{ sizeof(const char*), &fmt },
 		{ sizeof(int), &n_strings },
 	};
-	lily_get_call(vfprintf_mock_data, args, 0);
+	lily_get_call(mock_vfprintf_data, args, 0);
 
 	lily_assert_ptr_equal(file, stderr);
 	lily_assert_string_equal((char*) fmt, "[FATAL] some message");
@@ -117,10 +111,9 @@ void level_fatal_log_fatal_succeeds()
 
 void level_neg_log_fatal_fails()
 {
-	clean_mock(&vfprintf_mock_data);
-	vfprintf_mock_data = lily_mock_create();
+	USE_MOCK(mock_vfprintf);
 
 	honey_set_log_level(-1);
 	honey_fatal("some message");
-	lily_assert_int_equal(vfprintf_mock_data->n_calls, 0);
+	lily_assert_int_equal(mock_vfprintf_data->n_calls, 0);
 }
