@@ -7,6 +7,12 @@
 	lily_mock_t * name ## _data = NULL; \
 	void name
 
+#define mock_enqueue(name, type, data) \
+	lily_enqueue(name ## _data->values, type, data)
+
+#define mock_dequeue(name, type, data) \
+	lily_dequeue(name ## _data->values, type, data)
+
 #define CLEAN_MOCK(name) \
 	do { \
 		if (name ## _data != NULL) { \

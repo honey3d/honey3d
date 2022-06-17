@@ -5,5 +5,6 @@
 
 int gl_init(lua_State *L)
 {
+	glfwInit();
 	return 0;
 }

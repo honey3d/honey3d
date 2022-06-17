@@ -14,7 +14,7 @@ int mock_glfwInit()
 	lily_mock_call(mock_glfwInit_data, NULL);
 
 	int result;
-	lily_dequeue(mock_glfwInit_data->values, int, &result);
+	mock_dequeue(mock_glfwInit, int, &result);
 	return result;
 }
 
@@ -37,6 +37,8 @@ void gl_init_succeeds()
 	USE_MOCK(mock_glfwInit);
 	lua_State *L = luaL_newstate();
 	
+	/* queue success */
+	mock_enqueue(mock_glfwInit, int, GLFW_TRUE);
 	lua_pushcfunction(L, gl_init);
 	int error = lua_pcall(L, 0, 0, 0);
 
