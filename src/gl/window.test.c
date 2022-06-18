@@ -58,14 +58,21 @@ int mock_hs_throw_error(lua_State *L, const char *format_string, ...)
 void gl_init_succeeds();
 void gl_init_fail_glfwInit();
 void glfw_window_hints_table();
+void tointeger_parses_bool();
+void tointeger_parses_int();
+void tointeger_fails_other();
 
 void suite_window()
 {
 	lily_run_test(gl_init_succeeds);
 	lily_run_test(gl_init_fail_glfwInit);
 	lily_run_test(glfw_window_hints_table);
+	lily_run_test(tointeger_parses_bool);
+	lily_run_test(tointeger_parses_int);
+	lily_run_test(tointeger_fails_other);
 
 	CLEAN_MOCK(mock_glfwInit);
+	CLEAN_MOCK(mock_hs_throw_error);
 }
 
 
@@ -130,8 +137,8 @@ void glfw_window_hints_table()
 
 	lily_assert_int_equal(lua_gettop(L), 0);
 	create_glfw_window_hints_table(L);
-	lily_assert_int_equal(lua_gettop(L), 1);
-	lily_assert_true(lua_istable(L, -1));
+	lily_assert_int_equal(lua_gettop(L), 2);
+	lily_assert_true(lua_istable(L, 1));
 
 	/* window hints */
 	lily_assert_int_equal(
@@ -294,5 +301,136 @@ void glfw_window_hints_table()
 		GLFW_CONTEXT_NO_ERROR
 	);
 
+
+	/* special hint values */
+
+	lily_assert_int_equal(
+		get_int(L, 2, "dontCare"),
+		GLFW_DONT_CARE
+	);
+
+	/* client api */
+	lily_assert_int_equal(
+		get_int(L, 2, "glApi"),
+		GLFW_OPENGL_API
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "glesApi"),
+		GLFW_OPENGL_ES_API
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "noApi"),
+		GLFW_NO_API
+	);
+
+	/* context api */
+	lily_assert_int_equal(
+		get_int(L, 2, "nativeApi"),
+		GLFW_NATIVE_CONTEXT_API
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "eglApi"),
+		GLFW_EGL_CONTEXT_API 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "osMesaApi"),
+		GLFW_OSMESA_CONTEXT_API
+	);
+
+	/* robustness */
+	lily_assert_int_equal(
+		get_int(L, 2, "noRobustness"),
+		GLFW_NO_ROBUSTNESS
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "noResetNotification"),
+		GLFW_NO_RESET_NOTIFICATION 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "loseContextOnReset"),
+		GLFW_LOSE_CONTEXT_ON_RESET
+	);
+
+	/* release */
+	lily_assert_int_equal(
+		get_int(L, 2, "anyBehavior"),
+		GLFW_ANY_RELEASE_BEHAVIOR
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "flush"),
+		GLFW_RELEASE_BEHAVIOR_FLUSH 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "none"),
+		GLFW_RELEASE_BEHAVIOR_NONE
+	);
+
+	/* profile */
+	lily_assert_int_equal(
+		get_int(L, 2, "anyProfile"),
+		GLFW_OPENGL_ANY_PROFILE
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "compatabilityProfile"),
+		GLFW_OPENGL_COMPAT_PROFILE
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 2, "coreProfile"),
+		GLFW_OPENGL_CORE_PROFILE
+	);
+
 	lua_close(L);
+}
+
+
+void tointeger_parses_bool()
+{
+	USE_MOCK(mock_hs_throw_error);
+	lua_State *L = luaL_newstate();
+
+	lua_pushboolean(L, 0);
+	lily_assert_false(lua_toboolean(L, -1));
+	lily_assert_int_equal(tointeger(L, -1), 0);
+
+	lua_pushboolean(L, 1);
+	lily_assert_true(lua_toboolean(L, -1));
+	lily_assert_int_equal(tointeger(L, -1), 1);
+
+	lua_close(L);
+}
+
+
+void tointeger_parses_int()
+{
+	USE_MOCK(mock_hs_throw_error);
+	lua_State *L = luaL_newstate();
+	
+	lua_pushinteger(L, 234);
+	lua_pushinteger(L, 55555);
+
+	lily_assert_int_equal(tointeger(L, -2), 234);
+	lily_assert_int_equal(tointeger(L, -1), 55555);
+
+	lua_close(L);
+}
+
+
+void tointeger_fails_other()
+{
+	USE_MOCK(mock_hs_throw_error);
+	lua_State *L = luaL_newstate();
+
+	lua_pushstring(L, "hey there babe");
+	tointeger(L, -1);
+	lily_assert_int_equal(mock_hs_throw_error_data->n_calls, 1);
 }
