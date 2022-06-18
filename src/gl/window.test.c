@@ -112,11 +112,17 @@ void gl_init_fail_glfwInit()
 int get_int(lua_State *L, int table_index, const char *key)
 {
 	lua_getfield(L, table_index, key);
-	lily_assert_true(lua_isnumber(L, -1));
+	lily_assert_msg(lua_isnumber(L, -1), LILY_LOCATION, "key %s is not a number", key);
 	int n = lua_tointeger(L, -1);
 	lua_pop(L, 1);
 	return n;
 }
+
+#define CHECK_VALUE(str, num) \
+	do { \
+		int value = get_int(L, 1, str); \
+		lily_assert_int_equal(value, num); \
+	} while(0)
 
 void glfw_window_hints_table()
 {
@@ -127,9 +133,165 @@ void glfw_window_hints_table()
 	lily_assert_int_equal(lua_gettop(L), 1);
 	lily_assert_true(lua_istable(L, -1));
 
+	/* window hints */
 	lily_assert_int_equal(
 		get_int(L, 1, "resizable"),
 		GLFW_RESIZABLE
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "visible"),
+		GLFW_VISIBLE
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "decorated"),
+		GLFW_DECORATED
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "focused"),
+		GLFW_FOCUSED
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "autoIconify"),
+		GLFW_AUTO_ICONIFY
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "floating"),
+		GLFW_FLOATING
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "maximized"),
+		GLFW_MAXIMIZED
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "centerCursor"),
+		GLFW_CENTER_CURSOR
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "transparentFramebuffer"),
+		GLFW_TRANSPARENT_FRAMEBUFFER
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "focusOnShow"),
+		GLFW_FOCUS_ON_SHOW
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "scaleToMonitor"),
+		GLFW_SCALE_TO_MONITOR
+	);
+
+
+	/* framebuffer hints */
+	/* (don't expose accumulation or auxiliary buffer hints) */
+	lily_assert_int_equal(
+			get_int(L, 1, "redBits"),
+		GLFW_RED_BITS
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "greenBits"),
+		GLFW_GREEN_BITS
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "blueBits"),
+		GLFW_BLUE_BITS
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "alphaBits"),
+		GLFW_ALPHA_BITS
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "depthBits"),
+		GLFW_DEPTH_BITS
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "stereoscopic"),
+		GLFW_STEREO
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "samples"),
+		GLFW_SAMPLES
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "srgbCapable"),
+		GLFW_SRGB_CAPABLE 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "doubleBuffer"),
+		GLFW_DOUBLEBUFFER
+	);
+
+
+	/* monitor & context hints */
+	lily_assert_int_equal(
+		get_int(L, 1, "refreshRate"),
+		GLFW_REFRESH_RATE 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "clientApi"),
+		GLFW_CLIENT_API 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "contextCreationApi"),
+		GLFW_CONTEXT_CREATION_API 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "contextVersionMajor"),
+		GLFW_CONTEXT_VERSION_MAJOR 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "contextVersionMinor"),
+		GLFW_CONTEXT_VERSION_MINOR 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "forwardCompatible"),
+		GLFW_OPENGL_FORWARD_COMPAT 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "debugContext"),
+		GLFW_OPENGL_DEBUG_CONTEXT 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "profile"),
+		GLFW_OPENGL_PROFILE 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "contextRobustness"),
+		GLFW_CONTEXT_ROBUSTNESS 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "contextReleaseBehavior"),
+		GLFW_CONTEXT_RELEASE_BEHAVIOR 
+	);
+
+	lily_assert_int_equal(
+		get_int(L, 1, "noError"),
+		GLFW_CONTEXT_NO_ERROR
 	);
 
 	lua_close(L);
