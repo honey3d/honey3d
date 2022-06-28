@@ -10,7 +10,11 @@ find_package(Lua51 REQUIRED)
 set(SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 set(LIB_ROOT ${CMAKE_SOURCE_DIR}/libs)
 
-include_directories(${LUA_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/src)
+include_directories(
+	${LUA_INCLUDE_DIR} 
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/libs/honeysuckle/src
+)
 
 # link to third-party included libraries
 link_directories(${LIB_ROOT}/assimp/lib)
