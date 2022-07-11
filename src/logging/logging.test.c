@@ -1,7 +1,10 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+#include <honeysuckle.h>
 #include "test/honey-test.h"
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,11 +73,14 @@ void clean_mock(lily_mock_t **m)
 
 void level_fatal_log_fatal_succeeds();
 void level_neg_log_fatal_fails();
+void test_honey_log_fatal();
+void test_honey_log_fatal_fail();
 
 void suite_logging()
 {
 	lily_run_test(level_neg_log_fatal_fails);
 	lily_run_test(level_fatal_log_fatal_succeeds);
+    lily_run_test(test_honey_log_fatal);
 
 	CLEAN_MOCK(mock_vfprintf);
 }
@@ -117,3 +123,39 @@ void level_neg_log_fatal_fails()
 	honey_log_fatal("some message");
 	lily_assert_int_equal(mock_vfprintf_data->n_calls, 0);
 }
+
+//error logging test functions
+void test_honey_log_fatal()
+{
+    USE_MOCK(mock_vfprintf);    
+    //first test (with no error surpressions)
+    lua_State *L = luaL_newstate();
+    luaL_openlibs(L);
+    lua_pushcfunction(L, log_fatal); //function is on the stack
+    lua_pushstring(L, "fatal error test");
+    int result = hs_call(L, 1, 0);
+    if (result != 0) {
+        const char *error = lua_tostring(L, -1);
+        fprintf(stderr, "%s", error);
+    }
+    lily_assert_int_equal(result, 0); //testing that error function got string pushed to it
+    lily_assert_int_equal(mock_vfprintf_data->n_calls, 1); //testing that error printing function works
+}
+
+void test_honey_log_fatal_fail()
+{
+    USE_MOCK(mock_vfprintf);
+    honey_set_log_level(-1);
+    lua_State *L = luaL_newstate();
+    luaL_openlibs(L);
+    lua_pushcfunction(L, log_fatal);
+    lua_pushstring(L, "fatal error test");
+    int result = hs_call(L, 1, 0);
+    if (result != 0) {
+        const char *error = lua_tostring(L, -1);
+        fprintf(stderr, "%s", error);
+    }
+    lily_assert_int_equal(result, 0);
+    lily_assert_int_equal(mock_vfprintf_data->n_calls, 0);
+}
+
