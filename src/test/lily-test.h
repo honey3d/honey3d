@@ -45,6 +45,10 @@
 #ifndef LILY_TEST_H
 #define LILY_TEST_H
 
+#define LILY_VERSION_MAJOR 1
+#define LILY_VERSION_MINOR 0
+#define LILY_VERSION_PATCH 0
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -53,7 +57,7 @@
 #define STR_IMP(x) #x
 #define STR(x) STR_IMP(x)
 /* define SOURCE_PATH_SIZE to strip away the
-   leading parts of the full compilation path */
+	leading parts of the full compilation path */
 #ifndef SOURCE_PATH_SIZE
 #define LILY_LOCATION (__FILE__ ":" STR(__LINE__))
 #else
@@ -62,10 +66,10 @@
 
 /** a few nasty globals that make everything clean for the end user */
 struct lily_globals_t {
-   jmp_buf env;
-   size_t error_msg_len;
-   char *error_msg;
-   const char *error_location;
+	jmp_buf env;
+	size_t error_msg_len;
+	char *error_msg;
+	const char *error_location;
 };
 extern struct lily_globals_t _lily_globals;
 
@@ -89,7 +93,7 @@ void _lily_run_suite(const char *name, lily_test_t suite);
 
 /** basic assertion function, mostly used by the other assertions */
 void lily_assert_msg(bool statement, const char *location,
-		     const char *format_string, ...);
+			  const char *format_string, ...);
 
 #define lily_assert_true(statement) _lily_assert_true(#statement, statement, LILY_LOCATION)
 void _lily_assert_true(const char *statement, bool value, const char *location);
@@ -109,7 +113,7 @@ void _lily_assert_null(const char *name, void *ptr, const char *location);
 
 #define lily_assert_ptr_equal(a, b) _lily_assert_ptr_equal(#a, #b, a, b, LILY_LOCATION)
 void _lily_assert_ptr_equal(const char *name_a, const char *name_b,
-			    void *a, void *b, const char *location);
+				 void *a, void *b, const char *location);
 
 
 #define lily_assert_ptr_not_equal(a, b) _lily_assert_ptr_not_equal(#a, #b, a, b, LILY_LOCATION)
@@ -119,7 +123,7 @@ void _lily_assert_ptr_not_equal(const char *name_a, const char *name_b,
 
 #define lily_assert_int_equal(a, b) _lily_assert_int_equal(#a, #b, a, b, LILY_LOCATION)
 void _lily_assert_int_equal(const char *name_a, const char *name_b,
-			    intmax_t a, intmax_t b, const char *location);
+				 intmax_t a, intmax_t b, const char *location);
 
 
 #define lily_assert_int_not_equal(a, b) _lily_assert_int_not_equal(#a, #b, a, b, LILY_LOCATION)
@@ -128,37 +132,37 @@ void _lily_assert_int_not_equal(const char *name_a, const char *name_b,
 
 
 #define lily_assert_float_equal(a, b, epsilon)				\
-   _lily_assert_float_equal(#a, #b, a, b, epsilon, LILY_LOCATION)
+	_lily_assert_float_equal(#a, #b, a, b, epsilon, LILY_LOCATION)
 void _lily_assert_float_equal(const char *name_a, const char *name_b,
-			      double a, double b, double epsilon, const char *location);
+					double a, double b, double epsilon, const char *location);
 
 
 #define lily_assert_float_not_equal(a, b, epsilon)			\
-   _lily_assert_float_not_equal(#a, #b, a, b, epsilon, LILY_LOCATION)
+	_lily_assert_float_not_equal(#a, #b, a, b, epsilon, LILY_LOCATION)
 void _lily_assert_float_not_equal(const char *name_a, const char *name_b,
 				  double a, double b, double epsilon, const char *location);
 
 
 #define lily_assert_string_equal(a, b) _lily_assert_string_equal(#a, #b, a, b, LILY_LOCATION)
 void _lily_assert_string_equal(const char *name_a, const char *name_b,
-			       char *a, char *b, const char *location);
+					 char *a, char *b, const char *location);
 
 
 #define lily_assert_string_not_equal(a, b) _lily_assert_string_not_equal(#a, #b, a, b, LILY_LOCATION)
 void _lily_assert_string_not_equal(const char *name_a, const char *name_b,
-				   char *a, char *b, const char *location);
+					char *a, char *b, const char *location);
 
 
 #define lily_assert_memory_equal(a, b, size)			\
-   _lily_assert_memory_equal(#a, #b, a, b, size, LILY_LOCATION)
+	_lily_assert_memory_equal(#a, #b, a, b, size, LILY_LOCATION)
 void _lily_assert_memory_equal(const char *name_a, const char *name_b,
-			       void *a, void *b, size_t size, const char *location);
+					 void *a, void *b, size_t size, const char *location);
 
 
 #define lily_assert_memory_not_equal(a, b, size)			\
-   _lily_assert_memory_not_equal(#a, #b, a, b, size, LILY_LOCATION)
+	_lily_assert_memory_not_equal(#a, #b, a, b, size, LILY_LOCATION)
 void _lily_assert_memory_not_equal(const char *name_a, const char *name_b,
-				   void *a, void *b, size_t size, const char *location);
+					void *a, void *b, size_t size, const char *location);
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,9 +175,9 @@ void _lily_assert_memory_not_equal(const char *name_a, const char *name_b,
 
 /** queue structure capable of containing arbitrary data */
 typedef struct lily_queue_t {
-   size_t buf_size;
-   uint8_t *buf;
-   uint8_t *front, *back;
+	size_t buf_size;
+	uint8_t *buf;
+	uint8_t *front, *back;
 } lily_queue_t;
 
 
@@ -191,10 +195,10 @@ void lily_queue_destroy(lily_queue_t *q);
  * value - the value to append
  */
 #define lily_enqueue(q, type, value)				\
-   do {								\
-      type _var = value;					\
-      _lily_enqueue(q, sizeof(type), (uint8_t*)(&_var));	\
-   } while(0)
+	do {								\
+		type _var = value;					\
+		_lily_enqueue(q, sizeof(type), (uint8_t*)(&_var));	\
+	} while(0)
 void _lily_enqueue(lily_queue_t *q, size_t size, uint8_t *data);
 
 
@@ -205,48 +209,55 @@ void _lily_enqueue(lily_queue_t *q, size_t size, uint8_t *data);
  * ptr - the location to store the popped value
  */
 #define lily_dequeue(q, type, ptr)			\
-   _lily_dequeue(q, sizeof(type), (uint8_t*) ptr)
+	_lily_dequeue(q, sizeof(type), (uint8_t*) ptr)
 void _lily_dequeue(lily_queue_t *q, size_t size, uint8_t *ptr);
 
 
 struct lily_mock_arg_t {
-   size_t size;
-   void *var;
+	size_t size;
+	void *var;
 };
 
 #define LILY_NARGS(args) (sizeof(args)/sizeof(struct lily_mock_arg_t))
 
 /** structure to store data for mock functions */
 typedef struct lily_mock_t {
-   unsigned int n_calls;
-   lily_queue_t *arguments;
-   lily_queue_t *values;
+	unsigned int n_calls;
+	lily_queue_t *arguments;
+	lily_queue_t *values;
 } lily_mock_t;
 
 /** setup mock function storage */
 lily_mock_t * lily_mock_create();
 /** tear down mock function storage */
 void lily_mock_destroy(lily_mock_t *m);
-
+/** automatically re-create mock function storage */
+void lily_mock_use(lily_mock_t **m);
 
 /** store a call to a mock function */
+#define lily_mock_store_call(m, args)	\
+	_lily_mock_call(m, args, LILY_NARGS(args))
+/* lily_mock_call is deprecated!! do not use it in new programs */
 #define lily_mock_call(m, args)			\
-   _lily_mock_call(m, args, LILY_NARGS(args))
+	_lily_mock_call(m, args, LILY_NARGS(args))
 void _lily_mock_call(lily_mock_t *m, struct lily_mock_arg_t *args, size_t n_args);
 
 /** retrieve a call to a mock function */
+#define lily_mock_get_call(m, args, call_num)	\
+	_lily_get_call(m, args, LILY_NARGS(args), call_num)
+/* lily_get_call is deprecated!! do not use it in new programs */
 #define lily_get_call(m, args, call_num)		\
-   _lily_get_call(m, args, LILY_NARGS(args), call_num)
+	_lily_get_call(m, args, LILY_NARGS(args), call_num)
 void _lily_get_call(lily_mock_t *m,
-		    struct lily_mock_arg_t *args,
-		    size_t n_args,
-		    unsigned int call_num);
+			 struct lily_mock_arg_t *args,
+			 size_t n_args,
+			 unsigned int call_num);
 
 /** store a value in a mock structure */
 #define lily_store_value(m, type, value)	\
-   lily_enqueue(m->values, type, value)
+	lily_enqueue(m->values, type, value)
 /** retrieve a value from a mock structure */
 #define lily_get_value(m, type, ptr)		\
-   lily_dequeue(m->values, type, ptr)
+	lily_dequeue(m->values, type, ptr)
 
 #endif
