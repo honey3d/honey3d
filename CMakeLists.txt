@@ -29,6 +29,7 @@ add_subdirectory(${LIB_ROOT}/cglm)
 
 set(HONEY_LIB_FILES
 	${SRC_ROOT}/logging/logging.c
+	${SRC_ROOT}/gl/glad/glad.c
 	${SRC_ROOT}/gl/gl.c
 	${SRC_ROOT}/gl/window.c
 )
@@ -59,6 +60,7 @@ set(TEST_SOURCES
 	${SRC_ROOT}/test/honey-test.c
 
 	${SRC_ROOT}/logging/logging.test.c
+	${SRC_ROOT}/gl/glad/glad.c
 	${SRC_ROOT}/gl/gl.test.c
 )
 
@@ -66,4 +68,4 @@ add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 set_target_properties(test PROPERTIES
 	C_STANDARD 99
 	CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
-target_link_libraries(test lua5.1 honeysuckle)
+target_link_libraries(test lua5.1 honeysuckle dl)
