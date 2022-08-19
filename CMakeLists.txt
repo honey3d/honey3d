@@ -5,7 +5,6 @@ set(CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
 set(CMAKE_C_FLAGS "-g")
 
 find_package(OpenGL REQUIRED)
-find_package(Lua51 REQUIRED)
 
 set(SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 set(LIB_ROOT ${CMAKE_SOURCE_DIR}/libs)
@@ -22,6 +21,7 @@ link_directories(${LIB_ROOT}/honeysuckle)
 
 # add_library(glad ${SRC_ROOT}/gl/glad/glad.c)
 # add_library(stb_image src/stb_image/stb_image.c)
+add_subdirectory(${LIB_ROOT}/lua-5.1.5)
 add_subdirectory(${LIB_ROOT}/assimp)
 add_subdirectory(${LIB_ROOT}/honeysuckle)
 add_subdirectory(${LIB_ROOT}/cglm)
@@ -38,7 +38,7 @@ set(SOURCE_FILES
 	
 add_executable(honey ${SOURCE_FILES})
 
-set(LIBRARIES ${LUA_LIBRARIES} honeysuckle assimp glad cairo m)
+set(LIBRARIES lua5.1 honeysuckle assimp glad cairo m)
 if (WIN32)
 	set(LIBRARIES ${LIBRARIES} glfw3 opengl32)
 else()
@@ -64,4 +64,4 @@ add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 set_target_properties(test PROPERTIES
 	C_STANDARD 99
 	CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
-target_link_libraries(test ${LUA_LIBRARIES} honeysuckle)
+target_link_libraries(test lua5.1 honeysuckle)
