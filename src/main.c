@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	err = hs_call(L, 0, 0);
 	if (err != 0) {
 		const char *err_str = lua_tostring(L, -1);
-		printf("failed to run: %s\n", err_str);
+		printf("failed to run: \n%s\n", err_str);
 	}
 	lua_close(L);
 	return 0;
