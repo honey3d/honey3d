@@ -24,6 +24,7 @@ int gl_buffer_data(lua_State *L);
 int gl_vertex_array_create(lua_State *L);
 int gl_vertex_array_bind(lua_State *L);
 int gl_vertex_attrib_pointer(lua_State *L);
+int gl_vertex_array_enable_attrib(lua_State *L);
 
 /* shaders */
 int gl_create_shader(lua_State *L);
@@ -84,6 +85,7 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_cfunc("createVertexArray", gl_vertex_array_create),
 		hs_str_cfunc("bindVertexArray", gl_vertex_array_bind),
 		hs_str_cfunc("vertexAttribPointer", gl_vertex_attrib_pointer),
+		hs_str_cfunc("vertexArrayEnableAttrib", gl_vertex_array_enable_attrib),
 
 		hs_str_tbl("bufferTarget", buffer_binding_targets),
 		hs_str_tbl("bufferUsage", buffer_usage_patterns),
@@ -163,7 +165,7 @@ int gl_buffer_data(lua_State *L)
 
 	/* build raw buffer */
 	size_t len = lua_objlen(L, table);
-	lua_Number *buf = malloc(len * sizeof(lua_Number));
+	float *buf = malloc(len * sizeof(float));
 	if (buf == NULL)
 		hs_throw_error(L, "failed to allocate intermediary buffer");
 	for (int i=0; i<len; i++) {
@@ -176,7 +178,7 @@ int gl_buffer_data(lua_State *L)
 	}
 
 	/* call */
-	glBufferData(target, len*sizeof(lua_Number), buf, usage);
+	glBufferData(target, len*sizeof(float), buf, usage);
 	free(buf);
 	return 0;
 }
@@ -291,8 +293,17 @@ int gl_vertex_attrib_pointer(lua_State *L)
 	bool normalized;
 	hs_parse_args(L, hs_int(index), hs_int(size), hs_bool(normalized), hs_int(stride), hs_int(offset));
 	glVertexAttribPointer(index, size, GL_FLOAT, 
-	                      normalized, stride*sizeof(lua_Number), 
-	                      (void*) (offset*sizeof(lua_Number)));
+	                      normalized, stride*sizeof(float), 
+	                      (void*) (offset*sizeof(float)));
+	return 0;
+}
+
+
+int gl_vertex_array_enable_attrib(lua_State *L)
+{
+	lua_Integer index;
+	hs_parse_args(L, hs_int(index));
+	glEnableVertexAttribArray(index);
 	return 0;
 }
 
