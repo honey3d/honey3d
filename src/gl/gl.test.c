@@ -12,7 +12,7 @@ void mock_glfwTerminate_();
 #define glfwInit mock_glfwInit_
 #define hs_throw_error mock_hs_throw_error_
 #define glfwTerminate mock_glfwTerminate_
-#include "gl/window.c"
+#include "gl/gl.c"
 #undef glfwTerminate
 #undef hs_throw_error
 #undef glfwInit
@@ -102,7 +102,7 @@ void gl_terminate_works()
 }
 
 
-void suite_window()
+void suite_gl()
 {
 	lily_run_test(gl_init_succeeds);
 	lily_run_test(gl_init_fails);

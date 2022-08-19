@@ -29,10 +29,11 @@
 
 
 void suite_logging();
+void suite_gl();
 void suite_window();
 
 #define RUN_TESTS() \
 	lily_run_suite(suite_logging); \
-	lily_run_suite(suite_window); \
+	lily_run_suite(suite_gl); \
 
 #endif

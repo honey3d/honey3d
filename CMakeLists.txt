@@ -29,6 +29,8 @@ add_subdirectory(${LIB_ROOT}/cglm)
 
 set(HONEY_LIB_FILES
 	${SRC_ROOT}/logging/logging.c
+	${SRC_ROOT}/gl/gl.c
+	${SRC_ROOT}/gl/window.c
 )
 
 set(SOURCE_FILES
@@ -38,7 +40,7 @@ set(SOURCE_FILES
 	
 add_executable(honey ${SOURCE_FILES})
 
-set(LIBRARIES lua5.1 honeysuckle assimp glad cairo m)
+set(LIBRARIES lua5.1 honeysuckle assimp cairo m)
 if (WIN32)
 	set(LIBRARIES ${LIBRARIES} glfw3 opengl32)
 else()
@@ -57,7 +59,7 @@ set(TEST_SOURCES
 	${SRC_ROOT}/test/honey-test.c
 
 	${SRC_ROOT}/logging/logging.test.c
-	${SRC_ROOT}/gl/window.test.c
+	${SRC_ROOT}/gl/gl.test.c
 )
 
 add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCES})
