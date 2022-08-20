@@ -15,6 +15,7 @@
 int gl_init(lua_State *L);
 int glad_init(lua_State *L);
 int gl_terminate(lua_State *L);
+int gl_get_error(lua_State *L);
 
 /* buffers */
 int gl_create_buffer(lua_State *L);
@@ -38,6 +39,7 @@ int gl_program_link(lua_State *L);
 int gl_program_use(lua_State *L);
 
 /* drawing */
+int gl_set_viewport(lua_State *L);
 int gl_draw_arrays(lua_State *L);
 int gl_set_clear_color(lua_State *L);
 int gl_clear(lua_State *L);
@@ -45,6 +47,15 @@ int gl_clear(lua_State *L);
 
 void setup_gl(lua_State *L, int honey_index)
 {
+	int error_types = hs_create_table(L,
+		hs_str_int("noError", GL_NO_ERROR),
+		hs_str_int("invalidEnum", GL_INVALID_ENUM),
+		hs_str_int("invalidValue", GL_INVALID_VALUE),
+		hs_str_int("invalidOperation", GL_INVALID_OPERATION),
+		hs_str_int("invalidFramebufferOperation", GL_INVALID_FRAMEBUFFER_OPERATION),
+		hs_str_int("outOfMemory", GL_OUT_OF_MEMORY),
+	);
+
 	int buffer_binding_targets = hs_create_table(L,
 		hs_str_int("arrayBuffer", GL_ARRAY_BUFFER),
 	);
@@ -76,6 +87,9 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_cfunc("init", gl_init),
 		hs_str_cfunc("initGlad", glad_init),
 		hs_str_cfunc("terminate", gl_terminate),
+		hs_str_cfunc("getError", gl_get_error),
+
+		hs_str_tbl("errorType", error_types),
 
 		/* buffer */
 		hs_str_cfunc("createBuffer", gl_create_buffer),
@@ -107,6 +121,7 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_cfunc("drawArrays", gl_draw_arrays),
 		hs_str_cfunc("setClearColor", gl_set_clear_color),
 		hs_str_cfunc("clear", gl_clear),
+		hs_str_cfunc("setViewport", gl_set_viewport),
 
 		hs_str_tbl("primitiveType", primitive_types),
 		hs_str_tbl("bufferMask", buffer_masks),
@@ -139,6 +154,13 @@ int gl_terminate(lua_State *L)
 }
 
 
+int gl_get_error(lua_State *L)
+{
+	lua_pushinteger(L, glGetError());
+	return 1;
+}
+
+
 int gl_create_buffer(lua_State *L)
 {
 	int buf;
@@ -150,9 +172,9 @@ int gl_create_buffer(lua_State *L)
 
 int gl_bind_buffer(lua_State *L)
 {
-	lua_Integer buf, target;
-	hs_parse_args(L, hs_int(buf), hs_int(target));
-	glBindBuffer(buf, target);
+	lua_Integer target, buf;
+	hs_parse_args(L, hs_int(target), hs_int(buf));
+	glBindBuffer(target, buf);
 	return 0;
 }
 
@@ -174,8 +196,12 @@ int gl_buffer_data(lua_State *L)
 			hs_throw_error(L, "all table items must be numbers (failed at index %d)", i);
 		}
 		buf[i] = lua_tonumber(L, -1);
+		printf("  [%d] %f\n", i, buf[i]);
 		lua_pop(L, 1);
 	}
+
+	printf("target: %d\n", target);
+	printf("GL_ARRAY_BUFFER: %d\n", GL_ARRAY_BUFFER);
 
 	/* call */
 	glBufferData(target, len*sizeof(float), buf, usage);
@@ -292,9 +318,11 @@ int gl_vertex_attrib_pointer(lua_State *L)
 	lua_Integer index, size, stride, offset;
 	bool normalized;
 	hs_parse_args(L, hs_int(index), hs_int(size), hs_bool(normalized), hs_int(stride), hs_int(offset));
-	glVertexAttribPointer(index, size, GL_FLOAT, 
+	printf("normalized: %d\n", normalized);
+	/*glVertexAttribPointer(index, size, GL_FLOAT, 
 	                      normalized, stride*sizeof(float), 
-	                      (void*) (offset*sizeof(float)));
+	                      (void*) (offset*sizeof(float)));*/
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
 	return 0;
 }
 
@@ -331,5 +359,14 @@ int gl_draw_arrays(lua_State *L)
 	lua_Integer mode, first, count;
 	hs_parse_args(L, hs_int(mode), hs_int(first), hs_int(count));
 	glDrawArrays(mode, first, count);
+	return 0;
+}
+
+
+int gl_set_viewport(lua_State *L)
+{
+	lua_Integer x, y, w, h;
+	hs_parse_args(L, hs_int(x), hs_int(y), hs_int(w), hs_int(h));
+	glViewport(x, y, w, h);
 	return 0;
 }

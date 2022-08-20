@@ -35,5 +35,6 @@ void suite_window();
 #define RUN_TESTS() \
 	lily_run_suite(suite_logging); \
 	lily_run_suite(suite_gl); \
+	lily_run_suite(suite_window); \
 
 #endif

@@ -62,10 +62,11 @@ set(TEST_SOURCES
 	${SRC_ROOT}/logging/logging.test.c
 	${SRC_ROOT}/gl/glad/glad.c
 	${SRC_ROOT}/gl/gl.test.c
+	${SRC_ROOT}/gl/window.test.c
 )
 
 add_executable(test EXCLUDE_FROM_ALL ${TEST_SOURCES})
 set_target_properties(test PROPERTIES
 	C_STANDARD 99
 	CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
-target_link_libraries(test lua5.1 honeysuckle dl)
+target_link_libraries(test lua5.1 honeysuckle glfw dl)

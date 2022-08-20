@@ -67,10 +67,10 @@ void mock_glBufferData_(int target, size_t size, const void *data, int usage)
 	};
 	lily_mock_store_call(mock_glBufferData, args);
 
-	size_t count = size/sizeof(lua_Number);
-	lua_Number *numbers = data;
+	size_t count = size/sizeof(float);
+	float *numbers = data;
 	for (int i=0; i<count; i++) {
-		lily_store_value(mock_glBufferData, lua_Number, numbers[i]);
+		lily_store_value(mock_glBufferData, float, numbers[i]);
 	}
 }
 
@@ -151,15 +151,15 @@ void gl_buffer_data_works()
 	};
 	lily_mock_get_call(mock_glBufferData, args, 0);
 	lily_assert_int_equal(target, GL_ARRAY_BUFFER);
-	lily_assert_int_equal(size, 3*sizeof(lua_Number));
+	lily_assert_int_equal(size, 3*sizeof(float));
 	lily_assert_int_equal(usage, GL_STATIC_DRAW);
 
-	lua_Number n;
-	lily_get_value(mock_glBufferData, lua_Number, &n);
+	float n;
+	lily_get_value(mock_glBufferData, float, &n);
 	lily_assert_float_equal(n, 22, 0.1);
-	lily_get_value(mock_glBufferData, lua_Number, &n);
+	lily_get_value(mock_glBufferData, float, &n);
 	lily_assert_float_equal(n, 33, 0.1);
-	lily_get_value(mock_glBufferData, lua_Number, &n);
+	lily_get_value(mock_glBufferData, float, &n);
 	lily_assert_float_equal(n, 44, 0.1);
 }
 
