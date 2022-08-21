@@ -196,12 +196,8 @@ int gl_buffer_data(lua_State *L)
 			hs_throw_error(L, "all table items must be numbers (failed at index %d)", i);
 		}
 		buf[i] = lua_tonumber(L, -1);
-		printf("  [%d] %f\n", i, buf[i]);
 		lua_pop(L, 1);
 	}
-
-	printf("target: %d\n", target);
-	printf("GL_ARRAY_BUFFER: %d\n", GL_ARRAY_BUFFER);
 
 	/* call */
 	glBufferData(target, len*sizeof(float), buf, usage);
@@ -318,11 +314,9 @@ int gl_vertex_attrib_pointer(lua_State *L)
 	lua_Integer index, size, stride, offset;
 	bool normalized;
 	hs_parse_args(L, hs_int(index), hs_int(size), hs_bool(normalized), hs_int(stride), hs_int(offset));
-	printf("normalized: %d\n", normalized);
-	/*glVertexAttribPointer(index, size, GL_FLOAT, 
+	glVertexAttribPointer(index, size, GL_FLOAT, 
 	                      normalized, stride*sizeof(float), 
-	                      (void*) (offset*sizeof(float)));*/
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+	                      (void*) (offset*sizeof(float)));
 	return 0;
 }
 
