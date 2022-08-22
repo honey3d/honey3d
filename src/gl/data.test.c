@@ -20,27 +20,14 @@ void mock_glBufferData_(int, size_t, const void *, int);
 #define setup_shader DUMMY_FUNCTION
 #define setup_drawing DUMMY_FUNCTION
 #include "gl/gl.c"
-#include "gl/data.c"
 #undef glBufferData
 #undef glfwTerminate
 #undef hs_throw_error
 #undef glfwInit
 
 
-lily_mock_t *mock_glfwInit = NULL;
-int mock_glfwInit_()
-{
-	struct lily_mock_arg_t args[] = {};
-	lily_mock_store_call(mock_glfwInit, args);
-
-	int result;
-	lily_get_value(mock_glfwInit, int, &result);
-	return result;
-}
-
-
 lily_mock_t *mock_hs_throw_error = NULL;
-int mock_hs_throw_error_(lua_State *L, const char *str, ...)
+static int mock_hs_throw_error_(lua_State *L, const char *str, ...)
 {
 	struct lily_mock_arg_t args[] = {
 		{ sizeof(const char *), &str }
@@ -53,17 +40,8 @@ int mock_hs_throw_error_(lua_State *L, const char *str, ...)
 	return 0;
 }
 
-
-lily_mock_t *mock_glfwTerminate = NULL;
-void mock_glfwTerminate_()
-{
-	struct lily_mock_arg_t args[] = {};
-	lily_mock_store_call(mock_glfwTerminate, args);
-}
-
-
 lily_mock_t *mock_glBufferData = NULL;
-void mock_glBufferData_(int target, size_t size, const void *data, int usage)
+static void mock_glBufferData_(int target, size_t size, const void *data, int usage)
 {
 	struct lily_mock_arg_t args[] = {
 		{ sizeof(int), &target },

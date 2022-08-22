@@ -67,23 +67,23 @@ local vertices = {
      0.0,  0.5, 0.0
 }  
 
-local vertexArray = gl.createVertexArray()
+local vertexArray = gl.data.createVertexArray()
 
-local vertexBuffer = gl.createBuffer()
-gl.bindVertexArray(vertexArray)
+local vertexBuffer = gl.data.createBuffer()
+gl.data.bindVertexArray(vertexArray)
 
-gl.bindBuffer(gl.bufferTarget.arrayBuffer, vertexBuffer)
+gl.data.bindBuffer(gl.data.bufferTarget.arrayBuffer, vertexBuffer)
 local err = gl.getError()
 if err ~= gl.errorType.noError then error(gl.errorName(err)) end
-gl.bufferData(gl.bufferTarget.arrayBuffer, gl.dataType.float, vertices, gl.bufferUsage.staticDraw)
+gl.data.bufferData(gl.data.bufferTarget.arrayBuffer, gl.dataType.float, vertices, gl.data.bufferUsage.staticDraw)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
 
-gl.vertexAttribPointer(0, 3, false, 3, 0)
+gl.data.vertexAttribPointer(0, 3, false, 3, 0)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
-gl.vertexArrayEnableAttrib(0)
+gl.data.vertexArrayEnableAttrib(0)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
 
-gl.bindBuffer(gl.bufferTarget.arrayBuffer, 0)
+gl.data.bindBuffer(gl.data.bufferTarget.arrayBuffer, 0)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
 
 while not window.shouldClose(w) do
@@ -91,7 +91,7 @@ while not window.shouldClose(w) do
 	gl.draw.clear(gl.draw.bufferMask.colorBuffer);
 
 	gl.shader.use(shader)
-	gl.bindVertexArray(vertexArray)
+	gl.data.bindVertexArray(vertexArray)
 	gl.draw.drawArrays(gl.draw.primitiveType.triangles, 0, 3)
 
 	window.swapBuffers(w)

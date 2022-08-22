@@ -38,6 +38,7 @@ set(HONEY_LIB_FILES
 	${SRC_ROOT}/gl/gl.c
 	${SRC_ROOT}/gl/shader.c
 	${SRC_ROOT}/gl/drawing.c
+	${SRC_ROOT}/gl/data.c
 	${SRC_ROOT}/gl/window.c
 )
 
