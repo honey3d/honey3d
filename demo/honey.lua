@@ -87,12 +87,12 @@ gl.bindBuffer(gl.bufferTarget.arrayBuffer, 0)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
 
 while not window.shouldClose(w) do
-	gl.setClearColor(0.2, 0.3, 0.3, 1.0)
-	gl.clear(gl.bufferMask.colorBuffer);
+	gl.draw.setClearColor(0.2, 0.3, 0.3, 1.0)
+	gl.draw.clear(gl.draw.bufferMask.colorBuffer);
 
 	gl.shader.use(shader)
 	gl.bindVertexArray(vertexArray)
-	gl.drawArrays(gl.primitiveType.triangles, 0, 3)
+	gl.draw.drawArrays(gl.draw.primitiveType.triangles, 0, 3)
 
 	window.swapBuffers(w)
 	window.pollEvents()

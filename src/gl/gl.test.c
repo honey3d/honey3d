@@ -10,11 +10,15 @@ int mock_hs_throw_error_(lua_State *L, const char *str, ...);
 void mock_glfwTerminate_();
 void mock_glBufferData_(int, size_t, const void *, int);
 
+#define DUMMY_FUNCTION(...)
+
 #define glfwInit mock_glfwInit_
 #define hs_throw_error mock_hs_throw_error_
 #define glfwTerminate mock_glfwTerminate_
 #undef glBufferData
 #define glBufferData mock_glBufferData_
+#define setup_shader DUMMY_FUNCTION
+#define setup_drawing DUMMY_FUNCTION
 #include "gl/gl.c"
 #undef glBufferData
 #undef glfwTerminate

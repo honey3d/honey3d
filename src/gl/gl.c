@@ -28,13 +28,6 @@ int gl_vertex_array_bind(lua_State *L);
 int gl_vertex_attrib_pointer(lua_State *L);
 int gl_vertex_array_enable_attrib(lua_State *L);
 
-/* drawing */
-int gl_set_viewport(lua_State *L);
-int gl_draw_arrays(lua_State *L);
-int gl_set_clear_color(lua_State *L);
-int gl_clear(lua_State *L);
-
-
 void setup_gl(lua_State *L, int honey_index)
 {
 	int data_types = hs_create_table(L,
@@ -62,18 +55,6 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_int("dynamicDraw", GL_DYNAMIC_DRAW),
 	);
 
-	int primitive_types = hs_create_table(L,
-		hs_str_int("points", GL_POINTS),
-		hs_str_int("lines", GL_LINES),
-		hs_str_int("triangles", GL_TRIANGLES),
-	);
-
-	int buffer_masks = hs_create_table(L,
-		hs_str_int("colorBuffer", GL_COLOR_BUFFER_BIT),
-		hs_str_int("depthBuffer", GL_DEPTH_BUFFER_BIT),
-		hs_str_int("stencilBuffer", GL_STENCIL_BUFFER_BIT),
-	);
-
 	int gl_index = hs_create_table(L,
 		hs_str_cfunc("init", gl_init),
 		hs_str_cfunc("initGlad", glad_init),
@@ -95,18 +76,10 @@ void setup_gl(lua_State *L, int honey_index)
 
 		hs_str_tbl("bufferTarget", buffer_binding_targets),
 		hs_str_tbl("bufferUsage", buffer_usage_patterns),
-
-		/* drawing */
-		hs_str_cfunc("drawArrays", gl_draw_arrays),
-		hs_str_cfunc("setClearColor", gl_set_clear_color),
-		hs_str_cfunc("clear", gl_clear),
-		hs_str_cfunc("setViewport", gl_set_viewport),
-
-		hs_str_tbl("primitiveType", primitive_types),
-		hs_str_tbl("bufferMask", buffer_masks),
 	);
 
 	setup_shader(L, gl_index);
+	setup_drawing(L, gl_index);
 	lua_setfield(L, honey_index, "gl");
 }
 
@@ -246,41 +219,5 @@ int gl_vertex_array_enable_attrib(lua_State *L)
 	lua_Integer index;
 	hs_parse_args(L, hs_int(index));
 	glEnableVertexAttribArray(index);
-	return 0;
-}
-
-
-int gl_set_clear_color(lua_State *L)
-{
-	lua_Number r, g, b, a;
-	hs_parse_args(L, hs_num(r), hs_num(g), hs_num(b), hs_num(a));
-	glClearColor(r, g, b, a);
-	return 0;
-}
-
-
-int gl_clear(lua_State *L)
-{
-	lua_Integer mask;
-	hs_parse_args(L, hs_int(mask));
-	glClear(mask);
-	return 0;
-}
-
-
-int gl_draw_arrays(lua_State *L)
-{
-	lua_Integer mode, first, count;
-	hs_parse_args(L, hs_int(mode), hs_int(first), hs_int(count));
-	glDrawArrays(mode, first, count);
-	return 0;
-}
-
-
-int gl_set_viewport(lua_State *L)
-{
-	lua_Integer x, y, w, h;
-	hs_parse_args(L, hs_int(x), hs_int(y), hs_int(w), hs_int(h));
-	glViewport(x, y, w, h);
 	return 0;
 }
