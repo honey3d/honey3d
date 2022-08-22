@@ -26,23 +26,21 @@ end)
 local vertexShaderSource = [[
 #version 330 core
 layout (location = 0) in vec3 aPos;
-out vec3 pos;
 
 void main()
 {
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    pos = aPos;
 }
 ]]
 
 local fragmentShaderSource = [[
 #version 330 core
-in vec3 pos;
+uniform vec4 color;
 out vec4 FragColor;
 
 void main()
 {
-	FragColor = vec4(pos.x+0.5, 0.0f, 2*(pos.y+pos.x), 1.0f);
+	FragColor = color;
 }
 ]]
 
@@ -100,8 +98,12 @@ while not window.shouldClose(w) do
 	gl.draw.clear(gl.draw.bufferMask.colorBuffer);
 
 	gl.shader.use(shader)
+	local time = window.getTime()
+	local greenValue = (math.sin(time) / 2) + 0.5 
+	local colorLocation = gl.shader.getUniformLocation(shader, 'color')
+	gl.shader.uniform4f(colorLocation, 0, greenValue, 0, 1)
+
 	gl.data.bindVertexArray(vertexArray)
-	--gl.draw.drawArrays(gl.draw.primitiveType.triangles, 0, 3)
 	gl.draw.drawElements(gl.draw.primitiveType.triangles, 6, gl.dataType.uint, 0)
 
 	window.swapBuffers(w)

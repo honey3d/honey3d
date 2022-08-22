@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(honey_engine_demo)
+project(honey_engine)
 
 if (UNIX)
 	set(CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
@@ -32,22 +32,9 @@ add_subdirectory(${LIB_ROOT}/cglm)
 add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
 
 
-set(HONEY_LIB_FILES
-	${SRC_ROOT}/logging/logging.c
-	${SRC_ROOT}/gl/glad/glad.c
-	${SRC_ROOT}/gl/gl.c
-	${SRC_ROOT}/gl/shader.c
-	${SRC_ROOT}/gl/drawing.c
-	${SRC_ROOT}/gl/data.c
-	${SRC_ROOT}/gl/window.c
-)
-
-set(SOURCE_FILES
-	${SRC_ROOT}/main.c
-	${HONEY_LIB_FILES}
-	)
-	
-add_executable(honey ${SOURCE_FILES})
+set(HONEY_SOURCE ${SRC_ROOT}/main.c ${SRC_ROOT}/logging/logging.c)
+add_executable(honey ${HONEY_SOURCE})
+add_subdirectory(${SRC_ROOT}/gl)
 
 set(LIBRARIES lua5.1 honeysuckle assimp glfw)
 if (WIN32)

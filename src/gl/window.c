@@ -27,6 +27,8 @@ int window_should_close(lua_State *L);
 int window_poll_events(lua_State *L);
 int window_swap_buffers(lua_State *L);
 int window_set_framebuffer_size_callback(lua_State *L);
+int window_get_time(lua_State *L);
+
 
 
 void setup_window(lua_State *L, int honey_index)
@@ -50,6 +52,7 @@ void setup_window(lua_State *L, int honey_index)
 		hs_str_cfunc("pollEvents", window_poll_events),
 		hs_str_cfunc("swapBuffers", window_swap_buffers),
 		hs_str_cfunc("setFramebufferSizeCallback", window_set_framebuffer_size_callback),
+		hs_str_cfunc("getTime", window_get_time),
 
 		hs_str_tbl("hintType", hint_types),
 		hs_str_tbl("profileType", profile_types),
@@ -157,4 +160,11 @@ int window_set_framebuffer_size_callback(lua_State *L)
 	lua_pushvalue(L, func);
 	wdata->framebuffer_size_callback = hs_rstore(L);
 	return 0;
+}
+
+
+int window_get_time(lua_State *L)
+{
+	lua_pushnumber(L, glfwGetTime());
+	return 1;
 }
