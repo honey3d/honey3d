@@ -36,6 +36,7 @@ set(HONEY_LIB_FILES
 	${SRC_ROOT}/logging/logging.c
 	${SRC_ROOT}/gl/glad/glad.c
 	${SRC_ROOT}/gl/gl.c
+	${SRC_ROOT}/gl/shader.c
 	${SRC_ROOT}/gl/window.c
 )
 

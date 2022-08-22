@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <lua.h>
 #include <honeysuckle.h>
+#include "gl.h"
 
 /* needs to be here because glad uses macros to define glBufferData */
 #ifdef HONEY_TEST_H
@@ -26,17 +27,6 @@ int gl_vertex_array_create(lua_State *L);
 int gl_vertex_array_bind(lua_State *L);
 int gl_vertex_attrib_pointer(lua_State *L);
 int gl_vertex_array_enable_attrib(lua_State *L);
-
-/* shaders */
-int gl_create_shader(lua_State *L);
-int gl_shader_set_source(lua_State *L);
-int gl_shader_compile(lua_State *L);
-int gl_shader_delete(lua_State *L);
-
-int gl_program_create(lua_State *L);
-int gl_program_attach_shader(lua_State *L);
-int gl_program_link(lua_State *L);
-int gl_program_use(lua_State *L);
 
 /* drawing */
 int gl_set_viewport(lua_State *L);
@@ -63,17 +53,13 @@ void setup_gl(lua_State *L, int honey_index)
 
 	int buffer_binding_targets = hs_create_table(L,
 		hs_str_int("arrayBuffer", GL_ARRAY_BUFFER),
+		hs_str_int("elementArrayBuffer", GL_ELEMENT_ARRAY_BUFFER),
 	);
 
 	int buffer_usage_patterns = hs_create_table(L,
 		hs_str_int("streamDraw", GL_STREAM_DRAW),
 		hs_str_int("staticDraw", GL_STATIC_DRAW),
 		hs_str_int("dynamicDraw", GL_DYNAMIC_DRAW),
-	);
-
-	int shader_types = hs_create_table(L,
-		hs_str_int("vertexShader", GL_VERTEX_SHADER),
-		hs_str_int("fragmentShader", GL_FRAGMENT_SHADER),
 	);
 
 	int primitive_types = hs_create_table(L,
@@ -88,7 +74,7 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_int("stencilBuffer", GL_STENCIL_BUFFER_BIT),
 	);
 
-	hs_create_table(L,
+	int gl_index = hs_create_table(L,
 		hs_str_cfunc("init", gl_init),
 		hs_str_cfunc("initGlad", glad_init),
 		hs_str_cfunc("terminate", gl_terminate),
@@ -110,19 +96,6 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_tbl("bufferTarget", buffer_binding_targets),
 		hs_str_tbl("bufferUsage", buffer_usage_patterns),
 
-		/* shader */
-		hs_str_cfunc("createShader", gl_create_shader),
-		hs_str_cfunc("setShaderSource", gl_shader_set_source),
-		hs_str_cfunc("compileShader", gl_shader_compile),
-		hs_str_cfunc("deleteShader", gl_shader_delete),
-
-		hs_str_cfunc("createProgram", gl_program_create),
-		hs_str_cfunc("programAttachShader", gl_program_attach_shader),
-		hs_str_cfunc("linkProgram", gl_program_link),
-		hs_str_cfunc("useProgram", gl_program_use),
-
-		hs_str_tbl("shaderType", shader_types),
-
 		/* drawing */
 		hs_str_cfunc("drawArrays", gl_draw_arrays),
 		hs_str_cfunc("setClearColor", gl_set_clear_color),
@@ -132,6 +105,8 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_tbl("primitiveType", primitive_types),
 		hs_str_tbl("bufferMask", buffer_masks),
 	);
+
+	setup_shader(L, gl_index);
 	lua_setfield(L, honey_index, "gl");
 }
 
@@ -232,91 +207,6 @@ int gl_buffer_data(lua_State *L)
 	/* call */
 	glBufferData(target, len, buf, usage);
 	free(buf);
-	return 0;
-}
-
-
-int gl_create_shader(lua_State *L)
-{
-	lua_Integer type;
-	hs_parse_args(L, hs_int(type));
-	lua_Integer shader = glCreateShader(type);
-	lua_pushinteger(L, shader);
-	return 1;
-}
-
-
-int gl_shader_set_source(lua_State *L)
-{
-	lua_Integer shader;
-	char *code;
-	hs_parse_args(L, hs_int(shader), hs_str(code));
-	glShaderSource(shader, 1, &code, NULL);
-	return 0;
-}
-
-
-int gl_shader_compile(lua_State *L)
-{
-	lua_Integer shader;
-	hs_parse_args(L, hs_int(shader));
-	glCompileShader(shader);
-	int success; char log[1024];
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(shader, 1024, NULL, log);
-		hs_throw_error(L, "shader compilation failed: %s", log);
-	}
-	return 0;
-}
-
-
-int gl_shader_delete(lua_State *L)
-{
-	lua_Integer shader;
-	hs_parse_args(L, hs_int(shader));
-	glDeleteShader(shader);
-	return 0;
-}
-
-
-int gl_program_create(lua_State *L)
-{
-	lua_Integer program = glCreateProgram();
-	lua_pushinteger(L, program);
-	return 1;
-}
-
-
-int gl_program_attach_shader(lua_State *L)
-{
-	lua_Integer program, shader;
-	hs_parse_args(L, hs_int(program), hs_int(shader)),
-	glAttachShader(program, shader);
-	return 0;
-}
-
-
-int gl_program_link(lua_State *L)
-{
-	lua_Integer program;
-	hs_parse_args(L, hs_int(program));
-	glLinkProgram(program);
-	int success; char log[1024];
-	glGetProgramiv(program, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(program, 1024, NULL, log);
-		hs_throw_error(L, "shader linking failed: %s", log);
-	}
-	return 0;
-}
-
-
-int gl_program_use(lua_State *L)
-{
-	lua_Integer program;
-	hs_parse_args(L, hs_int(program));
-	glUseProgram(program);
 	return 0;
 }
 

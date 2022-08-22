@@ -46,19 +46,19 @@ void main()
 }
 ]]
 
-local vertexShader = gl.createShader(gl.shaderType.vertexShader)
-gl.setShaderSource(vertexShader, vertexShaderSource)
-gl.compileShader(vertexShader)
-local fragmentShader = gl.createShader(gl.shaderType.fragmentShader)
-gl.setShaderSource(fragmentShader, fragmentShaderSource)
-gl.compileShader(fragmentShader)
+local vertexShader = gl.shader.create(gl.shader.type.vertexShader)
+gl.shader.setSource(vertexShader, vertexShaderSource)
+gl.shader.compile(vertexShader)
+local fragmentShader = gl.shader.create(gl.shader.type.fragmentShader)
+gl.shader.setSource(fragmentShader, fragmentShaderSource)
+gl.shader.compile(fragmentShader)
 
-local shader = gl.createProgram()
-gl.programAttachShader(shader, vertexShader)
-gl.programAttachShader(shader, fragmentShader)
-gl.linkProgram(shader)
-gl.deleteShader(vertexShader)
-gl.deleteShader(fragmentShader)
+local shader = gl.shader.createProgram()
+gl.shader.attachShader(shader, vertexShader)
+gl.shader.attachShader(shader, fragmentShader)
+gl.shader.link(shader)
+gl.shader.delete(vertexShader)
+gl.shader.delete(fragmentShader)
 
 
 local vertices = {
@@ -90,7 +90,7 @@ while not window.shouldClose(w) do
 	gl.setClearColor(0.2, 0.3, 0.3, 1.0)
 	gl.clear(gl.bufferMask.colorBuffer);
 
-	gl.useProgram(shader)
+	gl.shader.use(shader)
 	gl.bindVertexArray(vertexArray)
 	gl.drawArrays(gl.primitiveType.triangles, 0, 3)
 
