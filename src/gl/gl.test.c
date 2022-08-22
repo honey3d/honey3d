@@ -67,10 +67,21 @@ void mock_glBufferData_(int target, size_t size, const void *data, int usage)
 	};
 	lily_mock_store_call(mock_glBufferData, args);
 
-	size_t count = size/sizeof(float);
-	float *numbers = data;
-	for (int i=0; i<count; i++) {
-		lily_store_value(mock_glBufferData, float, numbers[i]);
+	int use_ints; lily_get_value(mock_glBufferData, int, &use_ints);
+
+	if (use_ints) {
+		size_t count = size/sizeof(int);
+		int *numbers = data;
+		for (int i=0; i<count; i++) {
+			lily_store_value(mock_glBufferData, int, numbers[i]);
+		}
+	}
+	else {
+		size_t count = size/sizeof(float);
+		float *numbers = data;
+		for (int i=0; i<count; i++) {
+			lily_store_value(mock_glBufferData, float, numbers[i]);
+		}
 	}
 }
 
@@ -124,21 +135,23 @@ void gl_terminate_works()
 }
 
 
-void gl_buffer_data_works()
+void gl_buffer_float_works()
 {
 	lily_mock_use(&mock_hs_throw_error);
 	lily_mock_use(&mock_glBufferData);
+	lily_store_value(mock_glBufferData, int, 0); // use floats
 
 	lua_State *L = luaL_newstate();
 	lua_pushcfunction(L, gl_buffer_data);
 	lua_pushinteger(L, GL_ARRAY_BUFFER);
+	lua_pushinteger(L, GL_FLOAT);
 	hs_create_table(L,
 		hs_int_num(1, 22),
 		hs_int_num(2, 33),
 		hs_int_num(3, 44),
 	);
 	lua_pushinteger(L, GL_STATIC_DRAW);
-	int err = hs_call(L, 3, 0);
+	int err = hs_call(L, 4, 0);
 	lua_close(L);
 
 	lily_assert_int_equal(err, 0);
@@ -164,12 +177,54 @@ void gl_buffer_data_works()
 }
 
 
+void gl_buffer_int_works()
+{
+	lily_mock_use(&mock_hs_throw_error);
+	lily_mock_use(&mock_glBufferData);
+	lily_store_value(mock_glBufferData, int, 1); // use ints
+
+	lua_State *L = luaL_newstate();
+	lua_pushcfunction(L, gl_buffer_data);
+	lua_pushinteger(L, GL_ARRAY_BUFFER);
+	lua_pushinteger(L, GL_INT);
+	hs_create_table(L,
+		hs_int_num(1, 22),
+		hs_int_num(2, 33),
+		hs_int_num(3, 44),
+	);
+	lua_pushinteger(L, GL_STATIC_DRAW);
+	int err = hs_call(L, 4, 0);
+	lua_close(L);
+
+	lily_assert_int_equal(err, 0);
+	lily_assert_int_equal(mock_glBufferData->n_calls, 1);
+	int target; size_t size; int usage;
+	struct lily_mock_arg_t args[] = {
+		{ sizeof(int), &target },
+		{ sizeof(size_t), &size },
+		{ sizeof(int), &usage }
+	};
+	lily_mock_get_call(mock_glBufferData, args, 0);
+	lily_assert_int_equal(target, GL_ARRAY_BUFFER);
+	lily_assert_int_equal(size, 3*sizeof(float));
+	lily_assert_int_equal(usage, GL_STATIC_DRAW);
+
+	int n;
+	lily_get_value(mock_glBufferData, int, &n);
+	lily_assert_int_equal(n, 22);
+	lily_get_value(mock_glBufferData, int, &n);
+	lily_assert_int_equal(n, 33);
+	lily_get_value(mock_glBufferData, int, &n);
+	lily_assert_int_equal(n, 44);
+}
+
 void suite_gl()
 {
 	lily_run_test(gl_init_succeeds);
 	lily_run_test(gl_init_fails);
 	lily_run_test(gl_terminate_works);
-	lily_run_test(gl_buffer_data_works);
+	lily_run_test(gl_buffer_float_works);
+	lily_run_test(gl_buffer_int_works);
 
 	lily_mock_destroy(mock_glfwInit);
 	lily_mock_destroy(mock_hs_throw_error);

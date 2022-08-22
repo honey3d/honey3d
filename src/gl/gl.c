@@ -181,26 +181,50 @@ int gl_bind_buffer(lua_State *L)
 
 int gl_buffer_data(lua_State *L)
 {
-	lua_Integer target, usage;
+	lua_Integer target, type, usage;
 	int table;
-	hs_parse_args(L, hs_int(target), hs_tbl(table), hs_int(usage));
+	hs_parse_args(L, hs_int(target), hs_int(type), hs_tbl(table), hs_int(usage));
+
+	if (type != GL_INT && type != GL_FLOAT) {
+		hs_throw_error(L, "invalid type");
+	}
 
 	/* build raw buffer */
 	size_t len = lua_objlen(L, table);
-	float *buf = malloc(len * sizeof(float));
-	if (buf == NULL)
-		hs_throw_error(L, "failed to allocate intermediary buffer");
-	for (int i=0; i<len; i++) {
-		lua_rawgeti(L, table, i+1);
-		if (!lua_isnumber(L, -1)) {
-			hs_throw_error(L, "all table items must be numbers (failed at index %d)", i);
+	void *buf;
+	if (type == GL_FLOAT) {
+		float *fbuf = malloc(len * sizeof(float));
+		if (fbuf == NULL)
+			hs_throw_error(L, "failed to allocate intermediary fbuffer");
+		for (int i=0; i<len; i++) {
+			lua_rawgeti(L, table, i+1);
+			if (!lua_isnumber(L, -1)) {
+				hs_throw_error(L, "all table items must be numbers (failed at index %d)", i);
+			}
+			fbuf[i] = lua_tonumber(L, -1);
+			lua_pop(L, 1);
 		}
-		buf[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1);
+		len = len * sizeof(float);
+		buf = fbuf;
+	}
+	else {
+		int *ibuf = malloc(len * sizeof(int));
+		if (ibuf == NULL)
+			hs_throw_error(L, "failed to allocate intermediary ibuffer");
+		for (int i=0; i<len; i++) {
+			lua_rawgeti(L, table, i+1);
+			if (!lua_isnumber(L, -1)) {
+				hs_throw_error(L, "all table items must be integers (failed at index %d)", i);
+			}
+			ibuf[i] = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+		}
+		len = len * sizeof(int);
+		buf = ibuf;
 	}
 
 	/* call */
-	glBufferData(target, len*sizeof(float), buf, usage);
+	glBufferData(target, len, buf, usage);
 	free(buf);
 	return 0;
 }
