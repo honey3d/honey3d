@@ -75,7 +75,7 @@ gl.bindVertexArray(vertexArray)
 gl.bindBuffer(gl.bufferTarget.arrayBuffer, vertexBuffer)
 local err = gl.getError()
 if err ~= gl.errorType.noError then error(gl.errorName(err)) end
-gl.bufferData(gl.bufferTarget.arrayBuffer, vertices, gl.bufferUsage.staticDraw)
+gl.bufferData(gl.bufferTarget.arrayBuffer, gl.dataType.float, vertices, gl.bufferUsage.staticDraw)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
 
 gl.vertexAttribPointer(0, 3, false, 3, 0)

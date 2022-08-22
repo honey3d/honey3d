@@ -47,6 +47,11 @@ int gl_clear(lua_State *L);
 
 void setup_gl(lua_State *L, int honey_index)
 {
+	int data_types = hs_create_table(L,
+		hs_str_int("integer", GL_INT),
+		hs_str_int("float", GL_FLOAT),
+	);
+
 	int error_types = hs_create_table(L,
 		hs_str_int("noError", GL_NO_ERROR),
 		hs_str_int("invalidEnum", GL_INVALID_ENUM),
@@ -89,6 +94,7 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_cfunc("terminate", gl_terminate),
 		hs_str_cfunc("getError", gl_get_error),
 
+		hs_str_tbl("dataType", data_types),
 		hs_str_tbl("errorType", error_types),
 
 		/* buffer */
