@@ -16,6 +16,7 @@ struct window_data * create_window_data(lua_State *L)
 		return NULL;
 	wdata->L = L;
 	wdata->framebuffer_size_callback = LUA_NOREF;
+	return wdata;
 }
 
 int window_create(lua_State *L);
