@@ -35,6 +35,7 @@ add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
 set(HONEY_SOURCE ${SRC_ROOT}/main.c ${SRC_ROOT}/logging/logging.c)
 add_executable(honey ${HONEY_SOURCE})
 add_subdirectory(${SRC_ROOT}/gl)
+add_subdirectory(${SRC_ROOT}/image)
 
 set(LIBRARIES lua5.1 honeysuckle assimp glfw)
 if (WIN32)
