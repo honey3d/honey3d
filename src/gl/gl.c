@@ -21,6 +21,7 @@ int gl_get_error(lua_State *L);
 void setup_gl(lua_State *L, int honey_index)
 {
 	int data_types = hs_create_table(L,
+		hs_str_int("uchar", GL_UNSIGNED_BYTE),
 		hs_str_int("uint", GL_UNSIGNED_INT),
 		hs_str_int("int", GL_INT),
 		hs_str_int("float", GL_FLOAT),
@@ -48,6 +49,7 @@ void setup_gl(lua_State *L, int honey_index)
 	setup_shader(L, gl_index);
 	setup_drawing(L, gl_index);
 	setup_data(L, gl_index);
+	setup_texture(L, gl_index);
 	lua_setfield(L, honey_index, "gl");
 }
 

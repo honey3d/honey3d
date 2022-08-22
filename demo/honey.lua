@@ -24,28 +24,35 @@ end)
 
 
 local vertexShaderSource = [[
+
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
 
-out vec3 pColor;
+out vec3 ourColor;
+out vec2 TexCoord;
 
 void main()
 {
-    pColor = aColor;
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = vec4(aPos, 1.0);
+    ourColor = aColor;
+    TexCoord = aTexCoord;
 }
 ]]
 
 local fragmentShaderSource = [[
 #version 330 core
-in vec3 pColor;
-uniform vec4 color;
 out vec4 FragColor;
+  
+in vec3 ourColor;
+in vec2 TexCoord;
+
+uniform sampler2D ourTexture;
 
 void main()
 {
-	FragColor = vec4(pColor.rgb, 1);
+    FragColor = texture(ourTexture, TexCoord);
 }
 ]]
 
@@ -64,12 +71,35 @@ gl.shader.delete(vertexShader)
 gl.shader.delete(fragmentShader)
 
 
+----------------------------------------------------------------
+
+local texture = gl.texture.create()
+gl.texture.bind(gl.texture.bindTarget.texture2d, texture)
+err = gl.getError()
+if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+
+
+local image, width, height, channels = honey.image.load('container.jpg', 0)
+gl.texture.bufferImage2d(
+	gl.texture.bindTarget.texture2d, 0,
+	gl.texture.format.rgb,
+	width, height,
+	gl.texture.format.rgb, gl.dataType.uchar,
+	image
+)
+gl.texture.generateMipmaps(gl.texture.bindTarget.texture2d)
+err = gl.getError()
+if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+
+honey.image.destroy(image)
+
+
 local vertices = {
-	-- position          color
-	 0.5,  0.5, 0.0,    0, 0, 0,
-	 0.5, -0.5, 0.0,    1, 0, 0,
-	-0.5, -0.5, 0.0,    0, 1, 0,
-	-0.5,  0.5, 0.0,    0, 0, 1
+	-- position          color      uvs
+	 0.5,  0.5, 0.0,    0, 0, 0,    1, 1,
+	 0.5, -0.5, 0.0,    1, 0, 0,    1, 0,
+	-0.5, -0.5, 0.0,    0, 1, 0,    0, 0,
+	-0.5,  0.5, 0.0,    0, 0, 1,    0, 1
 }
 local indices = {
         0, 1, 3,
@@ -91,24 +121,38 @@ if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
 gl.data.bindBuffer(gl.data.bufferTarget.elementArrayBuffer, elementBuffer)
 gl.data.bufferData(gl.data.bufferTarget.elementArrayBuffer, gl.dataType.uint, indices, gl.data.bufferUsage.staticDraw)
 
-gl.data.vertexAttribPointer(0, 3, false, 6, 0)
+gl.data.vertexAttribPointer(0, 3, false, 8, 0)
 gl.data.vertexArrayEnableAttrib(0)
-gl.data.vertexAttribPointer(1, 3, false, 6, 3)
+gl.data.vertexAttribPointer(1, 3, false, 8, 3)
 gl.data.vertexArrayEnableAttrib(1)
+gl.data.vertexAttribPointer(2, 2, false, 8, 6)
+gl.data.vertexArrayEnableAttrib(2)
 
 gl.data.bindBuffer(gl.data.bufferTarget.arrayBuffer, 0)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
+
+gl.shader.use(shader)
+local textureLocation = gl.shader.getUniformLocation(shader, "ourTexture")
+err = gl.getError()
+if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+gl.shader.uniform1i(textureLocation, 0)
+err = gl.getError()
+if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+
 
 while not window.shouldClose(w) do
 	gl.draw.setClearColor(0.2, 0.3, 0.3, 1.0)
 	gl.draw.clear(gl.draw.bufferMask.colorBuffer);
 
-	gl.shader.use(shader)
-	local time = window.getTime()
-	local greenValue = (math.sin(time) / 2) + 0.5 
-	local colorLocation = gl.shader.getUniformLocation(shader, 'color')
-	gl.shader.uniform4f(colorLocation, 0, greenValue, 0, 1)
+	gl.texture.setActiveUnit(0)
+	err = gl.getError()
+	if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+	gl.texture.bind(gl.texture.bindTarget.texture2d, texture)
+	err = gl.getError()
+	if err ~= gl.errorType.noError then error(gl.errorName(err)) end
 
+
+	gl.shader.use(shader)
 	gl.data.bindVertexArray(vertexArray)
 	gl.draw.drawElements(gl.draw.primitiveType.triangles, 6, gl.dataType.uint, 0)
 

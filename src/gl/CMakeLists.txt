@@ -7,6 +7,7 @@ target_sources(honey PUBLIC
 	${GL}/drawing.c
 	${GL}/shader.c
 	${GL}/window.c
+	${GL}/texture.c
 	${GL}/gl.c
 	${GL}/glad/glad.c
 )
