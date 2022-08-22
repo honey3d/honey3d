@@ -5,6 +5,7 @@
 
 int gl_set_viewport(lua_State *L);
 int gl_draw_arrays(lua_State *L);
+int gl_draw_elements(lua_State *L);
 int gl_set_clear_color(lua_State *L);
 int gl_clear(lua_State *L);
 
@@ -24,6 +25,7 @@ void setup_drawing(lua_State *L, int gl_index)
 
 	hs_create_table(L,
 		hs_str_cfunc("drawArrays", gl_draw_arrays),
+		hs_str_cfunc("drawElements", gl_draw_elements),
 		hs_str_cfunc("setClearColor", gl_set_clear_color),
 		hs_str_cfunc("clear", gl_clear),
 		hs_str_cfunc("setViewport", gl_set_viewport),
@@ -58,6 +60,15 @@ int gl_draw_arrays(lua_State *L)
 	lua_Integer mode, first, count;
 	hs_parse_args(L, hs_int(mode), hs_int(first), hs_int(count));
 	glDrawArrays(mode, first, count);
+	return 0;
+}
+
+
+int gl_draw_elements(lua_State *L)
+{
+	lua_Integer mode, count, type, offset;
+	hs_parse_args(L, hs_int(mode), hs_int(count), hs_int(type), hs_int(offset));
+	glDrawElements(mode, count, type, (const void*)offset);
 	return 0;
 }
 

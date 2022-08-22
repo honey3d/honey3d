@@ -21,7 +21,8 @@ int gl_get_error(lua_State *L);
 void setup_gl(lua_State *L, int honey_index)
 {
 	int data_types = hs_create_table(L,
-		hs_str_int("integer", GL_INT),
+		hs_str_int("uint", GL_UNSIGNED_INT),
+		hs_str_int("int", GL_INT),
 		hs_str_int("float", GL_FLOAT),
 	);
 

@@ -62,14 +62,20 @@ gl.shader.delete(fragmentShader)
 
 
 local vertices = {
-    -0.5, -0.5, 0.0,
-     0.5, -0.5, 0.0,
-     0.0,  0.5, 0.0
-}  
+	 0.5,  0.5, 0.0,
+	 0.5, -0.5, 0.0,
+	-0.5, -0.5, 0.0,
+	-0.5,  0.5, 0.0
+}
+local indices = {
+        0, 1, 3,
+        1, 2, 3
+}
 
 local vertexArray = gl.data.createVertexArray()
 
 local vertexBuffer = gl.data.createBuffer()
+local elementBuffer = gl.data.createBuffer()
 gl.data.bindVertexArray(vertexArray)
 
 gl.data.bindBuffer(gl.data.bufferTarget.arrayBuffer, vertexBuffer)
@@ -77,6 +83,9 @@ local err = gl.getError()
 if err ~= gl.errorType.noError then error(gl.errorName(err)) end
 gl.data.bufferData(gl.data.bufferTarget.arrayBuffer, gl.dataType.float, vertices, gl.data.bufferUsage.staticDraw)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
+
+gl.data.bindBuffer(gl.data.bufferTarget.elementArrayBuffer, elementBuffer)
+gl.data.bufferData(gl.data.bufferTarget.elementArrayBuffer, gl.dataType.uint, indices, gl.data.bufferUsage.staticDraw)
 
 gl.data.vertexAttribPointer(0, 3, false, 3, 0)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
@@ -92,7 +101,8 @@ while not window.shouldClose(w) do
 
 	gl.shader.use(shader)
 	gl.data.bindVertexArray(vertexArray)
-	gl.draw.drawArrays(gl.draw.primitiveType.triangles, 0, 3)
+	--gl.draw.drawArrays(gl.draw.primitiveType.triangles, 0, 3)
+	gl.draw.drawElements(gl.draw.primitiveType.triangles, 6, gl.dataType.uint, 0)
 
 	window.swapBuffers(w)
 	window.pollEvents()
