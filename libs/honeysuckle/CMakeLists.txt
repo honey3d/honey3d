@@ -3,9 +3,6 @@ project(honeysuckle
   VERSION 0.1.0
   DESCRIPTION "A C library to make writing lua bindings simple")
 
-find_package(Lua51 REQUIRED)
-Include_directories(${LUA_INCLUDE_DIR})
-
 # build and link the library
 set(HS_ROOT ${honeysuckle_SOURCE_DIR}/src)
 set(HONEYSUCKLE_SOURCES

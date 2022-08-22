@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.2)
 project(honey_engine_demo)
 
-set(CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
-set(CMAKE_C_FLAGS "-g")
+if (UNIX)
+	set(CMAKE_C_FLAGS "-Wall -Wextra -Werror -Wfatal-errors -Wpedantic")
+	set(CMAKE_C_FLAGS "-g")
+endif()
 
 find_package(OpenGL REQUIRED)
 
@@ -10,7 +12,7 @@ set(SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 set(LIB_ROOT ${CMAKE_SOURCE_DIR}/libs)
 
 include_directories(
-	${LUA_INCLUDE_DIR} 
+	${LIB_ROOT}/lua-5.1.5/src 
 	${CMAKE_SOURCE_DIR}/src
 	${LIB_ROOT}/honeysuckle/src
 	${LIB_ROOT}/glfw-3.3.8/include
@@ -44,11 +46,11 @@ set(SOURCE_FILES
 	
 add_executable(honey ${SOURCE_FILES})
 
-set(LIBRARIES lua5.1 honeysuckle assimp cairo m)
+set(LIBRARIES lua5.1 honeysuckle assimp glfw)
 if (WIN32)
-	set(LIBRARIES ${LIBRARIES} glfw3 opengl32)
+	set(LIBRARIES ${LIBRARIES} opengl32)
 else()
-	set(LIBRARIES ${LIBRARIES} glfw GL dl)
+	set(LIBRARIES ${LIBRARIES} GL dl m)
 endif()
 target_link_libraries(honey ${LIBRARIES})
 
