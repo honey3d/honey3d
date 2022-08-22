@@ -12,12 +12,14 @@ set(LIB_ROOT ${CMAKE_SOURCE_DIR}/libs)
 include_directories(
 	${LUA_INCLUDE_DIR} 
 	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/libs/honeysuckle/src
+	${LIB_ROOT}/honeysuckle/src
+	${LIB_ROOT}/glfw-3.3.8/include
 )
 
 # link to third-party included libraries
 link_directories(${LIB_ROOT}/assimp/lib)
 link_directories(${LIB_ROOT}/honeysuckle)
+link_directories(${LIB_ROOT}/glfw-3.3.8/src)
 
 # add_library(glad ${SRC_ROOT}/gl/glad/glad.c)
 # add_library(stb_image src/stb_image/stb_image.c)
@@ -25,6 +27,7 @@ add_subdirectory(${LIB_ROOT}/lua-5.1.5)
 add_subdirectory(${LIB_ROOT}/assimp)
 add_subdirectory(${LIB_ROOT}/honeysuckle)
 add_subdirectory(${LIB_ROOT}/cglm)
+add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
 
 
 set(HONEY_LIB_FILES
