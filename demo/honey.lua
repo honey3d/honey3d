@@ -26,21 +26,26 @@ end)
 local vertexShaderSource = [[
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+
+out vec3 pColor;
 
 void main()
 {
+    pColor = aColor;
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
 ]]
 
 local fragmentShaderSource = [[
 #version 330 core
+in vec3 pColor;
 uniform vec4 color;
 out vec4 FragColor;
 
 void main()
 {
-	FragColor = color;
+	FragColor = vec4(pColor.rgb, 1);
 }
 ]]
 
@@ -60,10 +65,11 @@ gl.shader.delete(fragmentShader)
 
 
 local vertices = {
-	 0.5,  0.5, 0.0,
-	 0.5, -0.5, 0.0,
-	-0.5, -0.5, 0.0,
-	-0.5,  0.5, 0.0
+	-- position          color
+	 0.5,  0.5, 0.0,    0, 0, 0,
+	 0.5, -0.5, 0.0,    1, 0, 0,
+	-0.5, -0.5, 0.0,    0, 1, 0,
+	-0.5,  0.5, 0.0,    0, 0, 1
 }
 local indices = {
         0, 1, 3,
@@ -85,10 +91,10 @@ if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
 gl.data.bindBuffer(gl.data.bufferTarget.elementArrayBuffer, elementBuffer)
 gl.data.bufferData(gl.data.bufferTarget.elementArrayBuffer, gl.dataType.uint, indices, gl.data.bufferUsage.staticDraw)
 
-gl.data.vertexAttribPointer(0, 3, false, 3, 0)
-if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
+gl.data.vertexAttribPointer(0, 3, false, 6, 0)
 gl.data.vertexArrayEnableAttrib(0)
-if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
+gl.data.vertexAttribPointer(1, 3, false, 6, 3)
+gl.data.vertexArrayEnableAttrib(1)
 
 gl.data.bindBuffer(gl.data.bufferTarget.arrayBuffer, 0)
 if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
