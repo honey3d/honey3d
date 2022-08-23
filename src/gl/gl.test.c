@@ -15,10 +15,9 @@ void mock_glBufferData_(int, size_t, const void *, int);
 #define glfwInit mock_glfwInit_
 #define hs_throw_error mock_hs_throw_error_
 #define glfwTerminate mock_glfwTerminate_
-#undef glBufferData
-#define glBufferData mock_glBufferData_
 #define setup_shader DUMMY_FUNCTION
 #define setup_drawing DUMMY_FUNCTION
+#define setup_texture DUMMY_FUNCTION
 #include "gl/gl.c"
 #include "gl/data.c"
 #undef glBufferData
