@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <lua.h>
 #include <honeysuckle.h>
+#include "util/util.h"
 
 int gl_set_viewport(lua_State *L);
 int gl_draw_arrays(lua_State *L);
@@ -11,30 +12,28 @@ int gl_clear(lua_State *L);
 
 void setup_drawing(lua_State *L, int gl_index)
 {
-	int primitive_types = hs_create_table(L,
-		hs_str_int("points", GL_POINTS),
-		hs_str_int("lines", GL_LINES),
-		hs_str_int("triangles", GL_TRIANGLES),
+	int tbl = hs_create_table(L,
+		/* functions */
+		hs_str_cfunc("DrawArrays", gl_draw_arrays),
+		hs_str_cfunc("DrawElements", gl_draw_elements),
+		hs_str_cfunc("ClearColor", gl_set_clear_color),
+		hs_str_cfunc("Clear", gl_clear),
+		hs_str_cfunc("Viewport", gl_set_viewport),
+
+		/******** enums ********/
+		/* rendering primitives */
+		hs_str_int("POINTS", GL_POINTS),
+		hs_str_int("LINES", GL_LINES),
+		hs_str_int("TRIANGLES", GL_TRIANGLES),
+
+		/* clear bitmasks */
+		hs_str_int("COLOR_BUFFER_BIT", GL_COLOR_BUFFER_BIT),
+		hs_str_int("DEPTH_BUFFER_BIT", GL_DEPTH_BUFFER_BIT),
+		hs_str_int("STENCIL_BUFFER_BIT", GL_STENCIL_BUFFER_BIT),
 	);
 
-	int buffer_masks = hs_create_table(L,
-		hs_str_int("colorBuffer", GL_COLOR_BUFFER_BIT),
-		hs_str_int("depthBuffer", GL_DEPTH_BUFFER_BIT),
-		hs_str_int("stencilBuffer", GL_STENCIL_BUFFER_BIT),
-	);
-
-	hs_create_table(L,
-		hs_str_cfunc("drawArrays", gl_draw_arrays),
-		hs_str_cfunc("drawElements", gl_draw_elements),
-		hs_str_cfunc("setClearColor", gl_set_clear_color),
-		hs_str_cfunc("clear", gl_clear),
-		hs_str_cfunc("setViewport", gl_set_viewport),
-
-		hs_str_tbl("primitiveType", primitive_types),
-		hs_str_tbl("bufferMask", buffer_masks),
-	);
-
-	lua_setfield(L, gl_index, "draw");
+	append_table(L, gl_index, tbl);
+	lua_pop(L, 1);
 }
 
 int gl_set_clear_color(lua_State *L)

@@ -1,21 +1,20 @@
 local gl = honey.gl
 local window = honey.window
 
-gl.errorName = function(errorCode)
-	for name, code in pairs(gl.errorType) do
-		if code == errorCode then return name end
-	end
-	return 'unknown'
-end
 
-gl.init()
+--====== initialize opengl ======--
+
+gl.Init()
 window.setHint(window.hintType.contextVersionMajor, 3)
 window.setHint(window.hintType.contextVersionMinor, 3)
 window.setHint(window.hintType.openGlProfile, window.profileType.openGlCoreProfile)
 
+
+--====== create window ======--
+
 local w = window.create(640, 480, 'hello, world!')
 window.makeContextCurrent(w)
-gl.initGlad()
+gl.InitGlad()
 
 window.setFramebufferSizeCallback(w, function(_, width, height)
 	print(string.format("resize: (%d, %d)", width, height))
@@ -23,8 +22,9 @@ window.setFramebufferSizeCallback(w, function(_, width, height)
 end)
 
 
-local vertexShaderSource = [[
+--====== compile shaders ======--
 
+local vertexShaderSource = [[
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
@@ -56,108 +56,101 @@ void main()
 }
 ]]
 
-local vertexShader = gl.shader.create(gl.shader.type.vertexShader)
-gl.shader.setSource(vertexShader, vertexShaderSource)
-gl.shader.compile(vertexShader)
-local fragmentShader = gl.shader.create(gl.shader.type.fragmentShader)
-gl.shader.setSource(fragmentShader, fragmentShaderSource)
-gl.shader.compile(fragmentShader)
+-- vertex shader
+local vertexShader = gl.CreateShader(gl.VERTEX_SHADER)
+gl.ShaderSource(vertexShader, vertexShaderSource)
+gl.CompileShader(vertexShader)
 
-local shader = gl.shader.createProgram()
-gl.shader.attachShader(shader, vertexShader)
-gl.shader.attachShader(shader, fragmentShader)
-gl.shader.link(shader)
-gl.shader.delete(vertexShader)
-gl.shader.delete(fragmentShader)
+-- fragment shader
+local fragmentShader = gl.CreateShader(gl.FRAGMENT_SHADER)
+gl.ShaderSource(fragmentShader, fragmentShaderSource)
+gl.CompileShader(fragmentShader)
 
-
-----------------------------------------------------------------
-
-local texture = gl.texture.create()
-gl.texture.bind(gl.texture.bindTarget.texture2d, texture)
-err = gl.getError()
-if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+-- link
+local shader = gl.CreateProgram()
+gl.AttachShader(shader, vertexShader)
+gl.AttachShader(shader, fragmentShader)
+gl.LinkProgram(shader)
+-- clean up
+gl.DeleteShader(vertexShader)
+gl.DeleteShader(fragmentShader)
 
 
-local image, width, height, channels = honey.image.load('container.jpg', 0)
-gl.texture.bufferImage2d(
-	gl.texture.bindTarget.texture2d, 0,
-	gl.texture.format.rgb,
-	width, height,
-	gl.texture.format.rgb, gl.dataType.uchar,
-	image
-)
-gl.texture.generateMipmaps(gl.texture.bindTarget.texture2d)
-err = gl.getError()
-if err ~= gl.errorType.noError then error(gl.errorName(err)) end
-
-honey.image.destroy(image)
-
+--====== set up vertex data ======--
 
 local vertices = {
-	-- position          color      uvs
-	 0.5,  0.5, 0.0,    0, 0, 0,    1, 1,
-	 0.5, -0.5, 0.0,    1, 0, 0,    1, 0,
-	-0.5, -0.5, 0.0,    0, 1, 0,    0, 0,
-	-0.5,  0.5, 0.0,    0, 0, 1,    0, 1
+--     positions          colors           uvs   
+	 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0, -- top right
+	 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0, -- bottom right
+	-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0, -- bottom let
+	-0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0  -- top let 
 }
 local indices = {
-        0, 1, 3,
-        1, 2, 3
+    0, 1, 3, -- first triangle
+    1, 2, 3  -- second triangle
 }
 
-local vertexArray = gl.data.createVertexArray()
+-- buffers
+local vertexArray = gl.GenVertexArrays()
+local vertexBuffer = gl.GenBuffers()
+local elementBuffer = gl.GenBuffers()
 
-local vertexBuffer = gl.data.createBuffer()
-local elementBuffer = gl.data.createBuffer()
-gl.data.bindVertexArray(vertexArray)
+gl.BindVertexArray(vertexArray)
 
-gl.data.bindBuffer(gl.data.bufferTarget.arrayBuffer, vertexBuffer)
-local err = gl.getError()
-if err ~= gl.errorType.noError then error(gl.errorName(err)) end
-gl.data.bufferData(gl.data.bufferTarget.arrayBuffer, gl.dataType.float, vertices, gl.data.bufferUsage.staticDraw)
-if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
+gl.BindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+gl.BufferData(gl.ARRAY_BUFFER, gl.FLOAT, vertices, gl.STATIC_DRAW)
 
-gl.data.bindBuffer(gl.data.bufferTarget.elementArrayBuffer, elementBuffer)
-gl.data.bufferData(gl.data.bufferTarget.elementArrayBuffer, gl.dataType.uint, indices, gl.data.bufferUsage.staticDraw)
+gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer)
+gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, gl.UNSIGNED_INT, indices, gl.STATIC_DRAW)
 
-gl.data.vertexAttribPointer(0, 3, false, 8, 0)
-gl.data.vertexArrayEnableAttrib(0)
-gl.data.vertexAttribPointer(1, 3, false, 8, 3)
-gl.data.vertexArrayEnableAttrib(1)
-gl.data.vertexAttribPointer(2, 2, false, 8, 6)
-gl.data.vertexArrayEnableAttrib(2)
+-- position
+gl.VertexAttribPointer(0, 3, false, 8, 0)
+gl.EnableVertexAttribArray(0)
 
-gl.data.bindBuffer(gl.data.bufferTarget.arrayBuffer, 0)
-if gl.getError() ~= gl.errorType.noError then error(gl.getError()) end
+-- color
+gl.VertexAttribPointer(1, 3, false, 8, 3)
+gl.EnableVertexAttribArray(1)
 
-gl.shader.use(shader)
-local textureLocation = gl.shader.getUniformLocation(shader, "ourTexture")
-err = gl.getError()
-if err ~= gl.errorType.noError then error(gl.errorName(err)) end
-gl.shader.uniform1i(textureLocation, 0)
-err = gl.getError()
-if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+-- uv
+gl.VertexAttribPointer(2, 2, false, 8, 6)
+gl.EnableVertexAttribArray(2)
 
+
+--====== load texture ======--
+
+local texture = gl.GenTextures()
+gl.BindTexture(gl.TEXTURE_2D, texture)
+
+local image, width, height = honey.image.load('container.jpg', 3)
+gl.TexImage2D(
+	gl.TEXTURE_2D, 0,
+	gl.RGB, width, height,
+	gl.RGB, gl.UNSIGNED_BYTE,
+	image
+)
+gl.GenerateMipmap(gl.TEXTURE_2D)
+honey.image.destroy(image)
+
+-- connect shader samplers to texture units
+gl.UseProgram(shader)
+gl.Uniform1i(gl.GetUniformLocation(shader, 'ourTexture'), 0)
+
+
+--====== main loop ======--
 
 while not window.shouldClose(w) do
-	gl.draw.setClearColor(0.2, 0.3, 0.3, 1.0)
-	gl.draw.clear(gl.draw.bufferMask.colorBuffer);
+	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+	gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	gl.texture.setActiveUnit(0)
-	err = gl.getError()
-	if err ~= gl.errorType.noError then error(gl.errorName(err)) end
-	gl.texture.bind(gl.texture.bindTarget.texture2d, texture)
-	err = gl.getError()
-	if err ~= gl.errorType.noError then error(gl.errorName(err)) end
+	gl.ActiveTexture(0)
+	gl.BindTexture(gl.TEXTURE_2D, texture)
 
-
-	gl.shader.use(shader)
-	gl.data.bindVertexArray(vertexArray)
-	gl.draw.drawElements(gl.draw.primitiveType.triangles, 6, gl.dataType.uint, 0)
+	gl.UseProgram(shader)
+	gl.BindVertexArray(vertexArray)
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)
 
 	window.swapBuffers(w)
 	window.pollEvents()
 end
 window.destroy(w)
-gl.terminate()
+gl.Terminate()

@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <lua.h>
 #include <honeysuckle.h>
+#include "util/util.h"
 #include "gl.h"
 
 int gl_create_buffer(lua_State *L);
@@ -18,32 +19,30 @@ int gl_vertex_array_enable_attrib(lua_State *L);
 
 void setup_data(lua_State *L, int gl_index)
 {
-	int buffer_binding_targets = hs_create_table(L,
-		hs_str_int("arrayBuffer", GL_ARRAY_BUFFER),
-		hs_str_int("elementArrayBuffer", GL_ELEMENT_ARRAY_BUFFER),
-	);
+	int tbl = hs_create_table(L,
+		/* functions */
+		hs_str_cfunc("GenBuffers", gl_create_buffer),
+		hs_str_cfunc("BindBuffer", gl_bind_buffer),
+		hs_str_cfunc("BufferData", gl_buffer_data),
 
-	int buffer_usage_patterns = hs_create_table(L,
-		hs_str_int("streamDraw", GL_STREAM_DRAW),
-		hs_str_int("staticDraw", GL_STATIC_DRAW),
-		hs_str_int("dynamicDraw", GL_DYNAMIC_DRAW),
-	);
+		hs_str_cfunc("GenVertexArrays", gl_vertex_array_create),
+		hs_str_cfunc("BindVertexArray", gl_vertex_array_bind),
+		hs_str_cfunc("VertexAttribPointer", gl_vertex_attrib_pointer),
+		hs_str_cfunc("EnableVertexAttribArray", gl_vertex_array_enable_attrib),
 
-	hs_create_table(L,
-		hs_str_cfunc("createBuffer", gl_create_buffer),
-		hs_str_cfunc("bindBuffer", gl_bind_buffer),
-		hs_str_cfunc("bufferData", gl_buffer_data),
+		/******** enums ********/
+		/* buffer bind targets */
+		hs_str_int("ARRAY_BUFFER", GL_ARRAY_BUFFER),
+		hs_str_int("ELEMENT_ARRAY_BUFFER", GL_ELEMENT_ARRAY_BUFFER),
 
-		hs_str_cfunc("createVertexArray", gl_vertex_array_create),
-		hs_str_cfunc("bindVertexArray", gl_vertex_array_bind),
-		hs_str_cfunc("vertexAttribPointer", gl_vertex_attrib_pointer),
-		hs_str_cfunc("vertexArrayEnableAttrib", gl_vertex_array_enable_attrib),
-
-		hs_str_tbl("bufferTarget", buffer_binding_targets),
-		hs_str_tbl("bufferUsage", buffer_usage_patterns),
+		/* buffer usage patters */
+		hs_str_int("STREAM_DRAW", GL_STREAM_DRAW),
+		hs_str_int("STATIC_DRAW", GL_STATIC_DRAW),
+		hs_str_int("DYNAMIC_DRAW", GL_DYNAMIC_DRAW),
 	);	
 
-	lua_setfield(L, gl_index, "data");
+	append_table(L, gl_index, tbl);
+	lua_pop(L, 1);
 }
 
 

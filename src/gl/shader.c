@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <lua.h>
 #include <honeysuckle.h>
+#include "util/util.h"
 
 int gl_create_shader(lua_State *L);
 int gl_shader_set_source(lua_State *L);
@@ -20,30 +21,30 @@ int gl_uniform_4f(lua_State *L);
 
 void setup_shader(lua_State *L, int gl_index)
 {
-	int shader_types = hs_create_table(L,
-		hs_str_int("vertexShader", GL_VERTEX_SHADER),
-		hs_str_int("fragmentShader", GL_FRAGMENT_SHADER),
+	int tbl = hs_create_table(L,
+		/* functions */
+		hs_str_cfunc("CreateShader", gl_create_shader),
+		hs_str_cfunc("ShaderSource", gl_shader_set_source),
+		hs_str_cfunc("CompileShader", gl_shader_compile),
+		hs_str_cfunc("DeleteShader", gl_shader_delete),
+
+		hs_str_cfunc("CreateProgram", gl_program_create),
+		hs_str_cfunc("AttachShader", gl_program_attach_shader),
+		hs_str_cfunc("LinkProgram", gl_program_link),
+		hs_str_cfunc("UseProgram", gl_program_use),
+
+		hs_str_cfunc("GetUniformLocation", gl_uniform_get_location),
+		hs_str_cfunc("Uniform1i", gl_uniform_1i),
+		hs_str_cfunc("Uniform4f", gl_uniform_4f),
+
+		/******** enums ********/
+		/* shader types */
+		hs_str_int("VERTEX_SHADER", GL_VERTEX_SHADER),
+		hs_str_int("FRAGMENT_SHADER", GL_FRAGMENT_SHADER),
 	);
 
-	hs_create_table(L,
-		hs_str_cfunc("create", gl_create_shader),
-		hs_str_cfunc("setSource", gl_shader_set_source),
-		hs_str_cfunc("compile", gl_shader_compile),
-		hs_str_cfunc("delete", gl_shader_delete),
-
-		hs_str_cfunc("createProgram", gl_program_create),
-		hs_str_cfunc("attachShader", gl_program_attach_shader),
-		hs_str_cfunc("link", gl_program_link),
-		hs_str_cfunc("use", gl_program_use),
-
-		hs_str_cfunc("getUniformLocation", gl_uniform_get_location),
-		hs_str_cfunc("uniform1i", gl_uniform_1i),
-		hs_str_cfunc("uniform4f", gl_uniform_4f),
-
-		hs_str_tbl("type", shader_types),
-	);
-
-	lua_setfield(L, gl_index, "shader");
+	append_table(L, gl_index, tbl);
+	lua_pop(L, 1);
 }
 
 
