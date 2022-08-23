@@ -1,104 +1,175 @@
+#include <stdlib.h>
 #include "gl/glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <lua.h>
 #include <honeysuckle.h>
 
-/* build a table of all possible window hints */
-void create_glfw_window_hints_table(lua_State *L)
+struct window_data {
+	lua_State *L;
+	int framebuffer_size_callback;
+};
+
+struct window_data * create_window_data(lua_State *L)
 {
-	/* hint keys */
-	hs_create_table(L,
-		/* window hints */
-		hs_str_int("resizable", GLFW_RESIZABLE),
-		hs_str_int("visible", GLFW_VISIBLE),
-		hs_str_int("decorated", GLFW_DECORATED),
-		hs_str_int("focused", GLFW_FOCUSED),
-		hs_str_int("autoIconify", GLFW_AUTO_ICONIFY),
-		hs_str_int("floating", GLFW_FLOATING),
-		hs_str_int("maximized", GLFW_MAXIMIZED),
-		hs_str_int("centerCursor", GLFW_CENTER_CURSOR),
-		hs_str_int("transparentFramebuffer", GLFW_TRANSPARENT_FRAMEBUFFER),
-		hs_str_int("focusOnShow", GLFW_FOCUS_ON_SHOW),
-		hs_str_int("scaleToMonitor", GLFW_SCALE_TO_MONITOR),
+	struct window_data *wdata = malloc(sizeof(struct window_data));
+	if (wdata == NULL)
+		return NULL;
+	wdata->L = L;
+	wdata->framebuffer_size_callback = LUA_NOREF;
+	return wdata;
+}
 
-		/* framebuffer hints */
-		hs_str_int("redBits", GLFW_RED_BITS),
-		hs_str_int("greenBits", GLFW_GREEN_BITS),
-		hs_str_int("blueBits", GLFW_BLUE_BITS),
-		hs_str_int("alphaBits", GLFW_ALPHA_BITS),
-		hs_str_int("depthBits", GLFW_DEPTH_BITS),
-		hs_str_int("stereoscopic", GLFW_STEREO),
-		hs_str_int("samples", GLFW_SAMPLES),
-		hs_str_int("srgbCapable", GLFW_SRGB_CAPABLE),
-		hs_str_int("doubleBuffer", GLFW_DOUBLEBUFFER),
+int window_create(lua_State *L);
+int window_destroy(lua_State *L);
+int window_make_context_current(lua_State *L);
+int window_set_hint(lua_State *L);
+int window_should_close(lua_State *L);
+int window_poll_events(lua_State *L);
+int window_swap_buffers(lua_State *L);
+int window_set_framebuffer_size_callback(lua_State *L);
+int window_get_time(lua_State *L);
 
-		/* monitor & context hints */
-		hs_str_int("refreshRate", GLFW_REFRESH_RATE),
-		hs_str_int("clientApi", GLFW_CLIENT_API),
-		hs_str_int("contextCreationApi", GLFW_CONTEXT_CREATION_API),
+
+
+void setup_window(lua_State *L, int honey_index)
+{
+	int hint_types = hs_create_table(L,
 		hs_str_int("contextVersionMajor", GLFW_CONTEXT_VERSION_MAJOR),
 		hs_str_int("contextVersionMinor", GLFW_CONTEXT_VERSION_MINOR),
-		hs_str_int("forwardCompatible", GLFW_OPENGL_FORWARD_COMPAT),
-		hs_str_int("debugContext", GLFW_OPENGL_DEBUG_CONTEXT),
-		hs_str_int("profile", GLFW_OPENGL_PROFILE),
-		hs_str_int("contextRobustness", GLFW_CONTEXT_ROBUSTNESS),
-		hs_str_int("contextReleaseBehavior", GLFW_CONTEXT_RELEASE_BEHAVIOR),
-		hs_str_int("noError", GLFW_CONTEXT_NO_ERROR)
+		hs_str_int("openGlProfile", GLFW_OPENGL_PROFILE),
 	);
 
-	/* special hint values */
+	int profile_types = hs_create_table(L,
+		hs_str_int("openGlCoreProfile", GLFW_OPENGL_CORE_PROFILE),
+	);
+
 	hs_create_table(L,
-		hs_str_int("dontCare", GLFW_DONT_CARE),
+		hs_str_cfunc("create", window_create),
+		hs_str_cfunc("destroy", window_destroy),
+		hs_str_cfunc("makeContextCurrent", window_make_context_current),
+		hs_str_cfunc("setHint", window_set_hint),
+		hs_str_cfunc("shouldClose", window_should_close),
+		hs_str_cfunc("pollEvents", window_poll_events),
+		hs_str_cfunc("swapBuffers", window_swap_buffers),
+		hs_str_cfunc("setFramebufferSizeCallback", window_set_framebuffer_size_callback),
+		hs_str_cfunc("getTime", window_get_time),
 
-		/* client api */
-		hs_str_int("glApi", GLFW_OPENGL_API),
-		hs_str_int("glesApi", GLFW_OPENGL_ES_API),
-		hs_str_int("noApi", GLFW_NO_API),
-
-		/* context api */
-		hs_str_int("nativeApi", GLFW_NATIVE_CONTEXT_API),
-		hs_str_int("eglApi", GLFW_EGL_CONTEXT_API),
-		hs_str_int("osMesaApi", GLFW_OSMESA_CONTEXT_API),
-
-		/* robustness */
-		hs_str_int("noRobustness", GLFW_NO_ROBUSTNESS),
-		hs_str_int("noResetNotification", GLFW_NO_RESET_NOTIFICATION),
-		hs_str_int("loseContextOnReset", GLFW_LOSE_CONTEXT_ON_RESET),
-
-		/* context release */
-		hs_str_int("anyBehavior", GLFW_ANY_RELEASE_BEHAVIOR),
-		hs_str_int("flush", GLFW_RELEASE_BEHAVIOR_FLUSH),
-		hs_str_int("none", GLFW_RELEASE_BEHAVIOR_NONE),
-
-		/* profile */
-		hs_str_int("anyProfile", GLFW_OPENGL_ANY_PROFILE),
-		hs_str_int("compatabilityProfile", GLFW_OPENGL_COMPAT_PROFILE),
-		hs_str_int("coreProfile", GLFW_OPENGL_CORE_PROFILE)
+		hs_str_tbl("hintType", hint_types),
+		hs_str_tbl("profileType", profile_types),
 	);
+	lua_setfield(L, honey_index, "window");
 }
 
 
-int gl_init(lua_State *L)
+static void framebuffer_size_callback_(GLFWwindow *win, int width, int height)
 {
-	if (glfwInit() != GLFW_TRUE) {
-		hs_throw_error(L, "failed to initialize GLFW");
+	struct window_data *wdata = glfwGetWindowUserPointer(win);
+	if (wdata->framebuffer_size_callback != LUA_NOREF) {
+		hs_rload(wdata->L, wdata->framebuffer_size_callback);
+		lua_pushlightuserdata(wdata->L, win);
+		lua_pushinteger(wdata->L, width);
+		lua_pushinteger(wdata->L, height);
+		hs_call(wdata->L, 3, 0);
 	}
+}
+
+int window_create(lua_State *L)
+{
+	lua_Integer width, height;
+	char *title;
+	hs_parse_args(L, hs_int(width), hs_int(height), hs_str(title));
+
+	GLFWwindow *win = glfwCreateWindow(width, height, title, NULL, NULL);
+	if (win == NULL)
+		hs_throw_error(L, "failed to create window");
+	
+	struct window_data *wdata = create_window_data(L);
+	glfwSetWindowUserPointer(win, wdata);
+
+	glfwSetFramebufferSizeCallback(win, framebuffer_size_callback_);
+	
+	lua_pushlightuserdata(L, win);
+	return 1;
+}
+
+
+int window_destroy(lua_State *L)
+{
+	void *ptr;
+	hs_parse_args(L, hs_light(ptr));
+	GLFWwindow *win = ptr;
+	void *wdata = glfwGetWindowUserPointer(win);
+	if (wdata != NULL) {
+		free(wdata);
+		glfwSetWindowUserPointer(win, NULL);
+	}
+	glfwDestroyWindow(win);
 	return 0;
 }
 
 
-lua_Integer tointeger(lua_State *L, int index)
+int window_make_context_current(lua_State *L)
 {
-	if (lua_isboolean(L, index)) {
-		return lua_toboolean(L, index);
-	}
-	else if (lua_isnumber(L, index)) {
-		return lua_tointeger(L, index);
-	}
-	else {
-		hs_throw_error(L,
-			"expected boolean or number; got %s instead",
-			lua_typename(L, lua_type(L, index))
-		);
-	}
+	void *ptr;
+	hs_parse_args(L, hs_light(ptr));
+	GLFWwindow *win = ptr;
+	glfwMakeContextCurrent(win);
+	return 0;
+}
+
+
+int window_set_hint(lua_State *L)
+{
+	lua_Integer hint, value;
+	hs_parse_args(L, hs_int(hint), hs_int(value));
+	glfwWindowHint(hint, value);
+	return 0;
+}
+
+
+int window_should_close(lua_State *L)
+{
+	void *ptr;
+	hs_parse_args(L, hs_light(ptr));
+	GLFWwindow *win = ptr;
+	lua_pushboolean(L, glfwWindowShouldClose(win));
+	return 1;
+}
+
+
+int window_poll_events(lua_State *L)
+{
+	glfwPollEvents();
+	return 0;
+}
+
+
+int window_swap_buffers(lua_State *L)
+{
+	void *ptr;
+	hs_parse_args(L, hs_light(ptr));
+	GLFWwindow *win = ptr;
+	glfwSwapBuffers(win);
+	return 0;
+}
+
+
+int window_set_framebuffer_size_callback(lua_State *L)
+{
+	void *ptr;
+	int func;
+	hs_parse_args(L, hs_light(ptr), hs_func(func));
+	GLFWwindow *win = ptr;
+	struct window_data *wdata = glfwGetWindowUserPointer(win);
+
+	lua_pushvalue(L, func);
+	wdata->framebuffer_size_callback = hs_rstore(L);
+	return 0;
+}
+
+
+int window_get_time(lua_State *L)
+{
+	lua_pushnumber(L, glfwGetTime());
+	return 1;
 }

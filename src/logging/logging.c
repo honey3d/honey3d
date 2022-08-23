@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include "logging/logging.h"
 
 int _honey_log_level = HONEY_WARN;

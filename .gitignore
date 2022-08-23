@@ -9,3 +9,5 @@ build/*
 *.#*
 demo/plagiarism.dae
 *.swp
+out 
+.vs 
