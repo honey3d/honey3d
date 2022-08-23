@@ -16,17 +16,19 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/src
 	${LIB_ROOT}/honeysuckle/src
 	${LIB_ROOT}/glfw-3.3.8/include
+	${LIB_ROOT}/cglm/include
 )
+
+# disable byte-alignment in cglm
+add_definitions(-DCGLM_ALL_UNALIGNED)
 
 # link to third-party included libraries
 link_directories(${LIB_ROOT}/assimp/lib)
 link_directories(${LIB_ROOT}/honeysuckle)
 link_directories(${LIB_ROOT}/glfw-3.3.8/src)
 
-# add_library(glad ${SRC_ROOT}/gl/glad/glad.c)
-# add_library(stb_image src/stb_image/stb_image.c)
 add_subdirectory(${LIB_ROOT}/lua-5.1.5)
-add_subdirectory(${LIB_ROOT}/assimp)
+#add_subdirectory(${LIB_ROOT}/assimp)
 add_subdirectory(${LIB_ROOT}/honeysuckle)
 add_subdirectory(${LIB_ROOT}/cglm)
 add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
@@ -35,7 +37,7 @@ add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
 set(HONEY_SOURCE ${SRC_ROOT}/main.c)
 add_executable(honey ${HONEY_SOURCE})
 
-set(LIBRARIES lua5.1 honeysuckle assimp glfw)
+set(LIBRARIES lua5.1 honeysuckle glfw)
 if (WIN32)
 	set(LIBRARIES ${LIBRARIES} opengl32)
 else()
@@ -61,3 +63,4 @@ add_subdirectory(${SRC_ROOT}/logging)
 add_subdirectory(${SRC_ROOT}/image)
 add_subdirectory(${SRC_ROOT}/util)
 add_subdirectory(${SRC_ROOT}/test)
+add_subdirectory(${SRC_ROOT}/glm)

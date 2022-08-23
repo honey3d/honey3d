@@ -30,12 +30,14 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
+uniform mat4 transform;
+
 out vec3 ourColor;
 out vec2 TexCoord;
 
 void main()
 {
-    gl_Position = vec4(aPos, 1.0);
+    gl_Position = transform * vec4(aPos, 1.0);
     ourColor = aColor;
     TexCoord = aTexCoord;
 }
@@ -144,6 +146,8 @@ gl.Uniform1i(gl.GetUniformLocation(shader, 'ourTexture'), 0)
 
 --====== main loop ======--
 
+local transform = honey.glm.mat4()
+
 while not window.shouldClose(w) do
 	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
@@ -152,6 +156,12 @@ while not window.shouldClose(w) do
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
 	gl.UseProgram(shader)
+	honey.glm.mat4_identity(transform)
+	local time = window.getTime()
+	honey.glm.rotate_z(transform, time, transform)
+	local transformLocation = gl.GetUniformLocation(shader, 'transform')
+	gl.UniformMatrix4fv(transformLocation, false, transform)
+
 	gl.BindVertexArray(vertexArray)
 	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)
 

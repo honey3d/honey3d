@@ -4,6 +4,7 @@
 #include <honeysuckle.h>
 #include "gl/gl.h"
 #include "image/image.h"
+#include "glm/glm.h"
 
 
 int main(int argc, char **argv)
@@ -16,6 +17,7 @@ int main(int argc, char **argv)
 	setup_gl(L, honey_index);
 	setup_window(L, honey_index);
 	setup_image(L, honey_index);
+	setup_glm(L, honey_index);
 	lua_setglobal(L, "honey");
 
 	int err = luaL_loadfile(L, "honey.lua");

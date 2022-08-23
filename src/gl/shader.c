@@ -18,6 +18,8 @@ int gl_uniform_get_location(lua_State *L);
 int gl_uniform_1i(lua_State *L);
 int gl_uniform_4f(lua_State *L);
 
+int gl_uniform_matrix_4fv(lua_State *L);
+
 
 void setup_shader(lua_State *L, int gl_index)
 {
@@ -36,6 +38,8 @@ void setup_shader(lua_State *L, int gl_index)
 		hs_str_cfunc("GetUniformLocation", gl_uniform_get_location),
 		hs_str_cfunc("Uniform1i", gl_uniform_1i),
 		hs_str_cfunc("Uniform4f", gl_uniform_4f),
+
+		hs_str_cfunc("UniformMatrix4fv", gl_uniform_matrix_4fv),
 
 		/******** enums ********/
 		/* shader types */
@@ -63,7 +67,7 @@ int gl_shader_set_source(lua_State *L)
 	lua_Integer shader;
 	char *code;
 	hs_parse_args(L, hs_int(shader), hs_str(code));
-	glShaderSource(shader, 1, &code, NULL);
+	glShaderSource(shader, 1, (const GLchar * const*)&code, NULL);
 	return 0;
 }
 
@@ -159,5 +163,18 @@ int gl_uniform_4f(lua_State *L)
 	lua_Number v0, v1, v2, v3;
 	hs_parse_args(L, hs_int(location), hs_num(v0), hs_num(v1), hs_num(v2), hs_num(v3));
 	glUniform4f(location, v0, v1, v2, v3);
+	return 0;
+}
+
+
+int gl_uniform_matrix_4fv(lua_State *L)
+{
+	lua_Integer location;
+	bool transpose;
+	void *ptr;
+	hs_parse_args(L, hs_int(location), hs_bool(transpose), hs_user(ptr));
+
+	float *value = ptr;
+	glUniformMatrix4fv(location, 1, transpose, value);
 	return 0;
 }
