@@ -10,6 +10,7 @@ int gl_texture_bind(lua_State *L);
 int gl_texture_image_2d(lua_State *L);
 int gl_texture_generate_mipmaps(lua_State *L);
 int gl_texture_set_active(lua_State *L);
+int gl_tex_parameter_i(lua_State *L);
 
 
 void setup_texture(lua_State *L, int gl_index)
@@ -21,6 +22,7 @@ void setup_texture(lua_State *L, int gl_index)
 		hs_str_cfunc("TexImage2D", gl_texture_image_2d),
 		hs_str_cfunc("GenerateMipmap", gl_texture_generate_mipmaps),
 		hs_str_cfunc("ActiveTexture", gl_texture_set_active),
+		hs_str_cfunc("TexParameteri", gl_tex_parameter_i),
 
 		/******** enums ********/
 		/* texture binding targets */
@@ -29,6 +31,19 @@ void setup_texture(lua_State *L, int gl_index)
 		/* texture data formats */
 		hs_str_int("RGB", GL_RGB),
 		hs_str_int("RGBA", GL_RGBA),
+
+		/* texture parameters */
+		hs_str_int("TEXTURE_WRAP_S", GL_TEXTURE_WRAP_S),
+		hs_str_int("TEXTURE_WRAP_T", GL_TEXTURE_WRAP_T),
+		hs_str_int("TEXTURE_MIN_FILTER", GL_TEXTURE_MIN_FILTER),
+		hs_str_int("TEXTURE_MAG_FILTER", GL_TEXTURE_MAG_FILTER),
+
+		/* wrapping types */
+		hs_str_int("REPEAT", GL_REPEAT),
+
+		/* filter types */
+		hs_str_int("NEAREST", GL_NEAREST),
+		hs_str_int("LINEAR", GL_LINEAR),
 	);
 
 	append_table(L, gl_index, tbl);
@@ -88,5 +103,14 @@ int gl_texture_set_active(lua_State *L)
 	lua_Integer unit;
 	hs_parse_args(L, hs_int(unit));
 	glActiveTexture(GL_TEXTURE0 + unit);
+	return 0;
+}
+
+
+int gl_tex_parameter_i(lua_State *L)
+{
+	lua_Integer target, pname, param;
+	hs_parse_args(L, hs_int(target), hs_int(pname), hs_int(param));
+	glTexParameteri(target, pname, param);
 	return 0;
 }
