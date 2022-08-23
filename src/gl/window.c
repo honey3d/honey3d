@@ -98,6 +98,11 @@ int window_destroy(lua_State *L)
 	void *ptr;
 	hs_parse_args(L, hs_light(ptr));
 	GLFWwindow *win = ptr;
+	void *wdata = glfwGetWindowUserPointer(win);
+	if (wdata != NULL) {
+		free(wdata);
+		glfwSetWindowUserPointer(win, NULL);
+	}
 	glfwDestroyWindow(win);
 	return 0;
 }
