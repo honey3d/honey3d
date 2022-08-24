@@ -1,37 +1,49 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <lua.h>
+#include <honeysuckle.h>
 #include "logging/logging.h"
 
 int _honey_log_level = HONEY_WARN;
+
+
+#define LUA_LOG(level) \
+int log_ ## level (lua_State *L) { \
+	char *msg; \
+	hs_parse_args(L, hs_str(msg)); \
+	honey_log_ ## level ("%s\n", msg); \
+	return 0; \
+}
+
+
+LUA_LOG(fatal);
+LUA_LOG(error);
+LUA_LOG(warn);
+LUA_LOG(info);
+LUA_LOG(debug);
+LUA_LOG(trace);
+
+
+void setup_logging(lua_State *L, int honey_tbl)
+{
+	hs_create_table(L,
+		hs_str_cfunc("fatal", log_fatal),
+		hs_str_cfunc("error", log_error),
+		hs_str_cfunc("warn", log_warn),
+		hs_str_cfunc("info", log_info),
+		hs_str_cfunc("debug", log_debug),
+		hs_str_cfunc("trace", log_trace),
+	);
+
+	lua_setfield(L, honey_tbl, "log");
+}
+
 
 void honey_set_log_level(int level)
 {
 	_honey_log_level = level;
 }
 
-int log_fatal(lua_State *L)
-{
-    //validate arguments
-    int count = lua_gettop(L);
-    if (count == 0) {
-        hs_throw_error(L, "no arguments provided");
-    }
-    if (!lua_isstring(L, 1)) {
-        hs_throw_error(L, "first argument must be a string");
-    }
-    lua_getglobal(L, "string");
-    if (lua_isnil(L, -1)) hs_throw_error(L, "'string' table is nil!");
-    lua_getfield(L, -1, "format"); //pushed string.format (function) to the lua stack
-    for (int i = 1; i <= count; i++) {
-        lua_pushvalue(L, i);
-    }
-    lua_call(L, count, 1);
-    const char *str = lua_tostring(L, -1); //getting result into a string
-    honey_log(HONEY_FATAL, "[FATAL] %s\n", str);
-    lua_pop(L, 2); //cleaned up stack
-    return 0;
-}
 
 void honey_log(int level, const char *fmt, ...) {
   
@@ -42,5 +54,3 @@ void honey_log(int level, const char *fmt, ...) {
 	vfprintf(stderr, fmt, args);
 	va_end(args);
 }
-
-  

@@ -1,6 +1,8 @@
 #ifndef HONEY_LOGGING_H
 #define HONEY_LOGGING_H
 
+#include <lua.h>
+
 #define HONEY_FATAL 0
 #define HONEY_ERROR 1
 #define HONEY_WARN  2
@@ -9,6 +11,8 @@
 #define HONEY_TRACE 5
 
 extern int _honey_log_level;
+
+void setup_logging(lua_State *L, int honey_tbl);
 
 void honey_set_log_level(int level);
 void honey_log(int level, const char *fmt, ...);
