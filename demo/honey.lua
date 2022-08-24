@@ -30,14 +30,17 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
-uniform mat4 transform;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
 
 out vec3 ourColor;
 out vec2 TexCoord;
 
 void main()
 {
-    gl_Position = transform * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
     ourColor = aColor;
     TexCoord = aTexCoord;
 }
@@ -144,6 +147,28 @@ gl.UseProgram(shader)
 gl.Uniform1i(gl.GetUniformLocation(shader, 'ourTexture'), 0)
 
 
+--====== matrices ======--
+
+local model = honey.glm.mat4()
+honey.glm.mat4_identity(model)
+local axis = honey.glm.vec3()
+honey.glm.vec3_set(axis, 0, 1.0)
+honey.glm.vec3_set(axis, 1, 0.0)
+honey.glm.vec3_set(axis, 2, 0.0)
+honey.glm.rotate(model, math.rad(-55), axis)
+
+local view = honey.glm.mat4()
+honey.glm.mat4_identity(view)
+local translation = honey.glm.vec3()
+honey.glm.vec3_set(translation, 0,  0.0)
+honey.glm.vec3_set(translation, 1,  0.0)
+honey.glm.vec3_set(translation, 2, -3.0)
+honey.glm.translate(view, translation)
+
+local projection = honey.glm.mat4()
+honey.glm.perspective(math.rad(45), 800/600, 0.1, 100, projection)
+
+
 --====== main loop ======--
 
 local transform = honey.glm.mat4()
@@ -156,11 +181,14 @@ while not window.shouldClose(w) do
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 
 	gl.UseProgram(shader)
-	honey.glm.mat4_identity(transform)
-	local time = window.getTime()
-	honey.glm.rotate_z(transform, time, transform)
-	local transformLocation = gl.GetUniformLocation(shader, 'transform')
-	gl.UniformMatrix4fv(transformLocation, false, transform)
+	
+	local modelL = gl.GetUniformLocation(shader, 'model')
+	local viewL = gl.GetUniformLocation(shader, 'view')
+	local projectionL = gl.GetUniformLocation(shader, 'projection')
+	
+	gl.UniformMatrix4fv(modelL, false, model)
+	gl.UniformMatrix4fv(viewL, false, view)
+	gl.UniformMatrix4fv(projectionL, false, projection)
 
 	gl.BindVertexArray(vertexArray)
 	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)
