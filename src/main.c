@@ -5,13 +5,22 @@
 #include "gl/gl.h"
 #include "image/image.h"
 #include "glm/glm.h"
+#include "options/options.h"
 
 
 int main(int argc, char **argv)
 {
+	/* parse command-line options */
+	struct honey_options options;
+	int result = parse_options(&options, argc, argv);
+	if (result == EXIT_FAILURE) return 1;
+	else if (result == EXIT_SUCCESS) return 0;
+
+	/* set up lua state */
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 
+	/* load honey bindings */
 	lua_createtable(L, 0, 2);
 	int honey_index = lua_gettop(L);
 	setup_gl(L, honey_index);
@@ -20,17 +29,22 @@ int main(int argc, char **argv)
 	setup_glm(L, honey_index);
 	lua_setglobal(L, "honey");
 
-	int err = luaL_loadfile(L, "honey.lua");
+	/* load main script */
+	int err = luaL_loadfile(L, options.script_file);
 	if (err != 0) {
-		printf("cannot open file!\n");
+		printf("cannot open file '%s'\n", options.script_file);
 		lua_close(L);
 		return 0;
 	}
+
+	/* run */
 	err = hs_call(L, 0, 0);
 	if (err != 0) {
 		const char *err_str = lua_tostring(L, -1);
 		printf("failed to run: \n%s\n", err_str);
 	}
+
+	/* clean up */
 	lua_close(L);
 	return 0;
 }

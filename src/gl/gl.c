@@ -17,6 +17,8 @@ int gl_init(lua_State *L);
 int glad_init(lua_State *L);
 int gl_terminate(lua_State *L);
 int gl_get_error(lua_State *L);
+int gl_enable(lua_State *L);
+int gl_disable(lua_State *L);
 
 void setup_gl(lua_State *L, int honey_index)
 {
@@ -26,6 +28,8 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_cfunc("InitGlad", glad_init),
 		hs_str_cfunc("Terminate", gl_terminate),
 		hs_str_cfunc("GetError", gl_get_error),
+		hs_str_cfunc("Enable", gl_enable),
+		hs_str_cfunc("Disable", gl_disable),
 
 		/******** enums ********/
 		/* data types */
@@ -41,6 +45,9 @@ void setup_gl(lua_State *L, int honey_index)
 		hs_str_int("INVALID_OPERATION", GL_INVALID_OPERATION),
 		hs_str_int("INVALID_FRAMEBUFFER_OPERATION", GL_INVALID_FRAMEBUFFER_OPERATION),
 		hs_str_int("OUT_OF_MEMORY", GL_OUT_OF_MEMORY),
+
+		/* opengl capabilities */
+		hs_str_int("DEPTH_TEST", GL_DEPTH_TEST),
 	);
 
 	setup_shader(L, gl_index);
@@ -80,4 +87,22 @@ int gl_get_error(lua_State *L)
 {
 	lua_pushinteger(L, glGetError());
 	return 1;
+}
+
+
+int gl_enable(lua_State *L)
+{
+	lua_Integer cap;
+	hs_parse_args(L, hs_int(cap));
+	glEnable(cap);
+	return 0;
+}
+
+
+int gl_disable(lua_State *L)
+{
+	lua_Integer cap;
+	hs_parse_args(L, hs_int(cap));
+	glDisable(cap);
+	return 0;
 }

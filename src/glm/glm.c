@@ -1,5 +1,6 @@
 #include <lua.h>
 #include <honeysuckle.h>
+#include "glm.h"
 
 
 void setup_glm(lua_State *L, int honey_index)
