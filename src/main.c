@@ -2,11 +2,12 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include <honeysuckle.h>
+#include "audio/audio.h"
 #include "gl/gl.h"
-#include "image/image.h"
 #include "glm/glm.h"
-#include "options/options.h"
+#include "image/image.h"
 #include "logging/logging.h"
+#include "options/options.h"
 
 
 int main(int argc, char **argv)
@@ -24,11 +25,12 @@ int main(int argc, char **argv)
 	/* load honey bindings */
 	lua_createtable(L, 0, 2);
 	int honey_index = lua_gettop(L);
+	setup_audio(L, honey_index);
 	setup_gl(L, honey_index);
-	setup_window(L, honey_index);
-	setup_image(L, honey_index);
 	setup_glm(L, honey_index);
+	setup_image(L, honey_index);
 	setup_logging(L, honey_index);
+	setup_window(L, honey_index);
 	lua_setglobal(L, "honey");
 
 	/* load main script */

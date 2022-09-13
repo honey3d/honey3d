@@ -2,6 +2,12 @@ local gl = honey.gl
 local window = honey.window
 
 
+--===== initialize audio =====--
+
+local engine = honey.audio.engine_init()
+honey.audio.engine_play_sound(engine, 'example_sound.ogg')
+
+
 --====== initialize opengl ======--
 
 gl.Init()
@@ -196,5 +202,9 @@ while not window.shouldClose(w) do
 	window.swapBuffers(w)
 	window.pollEvents()
 end
+
+--===== shut down =====--
+
 window.destroy(w)
 gl.Terminate()
+honey.audio.engine_uninit(engine)

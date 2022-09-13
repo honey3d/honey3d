@@ -17,6 +17,7 @@ include_directories(
 	${LIB_ROOT}/honeysuckle/src
 	${LIB_ROOT}/glfw-3.3.8/include
 	${LIB_ROOT}/cglm/include
+	${LIB_ROOT}/miniaudio
 )
 
 # disable byte-alignment in cglm
@@ -42,7 +43,7 @@ set(LIBRARIES lua5.1 honeysuckle glfw cargs)
 if (WIN32)
 	set(LIBRARIES ${LIBRARIES} opengl32)
 else()
-	set(LIBRARIES ${LIBRARIES} GL dl m)
+	set(LIBRARIES ${LIBRARIES} GL dl pthread m)
 endif()
 target_link_libraries(honey ${LIBRARIES})
 
@@ -59,10 +60,11 @@ set_target_properties(test PROPERTIES
 target_link_libraries(test lua5.1 honeysuckle glfw dl)
 
 
+add_subdirectory(${SRC_ROOT}/audio)
 add_subdirectory(${SRC_ROOT}/gl)
-add_subdirectory(${SRC_ROOT}/logging)
-add_subdirectory(${SRC_ROOT}/image)
-add_subdirectory(${SRC_ROOT}/util)
-add_subdirectory(${SRC_ROOT}/test)
 add_subdirectory(${SRC_ROOT}/glm)
+add_subdirectory(${SRC_ROOT}/image)
+add_subdirectory(${SRC_ROOT}/logging)
 add_subdirectory(${SRC_ROOT}/options)
+add_subdirectory(${SRC_ROOT}/test)
+add_subdirectory(${SRC_ROOT}/util)
