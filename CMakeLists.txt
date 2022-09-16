@@ -18,6 +18,9 @@ include_directories(
 	${LIB_ROOT}/glfw-3.3.8/include
 	${LIB_ROOT}/cglm/include
 	${LIB_ROOT}/miniaudio
+	${LIB_ROOT}/assimp/include
+	# needed for assimp's config.h
+	${CMAKE_BINARY_DIR}/libs/assimp/include
 )
 
 # disable byte-alignment in cglm
@@ -29,7 +32,7 @@ link_directories(${LIB_ROOT}/honeysuckle)
 link_directories(${LIB_ROOT}/glfw-3.3.8/src)
 
 add_subdirectory(${LIB_ROOT}/lua-5.1.5)
-#add_subdirectory(${LIB_ROOT}/assimp)
+add_subdirectory(${LIB_ROOT}/assimp)
 add_subdirectory(${LIB_ROOT}/honeysuckle)
 add_subdirectory(${LIB_ROOT}/cglm)
 add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
@@ -68,3 +71,4 @@ add_subdirectory(${SRC_ROOT}/logging)
 add_subdirectory(${SRC_ROOT}/options)
 add_subdirectory(${SRC_ROOT}/test)
 add_subdirectory(${SRC_ROOT}/util)
+add_subdirectory(${SRC_ROOT}/import)
