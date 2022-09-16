@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "lily-test.h"
 
 struct lily_globals_t _lily_globals = { {0}, 0, NULL, "" };
@@ -209,7 +210,7 @@ void _lily_assert_int_not_equal(const char *name_a, const char *name_b,
 void _lily_assert_float_equal(const char *name_a, const char *name_b,
 					double a, double b, double epsilon, const char *location)
 {
-	lily_assert_msg(abs(a - b) <= epsilon,
+	lily_assert_msg(fabs(a - b) <= epsilon, location,
 			"%s (%f) is not equal to %s (%f) (epsilon: %f)",
 			name_a, a, name_b, b, epsilon);
 }
@@ -218,7 +219,7 @@ void _lily_assert_float_equal(const char *name_a, const char *name_b,
 void _lily_assert_float_not_equal(const char *name_a, const char *name_b,
 				  double a, double b, double epsilon, const char *location)
 {
-	lily_assert_msg(abs(a - b) > epsilon,
+	lily_assert_msg(fabs(a - b) > epsilon, location,
 			"%s (%f) is equal to %s (%f) (epsilon: %f)",
 			name_a, a, name_b, b, epsilon);
 }
@@ -227,7 +228,7 @@ void _lily_assert_float_not_equal(const char *name_a, const char *name_b,
 void _lily_assert_string_equal(const char *name_a, const char *name_b,
 					 char *a, char *b, const char *location)
 {
-	lily_assert_msg(strcmp(a, b) == 0,
+	lily_assert_msg(strcmp(a, b) == 0, location,
 			"%s ('%s') is not equal to %s ('%s')",
 			name_a, a, name_b, b);
 }
@@ -236,7 +237,7 @@ void _lily_assert_string_equal(const char *name_a, const char *name_b,
 void _lily_assert_string_not_equal(const char *name_a, const char *name_b,
 					char *a, char *b, const char *location)
 {
-	lily_assert_msg(strcmp(a, b) != 0,
+	lily_assert_msg(strcmp(a, b) != 0, location,
 			"%s ('%s') is equal to %s",
 			name_a, a, name_b);
 }
@@ -245,7 +246,7 @@ void _lily_assert_string_not_equal(const char *name_a, const char *name_b,
 void _lily_assert_memory_equal(const char *name_a, const char *name_b,
 					 void *a, void *b, size_t size, const char *location)
 {
-	lily_assert_msg(memcmp(a, b, size) == 0,
+	lily_assert_msg(memcmp(a, b, size) == 0, location,
 			"%s and %s contain different data", name_a, name_b);
 }
 
@@ -253,7 +254,7 @@ void _lily_assert_memory_equal(const char *name_a, const char *name_b,
 void _lily_assert_memory_not_equal(const char *name_a, const char *name_b,
 					void *a, void *b, size_t size, const char *location)
 {
-	lily_assert_msg(memcmp(a, b, size) == 0,
+	lily_assert_msg(memcmp(a, b, size) == 0, location,
 			"%s contains the same data s %s", name_a, name_b);
 }
 
