@@ -12,3 +12,9 @@ void push_vector(lua_State *L, struct aiVector3D vec)
 		hs_str_num("z", vec.z),
 	);
 }
+
+
+void push_aistring(lua_State *L, struct aiString str)
+{
+	lua_pushstring(L, str.data);
+}

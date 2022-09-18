@@ -1,3 +1,4 @@
+#include <string.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <honeysuckle.h>
@@ -38,7 +39,23 @@ void test_push_vector()
 }
 
 
+void test_push_aistring()
+{
+	lua_State *L = luaL_newstate();
+	struct aiString str;
+	strcpy(str.data, "hello, world!");
+
+	push_aistring(L, str);
+
+	lily_assert_int_equal(lua_type(L, -1), LUA_TSTRING);
+	lily_assert_string_equal((char*) lua_tostring(L, -1), "hello, world!");
+
+	lua_close(L);
+}
+
+
 void suite_import()
 {
 	lily_run_test(test_push_vector);
+	lily_run_test(test_push_aistring);
 }
