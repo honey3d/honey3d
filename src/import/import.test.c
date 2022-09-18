@@ -54,17 +54,17 @@ void test_push_face()
 	lily_assert_int_equal(lua_objlen(L, facetbl), 6);
 
 	lua_rawgeti(L, facetbl, 1);
-	lily_assert_int_equal(lua_tointeger(L, -1), 0);
-	lua_rawgeti(L, facetbl, 2);
 	lily_assert_int_equal(lua_tointeger(L, -1), 1);
-	lua_rawgeti(L, facetbl, 3);
+	lua_rawgeti(L, facetbl, 2);
 	lily_assert_int_equal(lua_tointeger(L, -1), 2);
-	lua_rawgeti(L, facetbl, 4);
+	lua_rawgeti(L, facetbl, 3);
 	lily_assert_int_equal(lua_tointeger(L, -1), 3);
-	lua_rawgeti(L, facetbl, 5);
+	lua_rawgeti(L, facetbl, 4);
 	lily_assert_int_equal(lua_tointeger(L, -1), 4);
-	lua_rawgeti(L, facetbl, 6);
+	lua_rawgeti(L, facetbl, 5);
 	lily_assert_int_equal(lua_tointeger(L, -1), 5);
+	lua_rawgeti(L, facetbl, 6);
+	lily_assert_int_equal(lua_tointeger(L, -1), 6);
 
 	lua_close(L);
 }
@@ -91,8 +91,14 @@ void test_push_aistring()
 void create_vertices(struct aiMesh *mesh);
 void test_vertices(lua_State *L, int meshtbl);
 
+void create_faces(struct aiMesh *mesh);
+void test_faces(lua_State *L, int meshtbl);
 
-#define NUM_MESH_VERTICES 8
+void test_nil(lua_State *L, int meshtbl, const char *field);
+
+
+#define NUM_MESH_VERTICES 4
+#define NUM_MESH_FACES 2
 
 
 void test_push_mesh()
@@ -100,6 +106,7 @@ void test_push_mesh()
 	lua_State *L = luaL_newstate();
 	struct aiMesh mesh;
 	mesh.mNumVertices = NUM_MESH_VERTICES;
+	mesh.mNumFaces = 0;
 
 	/* allocate memory */
 	struct aiVector3D vertices[NUM_MESH_VERTICES];
@@ -117,6 +124,42 @@ void test_push_mesh()
 	lily_assert_int_equal(lua_type(L, meshtbl), LUA_TTABLE);
 	lily_assert_int_equal(meshtbl - top_before, 1); /* make sure we cleaned up correctly */
 	test_vertices(L, meshtbl);
+	test_nil(L, meshtbl, "faces");
+
+	lua_close(L);
+}
+
+
+void test_push_mesh_faces()
+{
+	lua_State *L = luaL_newstate();
+	struct aiMesh mesh;
+	mesh.mNumVertices = NUM_MESH_VERTICES;
+	mesh.mNumFaces = NUM_MESH_FACES;
+
+	/* allocate memory */
+	struct aiVector3D vertices[NUM_MESH_VERTICES];
+	mesh.mVertices = vertices;
+	struct aiFace faces[NUM_MESH_FACES];
+	unsigned int index_array[3*NUM_MESH_FACES];
+	for (int i=0; i<NUM_MESH_FACES; i++)
+		faces[i].mIndices = index_array + (3*i);
+	mesh.mFaces = faces;
+
+	/* setup mesh */
+	create_vertices(&mesh);
+	create_faces(&mesh);
+
+	/* push */	
+	int top_before = lua_gettop(L);
+	push_mesh(L, mesh);
+	int meshtbl = lua_gettop(L);
+
+	/* check output */
+	lily_assert_int_equal(lua_type(L, meshtbl), LUA_TTABLE);
+	lily_assert_int_equal(meshtbl - top_before, 1); /* make sure we cleaned up correctly */
+	test_vertices(L, meshtbl);
+	test_faces(L, meshtbl);
 
 	lua_close(L);
 }
@@ -126,12 +169,8 @@ void create_vertices(struct aiMesh *mesh)
 {
 	mesh->mVertices[0] = (struct aiVector3D) { 0, 0, 0 };
 	mesh->mVertices[1] = (struct aiVector3D) { 0, 0, 1 };
-	mesh->mVertices[2] = (struct aiVector3D) { 0, 1, 0 };
-	mesh->mVertices[3] = (struct aiVector3D) { 0, 1, 1 };
-	mesh->mVertices[4] = (struct aiVector3D) { 1, 0, 0 };
-	mesh->mVertices[5] = (struct aiVector3D) { 1, 0, 1 };
-	mesh->mVertices[6] = (struct aiVector3D) { 1, 1, 0 };
-	mesh->mVertices[7] = (struct aiVector3D) { 1, 1, 1 };
+	mesh->mVertices[2] = (struct aiVector3D) { 1, 0, 0 };
+	mesh->mVertices[3] = (struct aiVector3D) { 1, 0, 1 };
 }
 
 
@@ -175,12 +214,75 @@ void test_vertices(lua_State *L, int meshtbl)
 {
 	check_vector(L, meshtbl, "vertices", 1, 0, 0, 0);
 	check_vector(L, meshtbl, "vertices", 2, 0, 0, 1);
-	check_vector(L, meshtbl, "vertices", 3, 0, 1, 0);
-	check_vector(L, meshtbl, "vertices", 4, 0, 1, 1);
-	check_vector(L, meshtbl, "vertices", 5, 1, 0, 0);
-	check_vector(L, meshtbl, "vertices", 6, 1, 0, 1);
-	check_vector(L, meshtbl, "vertices", 7, 1, 1, 0);
-	check_vector(L, meshtbl, "vertices", 8, 1, 1, 1);
+	check_vector(L, meshtbl, "vertices", 3, 1, 0, 0);
+	check_vector(L, meshtbl, "vertices", 4, 1, 0, 1);
+}
+
+
+static void setup_face(struct aiFace *face, int v0, int v1, int v2)
+{
+	face->mNumIndices = 3;
+	face->mIndices[0] = v0;
+	face->mIndices[1] = v1;
+	face->mIndices[2] = v2;
+}
+
+
+void create_faces(struct aiMesh *mesh)
+{
+	setup_face(mesh->mFaces + 0, 0, 1, 3);
+	setup_face(mesh->mFaces + 1, 0, 3, 2);
+}
+
+
+static int check_face(lua_State *L, int meshtbl, const char *field, int index, 
+                      int v0, int v1, int v2)
+{
+	lua_getfield(L, meshtbl, field);
+	lily_assert(lua_type(L, -1) == LUA_TTABLE, "field '%s' is not a table!", field);
+	lua_rawgeti(L, -1, index);
+	lily_assert(lua_type(L, -1) == LUA_TTABLE, "%s[%d] is not a table!", field, index);
+
+	lua_rawgeti(L, -1, 1);
+	lily_assert(lua_type(L, -1) == LUA_TNUMBER, "%s[%d][1] is not a number!", field, index);
+	int vv0 = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+
+	lua_rawgeti(L, -1, 2);
+	lily_assert(lua_type(L, -1) == LUA_TNUMBER, "%s[%d][2] is not a number!", field, index);
+	int vv1 = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+
+	lua_rawgeti(L, -1, 3);
+	lily_assert(lua_type(L, -1) == LUA_TNUMBER, "%s[%d][3] is not a number!", field, index);
+	int vv2 = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+
+	lua_pop(L, 2);
+	lily_assert(
+		(v0 == vv0) &&
+		(v1 == vv1) &&
+		(v2 == vv2),
+		"%s[%d] is [%d, %d, %d], but expected [%d, %d, %d]!",
+		field, index,
+		vv0, vv1, vv2,
+		v0, v1, v2
+	);
+}
+
+
+void test_faces(lua_State *L, int meshtbl)
+{
+	check_face(L, meshtbl, "faces", 1, 1, 2, 4);
+	check_face(L, meshtbl, "faces", 2, 1, 4, 3);
+}
+
+
+void test_nil(lua_State *L, int meshtbl, const char *field)
+{
+	lua_getfield(L, meshtbl, field);
+	lily_assert(lua_type(L, -1) == LUA_TNIL, "field '%s' is not nil!");
+	lua_pop(L, 1);
 }
 
 
@@ -194,4 +296,5 @@ void suite_import()
 	lily_run_test(test_push_aistring);
 
 	lily_run_test(test_push_mesh);
+	lily_run_test(test_push_mesh_faces);
 }

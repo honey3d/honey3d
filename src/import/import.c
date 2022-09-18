@@ -20,7 +20,8 @@ void push_face(lua_State *L, struct aiFace face)
 	int tbl = lua_gettop(L);
 
 	for (int i=0; i<face.mNumIndices; i++) {
-		lua_pushinteger(L, face.mIndices[i]);
+		/* add one to the index bc lua is 1-indexed */
+		lua_pushinteger(L, face.mIndices[i]+1);
 		lua_rawseti(L, tbl, i+1);
 	}
 }
@@ -34,26 +35,46 @@ void push_aistring(lua_State *L, struct aiString str)
 
 void push_mesh(lua_State *L, struct aiMesh mesh)
 {
+	/* create mesh table */
+	lua_createtable(L, 0, 1);
+	int meshtbl = lua_gettop(L);
+
 	int count = mesh.mNumVertices;
+	int pop_count = 0;
 
 	/* create tables */
 	lua_createtable(L, count, 0);
 	int vertices = lua_gettop(L);
+	pop_count += 1;
 
-	/* populate */
+	/* populate vertices */
 	for (int i=0; i<count; i++) {
 		/* positions */
 		push_vector(L, mesh.mVertices[i]);
 		lua_rawseti(L, vertices, i+1);
 	}
 
-	/* create mesh table */
-	lua_createtable(L, 0, 1);
-	int meshtbl = lua_gettop(L);
+	/* populate faces */
+	int faces = 0;
+	if (mesh.mNumFaces != 0) {
+		lua_createtable(L, mesh.mNumFaces, 0);
+		faces = lua_gettop(L);
+		pop_count += 1;
+		for (int i=0; i<mesh.mNumFaces; i++) {
+			push_face(L, mesh.mFaces[i]);
+			lua_rawseti(L, faces, i+1);
+		}
+	}
 
+	/* assign values */
 	lua_pushvalue(L, vertices);
 	lua_setfield(L, meshtbl, "vertices");
 
+	if (faces) {
+		lua_pushvalue(L, faces);
+		lua_setfield(L, meshtbl, "faces");
+	}
+
 	/* clean up */
-	lua_remove(L, vertices);
+	lua_pop(L, pop_count);
 }
