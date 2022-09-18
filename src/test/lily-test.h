@@ -92,6 +92,7 @@ void _lily_run_suite(const char *name, lily_test_t suite);
  */
 
 /** basic assertion function, mostly used by the other assertions */
+#define lily_assert(statement, ...) lily_assert_msg(statement, LILY_LOCATION, __VA_ARGS__)
 void lily_assert_msg(bool statement, const char *location,
 			  const char *format_string, ...);
 
