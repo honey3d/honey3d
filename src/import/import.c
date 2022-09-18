@@ -47,11 +47,24 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 	int vertices = lua_gettop(L);
 	pop_count += 1;
 
+	int normals = 0;
+	if (mesh.mNormals != NULL) {
+		lua_createtable(L, count, 0);
+		normals = lua_gettop(L);
+		pop_count += 1;
+	}
+
 	/* populate vertices */
 	for (int i=0; i<count; i++) {
 		/* positions */
 		push_vector(L, mesh.mVertices[i]);
 		lua_rawseti(L, vertices, i+1);
+
+		/* normals */
+		if (normals) {
+			push_vector(L, mesh.mNormals[i]);
+			lua_rawseti(L, normals, i+1);
+		}
 	}
 
 	/* populate faces */
@@ -69,6 +82,11 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 	/* assign values */
 	lua_pushvalue(L, vertices);
 	lua_setfield(L, meshtbl, "vertices");
+
+	if (normals) {
+		lua_pushvalue(L, normals);
+		lua_setfield(L, meshtbl, "normals");
+	}
 
 	if (faces) {
 		lua_pushvalue(L, faces);

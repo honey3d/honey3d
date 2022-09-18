@@ -94,11 +94,27 @@ void test_vertices(lua_State *L, int meshtbl);
 void create_faces(struct aiMesh *mesh);
 void test_faces(lua_State *L, int meshtbl);
 
+void create_normals(struct aiMesh *mesh);
+void test_normals(lua_State *L, int meshtbl);
+
 void test_nil(lua_State *L, int meshtbl, const char *field);
 
 
 #define NUM_MESH_VERTICES 4
 #define NUM_MESH_FACES 2
+
+
+#define ALLOCATE_MEMORY() \
+	struct aiVector3D vertices[NUM_MESH_VERTICES]; \
+	mesh.mVertices = vertices; \
+	struct aiVector3D normals[NUM_MESH_VERTICES]; \
+	mesh.mNormals = normals; \
+	struct aiFace faces[NUM_MESH_FACES]; \
+	unsigned int index_array[3*NUM_MESH_FACES]; \
+	for (int i=0; i<NUM_MESH_FACES; i++) \
+		faces[i].mIndices = index_array + (3*i); \
+	mesh.mFaces = faces;
+
 
 
 void test_push_mesh()
@@ -109,8 +125,8 @@ void test_push_mesh()
 	mesh.mNumFaces = 0;
 
 	/* allocate memory */
-	struct aiVector3D vertices[NUM_MESH_VERTICES];
-	mesh.mVertices = vertices;
+	ALLOCATE_MEMORY();
+	mesh.mNormals = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -138,13 +154,8 @@ void test_push_mesh_faces()
 	mesh.mNumFaces = NUM_MESH_FACES;
 
 	/* allocate memory */
-	struct aiVector3D vertices[NUM_MESH_VERTICES];
-	mesh.mVertices = vertices;
-	struct aiFace faces[NUM_MESH_FACES];
-	unsigned int index_array[3*NUM_MESH_FACES];
-	for (int i=0; i<NUM_MESH_FACES; i++)
-		faces[i].mIndices = index_array + (3*i);
-	mesh.mFaces = faces;
+	ALLOCATE_MEMORY();
+	mesh.mNormals = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -160,6 +171,37 @@ void test_push_mesh_faces()
 	lily_assert_int_equal(meshtbl - top_before, 1); /* make sure we cleaned up correctly */
 	test_vertices(L, meshtbl);
 	test_faces(L, meshtbl);
+
+	lua_close(L);
+}
+
+
+void test_push_mesh_normals()
+{
+	lua_State *L = luaL_newstate();
+	struct aiMesh mesh;
+	mesh.mNumVertices = NUM_MESH_VERTICES;
+	mesh.mNumFaces = NUM_MESH_FACES;
+
+	/* allocate memory */
+	ALLOCATE_MEMORY();
+
+	/* setup mesh */
+	create_vertices(&mesh);
+	create_faces(&mesh);
+	create_normals(&mesh);
+
+	/* push */	
+	int top_before = lua_gettop(L);
+	push_mesh(L, mesh);
+	int meshtbl = lua_gettop(L);
+
+	/* check output */
+	lily_assert_int_equal(lua_type(L, meshtbl), LUA_TTABLE);
+	lily_assert_int_equal(meshtbl - top_before, 1); /* make sure we cleaned up correctly */
+	test_vertices(L, meshtbl);
+	test_faces(L, meshtbl);
+	test_normals(L, meshtbl);
 
 	lua_close(L);
 }
@@ -278,6 +320,29 @@ void test_faces(lua_State *L, int meshtbl)
 }
 
 
+void create_normals(struct aiMesh *mesh)
+{
+	/* these normals are deliberately not, uh, normalized
+	 * in order to distinguish them for the purposes of testing.
+	 * (this could also happen in real life -- assimp won't normalize
+	 * normals taken straight from the object file)
+	 */
+	mesh->mNormals[0] = (struct aiVector3D) { 0, 0.1, 0 };
+	mesh->mNormals[1] = (struct aiVector3D) { 0, 0.2, 0 };
+	mesh->mNormals[2] = (struct aiVector3D) { 0, 0.4, 0 };
+	mesh->mNormals[3] = (struct aiVector3D) { 0, 1.0, 0 };
+}
+
+
+void test_normals(lua_State *L, int meshtbl)
+{
+	check_vector(L, meshtbl, "normals", 1, 0, 0.1, 0);
+	check_vector(L, meshtbl, "normals", 2, 0, 0.2, 0);
+	check_vector(L, meshtbl, "normals", 3, 0, 0.4, 0);
+	check_vector(L, meshtbl, "normals", 4, 0, 1.0, 0);
+}
+
+
 void test_nil(lua_State *L, int meshtbl, const char *field)
 {
 	lua_getfield(L, meshtbl, field);
@@ -297,4 +362,5 @@ void suite_import()
 
 	lily_run_test(test_push_mesh);
 	lily_run_test(test_push_mesh_faces);
+	lily_run_test(test_push_mesh_normals);
 }
