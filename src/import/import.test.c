@@ -53,6 +53,7 @@ void test_push_face()
 	int facetbl = lua_gettop(L);
 	lily_assert_int_equal(lua_objlen(L, facetbl), 6);
 
+	/* the numbers should be one higher because of lua's 1-indexing */
 	lua_rawgeti(L, facetbl, 1);
 	lily_assert_int_equal(lua_tointeger(L, -1), 1);
 	lua_rawgeti(L, facetbl, 2);
@@ -97,6 +98,9 @@ void test_faces(lua_State *L, int meshtbl);
 void create_normals(struct aiMesh *mesh);
 void test_normals(lua_State *L, int meshtbl);
 
+void create_tangents(struct aiMesh *mesh);
+void test_tangents(lua_State *L, int meshtbl);
+
 void test_nil(lua_State *L, int meshtbl, const char *field);
 
 
@@ -109,6 +113,10 @@ void test_nil(lua_State *L, int meshtbl, const char *field);
 	mesh.mVertices = vertices; \
 	struct aiVector3D normals[NUM_MESH_VERTICES]; \
 	mesh.mNormals = normals; \
+	struct aiVector3D tangents[NUM_MESH_VERTICES]; \
+	struct aiVector3D bitangents[NUM_MESH_VERTICES]; \
+	mesh.mTangents = tangents; \
+	mesh.mBitangents = bitangents; \
 	struct aiFace faces[NUM_MESH_FACES]; \
 	unsigned int index_array[3*NUM_MESH_FACES]; \
 	for (int i=0; i<NUM_MESH_FACES; i++) \
@@ -127,6 +135,8 @@ void test_push_mesh()
 	/* allocate memory */
 	ALLOCATE_MEMORY();
 	mesh.mNormals = NULL;
+	mesh.mTangents = NULL;
+	mesh.mBitangents = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -156,6 +166,8 @@ void test_push_mesh_faces()
 	/* allocate memory */
 	ALLOCATE_MEMORY();
 	mesh.mNormals = NULL;
+	mesh.mTangents = NULL;
+	mesh.mBitangents = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -185,6 +197,8 @@ void test_push_mesh_normals()
 
 	/* allocate memory */
 	ALLOCATE_MEMORY();
+	mesh.mTangents = NULL;
+	mesh.mBitangents = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -204,6 +218,40 @@ void test_push_mesh_normals()
 	test_normals(L, meshtbl);
 
 	lua_close(L);
+}
+
+
+void test_push_mesh_tangents()
+{
+	lua_State *L = luaL_newstate();
+	struct aiMesh mesh;
+	mesh.mNumVertices = NUM_MESH_VERTICES;
+	mesh.mNumFaces = NUM_MESH_FACES;
+
+	/* allocate memory */
+	ALLOCATE_MEMORY();
+
+	/* setup mesh */
+	create_vertices(&mesh);
+	create_faces(&mesh);
+	create_normals(&mesh);
+	create_tangents(&mesh);
+
+	/* push */	
+	int top_before = lua_gettop(L);
+	push_mesh(L, mesh);
+	int meshtbl = lua_gettop(L);
+
+	/* check output */
+	lily_assert_int_equal(lua_type(L, meshtbl), LUA_TTABLE);
+	lily_assert_int_equal(meshtbl - top_before, 1); /* make sure we cleaned up correctly */
+	test_vertices(L, meshtbl);
+	test_faces(L, meshtbl);
+	test_normals(L, meshtbl);
+	test_tangents(L, meshtbl);
+
+	lua_close(L);
+
 }
 
 
@@ -343,6 +391,36 @@ void test_normals(lua_State *L, int meshtbl)
 }
 
 
+void create_tangents(struct aiMesh *mesh)
+{
+	/* these tangents are not normalized -- see note in create_normals */
+	mesh->mTangents[0] = (struct aiVector3D) { 0.1, 0, 0 };
+	mesh->mTangents[1] = (struct aiVector3D) { 0.2, 0, 0 };
+	mesh->mTangents[2] = (struct aiVector3D) { 0.4, 0, 0 };
+	mesh->mTangents[3] = (struct aiVector3D) { 1.0, 0, 0 };
+
+	mesh->mBitangents[0] = (struct aiVector3D) { 0, 0, 0.1 };
+	mesh->mBitangents[1] = (struct aiVector3D) { 0, 0, 0.2 };
+	mesh->mBitangents[2] = (struct aiVector3D) { 0, 0, 0.4 };
+	mesh->mBitangents[3] = (struct aiVector3D) { 0, 0, 1.0 };
+}
+
+
+void test_tangents(lua_State *L, int meshtbl)
+{
+	check_vector(L, meshtbl, "tangents", 1, 0.1, 0, 0);
+	check_vector(L, meshtbl, "tangents", 2, 0.2, 0, 0);
+	check_vector(L, meshtbl, "tangents", 3, 0.4, 0, 0);
+	check_vector(L, meshtbl, "tangents", 4, 1.0, 0, 0);
+
+	check_vector(L, meshtbl, "bitangents", 1, 0, 0, 0.1);
+	check_vector(L, meshtbl, "bitangents", 2, 0, 0, 0.2);
+	check_vector(L, meshtbl, "bitangents", 3, 0, 0, 0.4);
+	check_vector(L, meshtbl, "bitangents", 4, 0, 0, 1.0);
+}
+
+
+
 void test_nil(lua_State *L, int meshtbl, const char *field)
 {
 	lua_getfield(L, meshtbl, field);
@@ -363,4 +441,5 @@ void suite_import()
 	lily_run_test(test_push_mesh);
 	lily_run_test(test_push_mesh_faces);
 	lily_run_test(test_push_mesh_normals);
+	lily_run_test(test_push_mesh_tangents);
 }

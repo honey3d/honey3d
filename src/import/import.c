@@ -33,20 +33,47 @@ void push_aistring(lua_State *L, struct aiString str)
 }
 
 
+/* mesh components:
+ * DONE:
+ * mBitangents
+ * mFaces
+ * mNormals
+ * mNumFaces
+ * mNumVertices
+ * mTangents
+ * mVertices
+ *
+ * TODO:
+ * mAnimMeshes
+ * mBones
+ * mColors
+ * mMaterialIndex
+ * mMethod
+ * mName
+ * mNumAnimMeshes
+ * mNumBones
+ * mNumUVComponents
+ * mPrimitiveTypes
+ * mTextureCoords
+ * mTextureCoordsNames
+ */
 void push_mesh(lua_State *L, struct aiMesh mesh)
 {
-	/* create mesh table */
+	/* --=== create mesh table ===-- */
 	lua_createtable(L, 0, 1);
 	int meshtbl = lua_gettop(L);
 
 	int count = mesh.mNumVertices;
 	int pop_count = 0;
 
-	/* create tables */
+	/* --=== create tables ===-- */
+
+	/* positions */
 	lua_createtable(L, count, 0);
 	int vertices = lua_gettop(L);
 	pop_count += 1;
 
+	/* normals */
 	int normals = 0;
 	if (mesh.mNormals != NULL) {
 		lua_createtable(L, count, 0);
@@ -54,7 +81,19 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 		pop_count += 1;
 	}
 
-	/* populate vertices */
+	/* tangents & bitangents */
+	int tangents = 0;
+	int bitangents = 0;
+	if (mesh.mTangents != NULL) {
+		lua_createtable(L, count, 0);
+		tangents = lua_gettop(L);
+		lua_createtable(L, count, 0);
+		bitangents = lua_gettop(L);
+		pop_count += 2;
+	}
+
+	/* --=== populate vertices ===-- */
+
 	for (int i=0; i<count; i++) {
 		/* positions */
 		push_vector(L, mesh.mVertices[i]);
@@ -65,9 +104,18 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 			push_vector(L, mesh.mNormals[i]);
 			lua_rawseti(L, normals, i+1);
 		}
+
+		/* tangents */
+		if (tangents) {
+			push_vector(L, mesh.mTangents[i]);
+			lua_rawseti(L, tangents, i+1);
+			push_vector(L, mesh.mBitangents[i]);
+			lua_rawseti(L, bitangents, i+1);
+		}
 	}
 
-	/* populate faces */
+	/* --=== populate faces ===-- */
+
 	int faces = 0;
 	if (mesh.mNumFaces != 0) {
 		lua_createtable(L, mesh.mNumFaces, 0);
@@ -79,7 +127,8 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 		}
 	}
 
-	/* assign values */
+	/* --=== assign values ===-- */
+
 	lua_pushvalue(L, vertices);
 	lua_setfield(L, meshtbl, "vertices");
 
@@ -88,11 +137,18 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 		lua_setfield(L, meshtbl, "normals");
 	}
 
+	if (tangents) {
+		lua_pushvalue(L, tangents);
+		lua_setfield(L, meshtbl, "tangents");
+		lua_pushvalue(L, bitangents);
+		lua_setfield(L, meshtbl, "bitangents");
+	}
+
 	if (faces) {
 		lua_pushvalue(L, faces);
 		lua_setfield(L, meshtbl, "faces");
 	}
 
-	/* clean up */
+	/* --=== clean up ===-- */
 	lua_pop(L, pop_count);
 }
