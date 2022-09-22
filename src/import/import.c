@@ -42,6 +42,8 @@ void push_aistring(lua_State *L, struct aiString str)
  * mNumVertices
  * mTangents
  * mVertices
+ * mNumUVComponents
+ * mTextureCoords
  *
  * TODO:
  * mAnimMeshes
@@ -52,9 +54,7 @@ void push_aistring(lua_State *L, struct aiString str)
  * mName
  * mNumAnimMeshes
  * mNumBones
- * mNumUVComponents
  * mPrimitiveTypes
- * mTextureCoords
  * mTextureCoordsNames
  */
 void push_mesh(lua_State *L, struct aiMesh mesh)
@@ -92,6 +92,33 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 		pop_count += 2;
 	}
 
+	/* uvs */
+	int uvs = 0;
+	int uv_components = 0;
+	int uv_channels[AI_MAX_NUMBER_OF_TEXTURECOORDS];
+	for (int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++) {
+		if (mesh.mTextureCoords[i] != NULL) {
+			if (!uvs) {
+				/* ensure uv table is created */
+				lua_createtable(L, 1, 0);
+				uvs = lua_gettop(L);
+				lua_createtable(L, 1, 0);
+				uv_components = lua_gettop(L);
+				pop_count += 2;
+			}
+			lua_createtable(L, count, 0);
+			uv_channels[i] = lua_gettop(L);
+			pop_count += 1;
+
+			/* store table in uvs */
+			lua_pushvalue(L, uv_channels[i]);
+			lua_rawseti(L, uvs, i+1);
+			/* store dimensionality */
+			lua_pushinteger(L, mesh.mNumUVComponents[i]);
+			lua_rawseti(L, uv_components, i+1);
+		}
+	}
+
 	/* --=== populate vertices ===-- */
 
 	for (int i=0; i<count; i++) {
@@ -111,6 +138,16 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 			lua_rawseti(L, tangents, i+1);
 			push_vector(L, mesh.mBitangents[i]);
 			lua_rawseti(L, bitangents, i+1);
+		}
+
+		/* uvs */
+		if (uvs) {
+			for (int j=0; j<AI_MAX_NUMBER_OF_TEXTURECOORDS; j++) {
+				if (uv_channels[j]) {
+					push_vector(L, mesh.mTextureCoords[j][i]);
+					lua_rawseti(L, uv_channels[j], i+1);
+				}
+			}
 		}
 	}
 
@@ -147,6 +184,13 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 	if (faces) {
 		lua_pushvalue(L, faces);
 		lua_setfield(L, meshtbl, "faces");
+	}
+
+	if (uvs) {
+		lua_pushvalue(L, uvs);
+		lua_setfield(L, meshtbl, "uvs");
+		lua_pushvalue(L, uv_components);
+		lua_setfield(L, meshtbl, "numUvComponents");
 	}
 
 	/* --=== clean up ===-- */

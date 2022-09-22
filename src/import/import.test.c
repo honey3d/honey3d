@@ -101,6 +101,9 @@ void test_normals(lua_State *L, int meshtbl);
 void create_tangents(struct aiMesh *mesh);
 void test_tangents(lua_State *L, int meshtbl);
 
+void create_uvs(struct aiMesh *mesh);
+void test_uvs(lua_State *L, int meshtbl);
+
 void test_nil(lua_State *L, int meshtbl, const char *field);
 
 
@@ -117,6 +120,9 @@ void test_nil(lua_State *L, int meshtbl, const char *field);
 	struct aiVector3D bitangents[NUM_MESH_VERTICES]; \
 	mesh.mTangents = tangents; \
 	mesh.mBitangents = bitangents; \
+	struct aiVector3D uvs[AI_MAX_NUMBER_OF_TEXTURECOORDS * NUM_MESH_VERTICES]; \
+	for (int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++) \
+		mesh.mTextureCoords[i] = uvs + (i*NUM_MESH_VERTICES); \
 	struct aiFace faces[NUM_MESH_FACES]; \
 	unsigned int index_array[3*NUM_MESH_FACES]; \
 	for (int i=0; i<NUM_MESH_FACES; i++) \
@@ -137,6 +143,8 @@ void test_push_mesh()
 	mesh.mNormals = NULL;
 	mesh.mTangents = NULL;
 	mesh.mBitangents = NULL;
+	for (int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++)
+		mesh.mTextureCoords[i] = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -168,6 +176,8 @@ void test_push_mesh_faces()
 	mesh.mNormals = NULL;
 	mesh.mTangents = NULL;
 	mesh.mBitangents = NULL;
+	for (int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++)
+		mesh.mTextureCoords[i] = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -199,6 +209,8 @@ void test_push_mesh_normals()
 	ALLOCATE_MEMORY();
 	mesh.mTangents = NULL;
 	mesh.mBitangents = NULL;
+	for (int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++)
+		mesh.mTextureCoords[i] = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -230,6 +242,8 @@ void test_push_mesh_tangents()
 
 	/* allocate memory */
 	ALLOCATE_MEMORY();
+	for (int i=0; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++)
+		mesh.mTextureCoords[i] = NULL;
 
 	/* setup mesh */
 	create_vertices(&mesh);
@@ -249,6 +263,42 @@ void test_push_mesh_tangents()
 	test_faces(L, meshtbl);
 	test_normals(L, meshtbl);
 	test_tangents(L, meshtbl);
+
+	lua_close(L);
+
+}
+
+
+void test_push_mesh_uvs()
+{
+	lua_State *L = luaL_newstate();
+	struct aiMesh mesh;
+	mesh.mNumVertices = NUM_MESH_VERTICES;
+	mesh.mNumFaces = NUM_MESH_FACES;
+
+	/* allocate memory */
+	ALLOCATE_MEMORY();
+
+	/* setup mesh */
+	create_vertices(&mesh);
+	create_faces(&mesh);
+	create_normals(&mesh);
+	create_tangents(&mesh);
+	create_uvs(&mesh);
+
+	/* push */	
+	int top_before = lua_gettop(L);
+	push_mesh(L, mesh);
+	int meshtbl = lua_gettop(L);
+
+	/* check output */
+	lily_assert_int_equal(lua_type(L, meshtbl), LUA_TTABLE);
+	lily_assert_int_equal(meshtbl - top_before, 1); /* make sure we cleaned up correctly */
+	test_vertices(L, meshtbl);
+	test_faces(L, meshtbl);
+	test_normals(L, meshtbl);
+	test_tangents(L, meshtbl);
+	test_uvs(L, meshtbl);
 
 	lua_close(L);
 
@@ -420,6 +470,93 @@ void test_tangents(lua_State *L, int meshtbl)
 }
 
 
+void create_uvs(struct aiMesh *mesh)
+{
+	mesh->mNumUVComponents[0] = 2;
+	mesh->mTextureCoords[0][0] = (struct aiVector3D) { 0, 0, 0 };
+	mesh->mTextureCoords[0][1] = (struct aiVector3D) { 0, 1, 0 };
+	mesh->mTextureCoords[0][2] = (struct aiVector3D) { 1, 0, 0 };
+	mesh->mTextureCoords[0][3] = (struct aiVector3D) { 1, 1, 0 };
+
+	mesh->mNumUVComponents[1] = 1;
+	mesh->mTextureCoords[1][0] = (struct aiVector3D) { 0.0, 0, 0 };
+	mesh->mTextureCoords[1][1] = (struct aiVector3D) { 0.2, 0, 0 };
+	mesh->mTextureCoords[1][2] = (struct aiVector3D) { 0.4, 0, 0 };
+	mesh->mTextureCoords[1][3] = (struct aiVector3D) { 0.8, 0, 0 };
+
+	for (int i=2; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++)
+		mesh->mTextureCoords[i] = NULL;
+}
+
+
+static int check_uv(lua_State *L, int meshtbl, int channel, int index, 
+                        float x, float y, float z)
+{
+	lua_getfield(L, meshtbl, "uvs");
+	lily_assert(lua_type(L, -1) == LUA_TTABLE, "field 'uvs' is not a table!");
+	lua_rawgeti(L, -1, channel);
+	lily_assert(lua_type(L, -1) == LUA_TTABLE, "uvs[%d] is not a table!", channel);
+	lua_rawgeti(L, -1, index);
+	lily_assert(lua_type(L, -1) == LUA_TTABLE, "uvs[%d][%d] is not a table!", channel, index);
+
+	lua_getfield(L, -1, "x");
+	lily_assert(lua_type(L, -1) == LUA_TNUMBER, "uvs[%d][%d].x is not a number!", channel, index);
+	float vx = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "y");
+	lily_assert(lua_type(L, -1) == LUA_TNUMBER, "uvs[%d][%d].y is not a number!", channel, index);
+	float vy = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_getfield(L, -1, "z");
+	lily_assert(lua_type(L, -1) == LUA_TNUMBER, "uvs[%d][%d].z is not a number!", channel, index);
+	float vz = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+
+	lua_pop(L, 3);
+	lily_assert(
+		(fabs(vx - x) < 0.1) &&
+		(fabs(vy - y) < 0.1) &&
+		(fabs(vz - z) < 0.1),
+		"uvs[%d][%d] is [%f, %f, %f], but expected [%f, %f, %f]!",
+		channel, index,
+		vx, vy, vz,
+		x, y, z
+	);
+}
+
+
+void test_uvs(lua_State *L, int meshtbl)
+{
+	lua_getfield(L, meshtbl, "numUvComponents");
+	lily_assert(lua_type(L, -1) == LUA_TTABLE, "field 'numUvComponents' is not a table!");
+	lua_rawgeti(L, -1, 1);
+	lily_assert_int_equal(lua_tointeger(L, -1), 2);
+	lua_pop(L, 1);
+	lua_rawgeti(L, -1, 2);
+	lily_assert_int_equal(lua_tointeger(L, -1), 1);
+	lua_pop(L, 1);
+
+	check_uv(L, meshtbl, 1, 1, 0, 0, 0);
+	check_uv(L, meshtbl, 1, 2, 0, 1, 0);
+	check_uv(L, meshtbl, 1, 3, 1, 0, 0);
+	check_uv(L, meshtbl, 1, 4, 1, 1, 0);
+
+	check_uv(L, meshtbl, 2, 1, 0.0, 0, 0);
+	check_uv(L, meshtbl, 2, 2, 0.2, 0, 0);
+	check_uv(L, meshtbl, 2, 3, 0.4, 0, 0);
+	check_uv(L, meshtbl, 2, 4, 0.8, 0, 0);
+
+	lua_getfield(L, meshtbl, "uvs");
+	int uvtbl = lua_gettop(L);
+	for (int i=2; i<AI_MAX_NUMBER_OF_TEXTURECOORDS; i++) {
+		lua_rawgeti(L, uvtbl, i+1);
+		lily_assert(lua_type(L, -1) == LUA_TNIL, "uv channel %d is non-nil!", i+1);
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1);
+}
 
 void test_nil(lua_State *L, int meshtbl, const char *field)
 {
@@ -442,4 +579,5 @@ void suite_import()
 	lily_run_test(test_push_mesh_faces);
 	lily_run_test(test_push_mesh_normals);
 	lily_run_test(test_push_mesh_tangents);
+	lily_run_test(test_push_mesh_uvs);
 }
