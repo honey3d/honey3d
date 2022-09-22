@@ -4,7 +4,7 @@
 #include "import.h"
 
 
-void push_vector(lua_State *L, struct aiVector3D vec)
+static void push_vector(lua_State *L, struct aiVector3D vec)
 {
 	hs_create_table(L,
 		hs_str_num("x", vec.x),
@@ -14,7 +14,7 @@ void push_vector(lua_State *L, struct aiVector3D vec)
 }
 
 
-void push_face(lua_State *L, struct aiFace face)
+static void push_face(lua_State *L, struct aiFace face)
 {
 	lua_createtable(L, face.mNumIndices, 0);
 	int tbl = lua_gettop(L);
@@ -27,7 +27,7 @@ void push_face(lua_State *L, struct aiFace face)
 }
 
 
-void push_aistring(lua_State *L, struct aiString str)
+static void push_aistring(lua_State *L, struct aiString str)
 {
 	lua_pushstring(L, str.data);
 }
@@ -57,7 +57,7 @@ void push_aistring(lua_State *L, struct aiString str)
  * mPrimitiveTypes
  * mTextureCoordsNames
  */
-void push_mesh(lua_State *L, struct aiMesh mesh)
+static void push_mesh(lua_State *L, struct aiMesh mesh)
 {
 	/* --=== create mesh table ===-- */
 	lua_createtable(L, 0, 1);
@@ -195,4 +195,33 @@ void push_mesh(lua_State *L, struct aiMesh mesh)
 
 	/* --=== clean up ===-- */
 	lua_pop(L, pop_count);
+}
+
+
+static void push_node(lua_State *L, struct aiNode *node)
+{
+	lua_createtable(L, 0, 0);
+	int nodetbl = lua_gettop(L);
+
+	int pop_count = 0;
+	
+	if (node->mMeshes != NULL) {
+		lua_createtable(L, node->mNumMeshes, 0);
+		int meshes = lua_gettop(L);
+		for (int i=0; i<node->mNumMeshes; i++) {
+			lua_pushinteger(L, node->mMeshes[i]+1);
+			lua_rawseti(L, meshes, i+1);
+		}
+		lua_setfield(L, nodetbl, "meshes");
+	}
+
+	if (node->mChildren != NULL) {
+		lua_createtable(L, node->mNumChildren, 0);
+		int children = lua_gettop(L);
+		for (int i=0; i<node->mNumChildren; i++) {
+			push_node(L, node->mChildren[i]);
+			lua_rawseti(L, children, i+1);
+		}
+		lua_setfield(L, nodetbl, "children");
+	}
 }

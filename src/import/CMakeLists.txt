@@ -7,4 +7,6 @@ target_sources(honey PUBLIC
 
 target_sources(test PUBLIC
 	${CMAKE_CURRENT_LIST_DIR}/import.test.c
+	${CMAKE_CURRENT_LIST_DIR}/import_mesh.test.c
+	${CMAKE_CURRENT_LIST_DIR}/import_node.test.c
 )
