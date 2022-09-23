@@ -38,6 +38,14 @@ void test_push_node()
 	nodeB.mNumMeshes = 2;
 	nodeB.mChildren = NULL;
 
+	/* third layer nodes */
+	struct aiNode nodeC;
+	struct aiNode *a_children[] = { &nodeC };
+	nodeA.mChildren = a_children;
+	nodeC.mMeshes = meshes + 7;
+	nodeC.mNumMeshes = 1;
+	nodeC.mChildren = NULL;
+
 	/* push */
 	int top = lua_gettop(L);
 	push_node(L, &root);
@@ -69,6 +77,7 @@ void test_push_node()
 
 	/* check children */
 	lua_getfield(L, nodetbl, "children");
+	lily_assert_int_equal(lua_objlen(L, -1), 2);
 	int childrentbl = lua_gettop(L);
 	lily_assert_int_equal(lua_type(L, -1), LUA_TTABLE);
 
@@ -86,10 +95,6 @@ void test_push_node()
 	lua_rawgeti(L, -1, 2);
 	lily_assert_int_equal(lua_type(L, -1), LUA_TNUMBER);
 	lily_assert_int_equal(lua_tointeger(L, -1), 5);
-	lua_pop(L, 2);
-
-	lua_getfield(L, atbl, "children");
-	lily_assert_int_equal(lua_type(L, -1), LUA_TNIL);
 	lua_pop(L, 2);
 
 	lua_rawgeti(L, childrentbl, 2);
@@ -110,7 +115,23 @@ void test_push_node()
 
 	lua_getfield(L, btbl, "children");
 	lily_assert_int_equal(lua_type(L, -1), LUA_TNIL);
-	lua_pop(L, 2);
+	lua_pop(L, 1);
+
+	/* check layer 3 */
+	lua_getfield(L, atbl, "children");
+	childrentbl = lua_gettop(L);
+	lily_assert_int_equal(lua_type(L, -1), LUA_TTABLE);
+	lily_assert_int_equal(lua_objlen(L, -1), 1);
+
+	lua_rawgeti(L, childrentbl, 1);
+	lily_assert_int_equal(lua_type(L, -1), LUA_TTABLE);
+	int ctbl = lua_gettop(L);
+	lua_getfield(L, ctbl, "meshes");
+	lily_assert_int_equal(lua_type(L, -1), LUA_TTABLE);
+	lily_assert_int_equal(lua_objlen(L, -1), 1);
+	lua_rawgeti(L, -1, 1);
+	lily_assert_int_equal(lua_type(L, -1), LUA_TNUMBER);
+	lily_assert_int_equal(lua_tointeger(L, -1), 8);
 
 	lua_close(L);
 }
