@@ -6,6 +6,7 @@
 #include "gl/gl.h"
 #include "glm/glm.h"
 #include "image/image.h"
+#include "import/import.h"
 #include "logging/logging.h"
 #include "options/options.h"
 
@@ -29,6 +30,7 @@ int main(int argc, char **argv)
 	setup_gl(L, honey_index);
 	setup_glm(L, honey_index);
 	setup_image(L, honey_index);
+	setup_import(L, honey_index);
 	setup_logging(L, honey_index);
 	setup_window(L, honey_index);
 	lua_setglobal(L, "honey");

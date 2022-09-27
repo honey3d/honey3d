@@ -87,7 +87,7 @@ gl.DeleteShader(vertexShader)
 gl.DeleteShader(fragmentShader)
 
 
---====== set up vertex data ======--
+--====== set up mesh data manually ======--
 
 local vertices = {
 --     positions          colors           uvs   
@@ -125,6 +125,14 @@ gl.EnableVertexAttribArray(1)
 -- uv
 gl.VertexAttribPointer(2, 2, false, 8, 6)
 gl.EnableVertexAttribArray(2)
+
+
+--===== load mesh from file =====--
+
+local scene = honey.import.importFile('suzanne.dae')
+print(#scene.meshes)
+local suzanne = {}
+suzanne.vertexData = {}
 
 
 --====== load texture ======--

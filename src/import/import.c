@@ -1,7 +1,39 @@
 #include <lua.h>
 #include <honeysuckle.h>
 #include <assimp/scene.h>
+#include <assimp/cimport.h>
+#include <assimp/postprocess.h>
 #include "import.h"
+
+
+#ifndef LILY_TEST_H
+
+static void push_scene(lua_State *L, struct aiScene *scene);
+
+int import_file(lua_State *L)
+{
+	char *filename;
+	hs_parse_args(L, hs_str(filename));
+
+	const struct aiScene *scene = aiImportFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
+	if (scene == NULL)
+		hs_throw_error(L, "failed to load file '%s'", filename);
+	
+	push_scene(L, (struct aiScene*) scene);
+	return 1;
+}
+
+
+void setup_import(lua_State *L, int honey_tbl)
+{
+	hs_create_table(L,
+		hs_str_cfunc("importFile", import_file),
+	);
+
+	lua_setfield(L, honey_tbl, "import");
+}
+
+#endif
 
 
 static void push_vector(lua_State *L, struct aiVector3D vec)
@@ -119,6 +151,8 @@ static void push_mesh(lua_State *L, struct aiMesh *mesh)
 			lua_pushinteger(L, mesh->mNumUVComponents[i]);
 			lua_rawseti(L, uv_components, i+1);
 		}
+		else
+			uv_channels[i] = 0;
 	}
 
 	/* --=== populate vertices ===-- */
@@ -251,3 +285,6 @@ static void push_scene(lua_State *L, struct aiScene *scene)
 		hs_str_tbl("meshes", meshtbl),
 	);
 }
+
+
+

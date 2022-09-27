@@ -42,7 +42,7 @@ add_subdirectory(${LIB_ROOT}/cargs)
 set(HONEY_SOURCE ${SRC_ROOT}/main.c)
 add_executable(honey ${HONEY_SOURCE})
 
-set(LIBRARIES lua5.1 honeysuckle glfw cargs)
+set(LIBRARIES lua5.1 honeysuckle glfw cargs assimp)
 if (WIN32)
 	set(LIBRARIES ${LIBRARIES} opengl32)
 else()

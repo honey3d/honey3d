@@ -1,6 +1,7 @@
 #include <lua.h>
 #include <honeysuckle.h>
-#define STB_IMAGE_IMPLEMENTATION
+/* assimp provides its own stb_image implementation */
+/*#define STB_IMAGE_IMPLEMENTATION*/
 #include "stb_image.h"
 #include "image.h"
 
