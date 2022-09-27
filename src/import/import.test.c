@@ -14,4 +14,6 @@ void suite_import()
 	lily_run_test(test_push_mesh_uvs);
 
 	lily_run_test(test_push_node);
+
+	lily_run_test(test_push_scene);
 }

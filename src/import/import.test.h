@@ -15,4 +15,7 @@ void test_push_mesh_uvs();
 /* node tests */
 void test_push_node();
 
+/* scene tests */
+void test_push_scene();
+
 #endif

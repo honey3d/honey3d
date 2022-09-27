@@ -225,3 +225,9 @@ static void push_node(lua_State *L, struct aiNode *node)
 		lua_setfield(L, nodetbl, "children");
 	}
 }
+
+
+static void push_scene(lua_State *L, struct aiNode *node)
+{
+	
+}

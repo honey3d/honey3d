@@ -42,6 +42,7 @@ void test_push_node()
 	struct aiNode nodeC;
 	struct aiNode *a_children[] = { &nodeC };
 	nodeA.mChildren = a_children;
+	nodeA.mNumChildren = 1;
 	nodeC.mMeshes = meshes + 7;
 	nodeC.mNumMeshes = 1;
 	nodeC.mChildren = NULL;
