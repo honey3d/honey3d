@@ -152,7 +152,7 @@ void test_push_mesh()
 
 	/* push */	
 	int top_before = lua_gettop(L);
-	push_mesh(L, mesh);
+	push_mesh(L, &mesh);
 	int meshtbl = lua_gettop(L);
 
 	/* check output */
@@ -186,7 +186,7 @@ void test_push_mesh_faces()
 
 	/* push */	
 	int top_before = lua_gettop(L);
-	push_mesh(L, mesh);
+	push_mesh(L, &mesh);
 	int meshtbl = lua_gettop(L);
 
 	/* check output */
@@ -220,7 +220,7 @@ void test_push_mesh_normals()
 
 	/* push */	
 	int top_before = lua_gettop(L);
-	push_mesh(L, mesh);
+	push_mesh(L, &mesh);
 	int meshtbl = lua_gettop(L);
 
 	/* check output */
@@ -254,7 +254,7 @@ void test_push_mesh_tangents()
 
 	/* push */	
 	int top_before = lua_gettop(L);
-	push_mesh(L, mesh);
+	push_mesh(L, &mesh);
 	int meshtbl = lua_gettop(L);
 
 	/* check output */
@@ -289,7 +289,7 @@ void test_push_mesh_uvs()
 
 	/* push */	
 	int top_before = lua_gettop(L);
-	push_mesh(L, mesh);
+	push_mesh(L, &mesh);
 	int meshtbl = lua_gettop(L);
 
 	/* check output */
