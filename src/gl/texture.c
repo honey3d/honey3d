@@ -37,6 +37,10 @@ void setup_texture(lua_State *L, int gl_index)
 		hs_str_int("TEXTURE_WRAP_T", GL_TEXTURE_WRAP_T),
 		hs_str_int("TEXTURE_MIN_FILTER", GL_TEXTURE_MIN_FILTER),
 		hs_str_int("TEXTURE_MAG_FILTER", GL_TEXTURE_MAG_FILTER),
+		hs_str_int("TEXTURE_SWIZZLE_R", GL_TEXTURE_SWIZZLE_R),
+		hs_str_int("TEXTURE_SWIZZLE_G", GL_TEXTURE_SWIZZLE_G),
+		hs_str_int("TEXTURE_SWIZZLE_B", GL_TEXTURE_SWIZZLE_B),
+		hs_str_int("TEXTURE_SWIZZLE_A", GL_TEXTURE_SWIZZLE_A),
 
 		/* wrapping types */
 		hs_str_int("REPEAT", GL_REPEAT),
@@ -44,6 +48,14 @@ void setup_texture(lua_State *L, int gl_index)
 		/* filter types */
 		hs_str_int("NEAREST", GL_NEAREST),
 		hs_str_int("LINEAR", GL_LINEAR),
+
+		/* swizzle targets */
+		hs_str_int("RED", GL_RED),
+		hs_str_int("GREEN", GL_GREEN),
+		hs_str_int("BLUE", GL_BLUE),
+		hs_str_int("ALPHA", GL_ALPHA),
+		hs_str_int("ZERO", GL_ZERO),
+		hs_str_int("ONE", GL_ONE),
 	);
 
 	append_table(L, gl_index, tbl);

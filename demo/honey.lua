@@ -188,15 +188,43 @@ gl.UseProgram(shader)
 gl.Uniform1i(gl.GetUniformLocation(shader, 'ourTexture'), 0)
 
 
+--===== generate cairo texture =====--
+
+local image = honey.image
+local surface = image.surface_create(image.FORMAT_ARGB32, 512, 512)
+local cr = image.context_create(surface)
+image.context_select_font_face(cr, "sans-serif", image.FONT_SLANT_NORMAL, image.FONT_WEIGHT_NORMAL)
+image.context_set_font_size(cr, 32)
+image.context_set_source_rgb(cr, 1, 0, 0)
+image.context_move_to(cr, 100, 100)
+image.context_show_text(cr, "hello, world!")
+local data = image.surface_get_data(surface)
+gl.BindTexture(gl.TEXTURE_2D, texture)
+gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_R, gl.GREEN)
+gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_G, gl.BLUE)
+gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_B, gl.ALPHA)
+--gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_A, gl.RED)
+gl.TexImage2D(
+	gl.TEXTURE_2D, 0,
+	gl.RGB, width, height,
+	gl.RGBA, gl.UNSIGNED_BYTE,
+	data
+)
+gl.GenerateMipmap(gl.TEXTURE_2D)
+
+
 --====== matrices ======--
 
 local model = honey.glm.mat4()
-honey.glm.mat4_identity(model)
-local axis = honey.glm.vec3()
-honey.glm.vec3_set(axis, 0, 1.0)
-honey.glm.vec3_set(axis, 1, 0.0)
-honey.glm.vec3_set(axis, 2, 0.0)
-honey.glm.rotate(model, math.rad(-90), axis)
+local axis1 = honey.glm.vec3()
+honey.glm.vec3_set(axis1, 0, 1.0)
+honey.glm.vec3_set(axis1, 1, 0.0)
+honey.glm.vec3_set(axis1, 2, 0.0)
+
+local axis2 = honey.glm.vec3()
+honey.glm.vec3_set(axis2, 0, 0.0)
+honey.glm.vec3_set(axis2, 1, 1.0)
+honey.glm.vec3_set(axis2, 2, 0.0)
 
 local view = honey.glm.mat4()
 honey.glm.mat4_identity(view)
@@ -230,7 +258,8 @@ while not window.shouldClose(w) do
 	local projectionL = gl.GetUniformLocation(shader, 'projection')
 	
 	honey.glm.mat4_identity(model)
-	honey.glm.rotate(model, math.pi*time, axis)
+	honey.glm.rotate(model, 0.5*math.pi*time, axis2)
+	honey.glm.rotate(model, math.rad(-90), axis1)
 
 	gl.UniformMatrix4fv(modelL, false, model)
 	gl.UniformMatrix4fv(viewL, false, view)
@@ -251,3 +280,5 @@ end
 window.destroy(w)
 gl.Terminate()
 honey.audio.engine_uninit(engine)
+image.surface_destroy(surface)
+image.context_destroy(cr)
