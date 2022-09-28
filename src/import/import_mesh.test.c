@@ -55,18 +55,19 @@ void test_push_face()
 	lily_assert_int_equal(lua_objlen(L, facetbl), 6);
 
 	/* the numbers should be one higher because of lua's 1-indexing */
+	/* WRONG! the numbers should be 0-indexed because they will be interpreted by opengl */
 	lua_rawgeti(L, facetbl, 1);
-	lily_assert_int_equal(lua_tointeger(L, -1), 1);
+	lily_assert_int_equal(lua_tointeger(L, -1), 0);
 	lua_rawgeti(L, facetbl, 2);
-	lily_assert_int_equal(lua_tointeger(L, -1), 2);
+	lily_assert_int_equal(lua_tointeger(L, -1), 1);
 	lua_rawgeti(L, facetbl, 3);
-	lily_assert_int_equal(lua_tointeger(L, -1), 3);
+	lily_assert_int_equal(lua_tointeger(L, -1), 2);
 	lua_rawgeti(L, facetbl, 4);
-	lily_assert_int_equal(lua_tointeger(L, -1), 4);
+	lily_assert_int_equal(lua_tointeger(L, -1), 3);
 	lua_rawgeti(L, facetbl, 5);
-	lily_assert_int_equal(lua_tointeger(L, -1), 5);
+	lily_assert_int_equal(lua_tointeger(L, -1), 4);
 	lua_rawgeti(L, facetbl, 6);
-	lily_assert_int_equal(lua_tointeger(L, -1), 6);
+	lily_assert_int_equal(lua_tointeger(L, -1), 5);
 
 	lua_close(L);
 }
@@ -414,8 +415,8 @@ static int check_face(lua_State *L, int meshtbl, const char *field, int index,
 
 void test_faces(lua_State *L, int meshtbl)
 {
-	check_face(L, meshtbl, "faces", 1, 1, 2, 4);
-	check_face(L, meshtbl, "faces", 2, 1, 4, 3);
+	check_face(L, meshtbl, "faces", 1, 0, 1, 3);
+	check_face(L, meshtbl, "faces", 2, 0, 3, 2);
 }
 
 

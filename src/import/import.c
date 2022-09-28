@@ -15,7 +15,10 @@ int import_file(lua_State *L)
 	char *filename;
 	hs_parse_args(L, hs_str(filename));
 
-	const struct aiScene *scene = aiImportFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const struct aiScene *scene = aiImportFile(
+		filename, 
+		aiProcess_Triangulate | aiProcess_FlipUVs
+	);
 	if (scene == NULL)
 		hs_throw_error(L, "failed to load file '%s'", filename);
 	
@@ -53,7 +56,11 @@ static void push_face(lua_State *L, struct aiFace face)
 
 	for (int i=0; i<face.mNumIndices; i++) {
 		/* add one to the index bc lua is 1-indexed */
-		lua_pushinteger(L, face.mIndices[i]+1);
+		/* the above comment is WRONG WRONG WRONG!!
+		 * lua is indeed 1-indexed, but this data is being interpreted
+		 * by *opengl* not lua. we should not add 1!!
+		 */
+		lua_pushinteger(L, face.mIndices[i]);
 		lua_rawseti(L, tbl, i+1);
 	}
 }

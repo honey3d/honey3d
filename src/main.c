@@ -10,6 +10,7 @@
 #include "logging/logging.h"
 #include "options/options.h"
 
+void print_load_error(lua_State *L, const char *script_file, int error_type);
 
 int main(int argc, char **argv)
 {
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
 	/* load main script */
 	int err = luaL_loadfile(L, options.script_file);
 	if (err != 0) {
-		printf("cannot open file '%s'\n", options.script_file);
+		print_load_error(L, options.script_file, err);
 		lua_close(L);
 		return 0;
 	}
@@ -53,4 +54,26 @@ int main(int argc, char **argv)
 	/* clean up */
 	lua_close(L);
 	return 0;
+}
+
+
+void print_load_error(lua_State *L, const char *script_file, int error_type)
+{
+	switch(error_type) {
+	case LUA_ERRFILE:
+		printf("error: cannot open file '%s'\n", script_file);
+		break;
+	
+	case LUA_ERRSYNTAX:
+		printf("error: failed to compile file: %s\n", lua_tostring(L, -1));
+		break;
+	
+	case LUA_ERRMEM:
+		printf("error: memory error: %s\n", lua_tostring(L, -1));
+		break;
+	
+	default:
+		printf("error: an unknown error occured when trying to load file '%s'.\n", script_file);
+		break;
+	};
 }
