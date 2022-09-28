@@ -48,6 +48,7 @@ void setup_gl(lua_State *L, int honey_index)
 
 		/* opengl capabilities */
 		hs_str_int("DEPTH_TEST", GL_DEPTH_TEST),
+		hs_str_int("CULL_FACE", GL_CULL_FACE),
 	);
 
 	setup_shader(L, gl_index);

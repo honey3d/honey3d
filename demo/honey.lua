@@ -21,6 +21,7 @@ window.setHint(window.hintType.openGlProfile, window.profileType.openGlCoreProfi
 local w = window.create(640, 480, 'hello, world!')
 window.makeContextCurrent(w)
 gl.InitGlad()
+gl.Enable(gl.DEPTH_TEST)
 
 window.setFramebufferSizeCallback(w, function(_, width, height)
 	print(string.format("resize: (%d, %d)", width, height))
@@ -33,21 +34,17 @@ end)
 local vertexShaderSource = [[
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
-layout (location = 2) in vec2 aTexCoord;
+layout (location = 1) in vec2 aTexCoord;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-
-out vec3 ourColor;
 out vec2 TexCoord;
 
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
-    ourColor = aColor;
     TexCoord = aTexCoord;
 }
 ]]
@@ -56,7 +53,6 @@ local fragmentShaderSource = [[
 #version 330 core
 out vec4 FragColor;
   
-in vec3 ourColor;
 in vec2 TexCoord;
 
 uniform sampler2D ourTexture;
@@ -90,11 +86,11 @@ gl.DeleteShader(fragmentShader)
 --====== set up mesh data manually ======--
 
 local vertices = {
---     positions          colors           uvs   
-	 0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0, -- top right
-	 0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0, -- bottom right
-	-0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0, -- bottom let
-	-0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0  -- top let 
+--     positions          uvs   
+	 0.5,  0.5, 0.0,   1.0, 1.0, -- top right
+	 0.5, -0.5, 0.0,   1.0, 0.0, -- bottom right
+	-0.5, -0.5, 0.0,   0.0, 0.0, -- bottom let
+	-0.5,  0.5, 0.0,   0.0, 1.0  -- top let 
 }
 local indices = {
     0, 1, 3, -- first triangle
@@ -115,24 +111,55 @@ gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementBuffer)
 gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, gl.UNSIGNED_INT, indices, gl.STATIC_DRAW)
 
 -- position
-gl.VertexAttribPointer(0, 3, false, 8, 0)
+gl.VertexAttribPointer(0, 3, false, 5, 0)
 gl.EnableVertexAttribArray(0)
 
--- color
-gl.VertexAttribPointer(1, 3, false, 8, 3)
-gl.EnableVertexAttribArray(1)
-
 -- uv
-gl.VertexAttribPointer(2, 2, false, 8, 6)
-gl.EnableVertexAttribArray(2)
+gl.VertexAttribPointer(1, 2, false, 5, 3)
+gl.EnableVertexAttribArray(1)
 
 
 --===== load mesh from file =====--
 
 local scene = honey.import.importFile('suzanne.dae')
-print(#scene.meshes)
+local mesh = scene.meshes[1]
 local suzanne = {}
-suzanne.vertexData = {}
+suzanne.vertices = {}
+print('mesh.vertices', #mesh.vertices)
+for i=1,#mesh.vertices do
+	local position = mesh.vertices[i]
+	local uv = mesh.uvs[1][i]
+	table.insert(suzanne.vertices, position.x)
+	table.insert(suzanne.vertices, position.y)
+	table.insert(suzanne.vertices, position.z)
+	table.insert(suzanne.vertices, uv.x)
+	table.insert(suzanne.vertices, uv.y)
+end
+suzanne.indices = {}
+for _, face in ipairs(mesh.faces) do
+	assert(#face == 3)
+	for _, i in ipairs(face) do
+		table.insert(suzanne.indices, i)
+	end
+end
+print('mesh.faces', #mesh.faces)
+print('suzanne.indices', #suzanne.indices)
+
+suzanne.vertexArr = gl.GenVertexArrays()
+suzanne.vertexBuf = gl.GenBuffers()
+suzanne.elementBuf = gl.GenBuffers()
+
+gl.BindVertexArray(suzanne.vertexArr)
+gl.BindBuffer(gl.ARRAY_BUFFER, suzanne.vertexBuf)
+gl.BufferData(gl.ARRAY_BUFFER, gl.FLOAT, suzanne.vertices, gl.STATIC_DRAW)
+
+gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, suzanne.elementBuf)
+gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, gl.UNSIGNED_INT, suzanne.indices, gl.STATIC_DRAW)
+
+gl.VertexAttribPointer(0, 3, false, 5, 0)
+gl.EnableVertexAttribArray(0)
+gl.VertexAttribPointer(1, 2, false, 5, 3)
+gl.EnableVertexAttribArray(1)
 
 
 --====== load texture ======--
@@ -169,7 +196,7 @@ local axis = honey.glm.vec3()
 honey.glm.vec3_set(axis, 0, 1.0)
 honey.glm.vec3_set(axis, 1, 0.0)
 honey.glm.vec3_set(axis, 2, 0.0)
-honey.glm.rotate(model, math.rad(-55), axis)
+honey.glm.rotate(model, math.rad(-90), axis)
 
 local view = honey.glm.mat4()
 honey.glm.mat4_identity(view)
@@ -188,8 +215,10 @@ honey.glm.perspective(math.rad(45), 800/600, 0.1, 100, projection)
 local transform = honey.glm.mat4()
 
 while not window.shouldClose(w) do
+	local time = window.getTime()
+
 	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
-	gl.Clear(gl.COLOR_BUFFER_BIT)
+	gl.Clear(gl.COLOR_BUFFER_BIT + gl.DEPTH_BUFFER_BIT)
 
 	gl.ActiveTexture(0)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
@@ -200,12 +229,18 @@ while not window.shouldClose(w) do
 	local viewL = gl.GetUniformLocation(shader, 'view')
 	local projectionL = gl.GetUniformLocation(shader, 'projection')
 	
+	honey.glm.mat4_identity(model)
+	honey.glm.rotate(model, math.pi*time, axis)
+
 	gl.UniformMatrix4fv(modelL, false, model)
 	gl.UniformMatrix4fv(viewL, false, view)
 	gl.UniformMatrix4fv(projectionL, false, projection)
 
-	gl.BindVertexArray(vertexArray)
-	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)
+	--gl.BindVertexArray(vertexArray)
+	--gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)
+
+	gl.BindVertexArray(suzanne.vertexArr)
+	gl.DrawElements(gl.TRIANGLES, 3*#mesh.faces, gl.UNSIGNED_INT, 0)
 
 	window.swapBuffers(w)
 	window.pollEvents()
