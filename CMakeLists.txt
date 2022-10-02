@@ -37,12 +37,13 @@ add_subdirectory(${LIB_ROOT}/honeysuckle)
 add_subdirectory(${LIB_ROOT}/cglm)
 add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
 add_subdirectory(${LIB_ROOT}/cargs)
+add_subdirectory(${LIB_ROOT}/ode-0.16.1)
 
 
 set(HONEY_SOURCE ${SRC_ROOT}/main.c)
 add_executable(honey ${HONEY_SOURCE})
 
-set(LIBRARIES lua5.1 honeysuckle glfw cargs assimp cairo)
+set(LIBRARIES lua5.1 honeysuckle glfw cargs assimp cairo ode)
 if (WIN32)
 	set(LIBRARIES ${LIBRARIES} opengl32)
 else()

@@ -200,9 +200,8 @@ image.context_move_to(cr, 100, 100)
 image.context_show_text(cr, "hello, world!")
 local data = image.surface_get_data(surface)
 gl.BindTexture(gl.TEXTURE_2D, texture)
-gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_R, gl.GREEN)
-gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_G, gl.BLUE)
-gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_B, gl.ALPHA)
+gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_R, gl.BLUE)
+gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_B, gl.RED)
 --gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_SWIZZLE_A, gl.RED)
 gl.TexImage2D(
 	gl.TEXTURE_2D, 0,
