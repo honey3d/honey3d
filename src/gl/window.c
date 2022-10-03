@@ -30,9 +30,14 @@ int window_set_framebuffer_size_callback(lua_State *L);
 int window_get_time(lua_State *L);
 
 
+static const char *window_tname = "window";
+
 
 void setup_window(lua_State *L, int honey_index)
 {
+	luaL_newmetatable(L, window_tname);
+	lua_pop(L, 1);
+
 	int hint_types = hs_create_table(L,
 		hs_str_int("contextVersionMajor", GLFW_CONTEXT_VERSION_MAJOR),
 		hs_str_int("contextVersionMinor", GLFW_CONTEXT_VERSION_MINOR),
@@ -79,49 +84,47 @@ int window_create(lua_State *L)
 	char *title;
 	hs_parse_args(L, hs_int(width), hs_int(height), hs_str(title));
 
-	GLFWwindow *win = glfwCreateWindow(width, height, title, NULL, NULL);
-	if (win == NULL)
+	GLFWwindow **win = lua_newuserdata(L, sizeof(GLFWwindow *));
+	*win = glfwCreateWindow(width, height, title, NULL, NULL);
+	if (*win == NULL)
 		hs_throw_error(L, "failed to create window");
 	
 	struct window_data *wdata = create_window_data(L);
-	glfwSetWindowUserPointer(win, wdata);
+	glfwSetWindowUserPointer(*win, wdata);
 
-	glfwSetFramebufferSizeCallback(win, framebuffer_size_callback_);
+	glfwSetFramebufferSizeCallback(*win, framebuffer_size_callback_);
 	
-	lua_pushlightuserdata(L, win);
+	luaL_getmetatable(L, window_tname);
+	lua_setmetatable(L, -2);
 	return 1;
 }
 
 
 int window_destroy(lua_State *L)
 {
-	void *ptr;
-	hs_parse_args(L, hs_light(ptr));
-	GLFWwindow *win = ptr;
-	void *wdata = glfwGetWindowUserPointer(win);
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	void *wdata = glfwGetWindowUserPointer(*win);
 	if (wdata != NULL) {
 		free(wdata);
-		glfwSetWindowUserPointer(win, NULL);
+		glfwSetWindowUserPointer(*win, NULL);
 	}
-	glfwDestroyWindow(win);
+	glfwDestroyWindow(*win);
 	return 0;
 }
 
 
 int window_make_context_current(lua_State *L)
 {
-	void *ptr;
-	hs_parse_args(L, hs_light(ptr));
-	GLFWwindow *win = ptr;
-	glfwMakeContextCurrent(win);
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	glfwMakeContextCurrent(*win);
 	return 0;
 }
 
 
 int window_set_hint(lua_State *L)
 {
-	lua_Integer hint, value;
-	hs_parse_args(L, hs_int(hint), hs_int(value));
+	int hint = luaL_checkinteger(L, 1);
+	int value = luaL_checkinteger(L, 2);
 	glfwWindowHint(hint, value);
 	return 0;
 }
@@ -129,10 +132,8 @@ int window_set_hint(lua_State *L)
 
 int window_should_close(lua_State *L)
 {
-	void *ptr;
-	hs_parse_args(L, hs_light(ptr));
-	GLFWwindow *win = ptr;
-	lua_pushboolean(L, glfwWindowShouldClose(win));
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	lua_pushboolean(L, glfwWindowShouldClose(*win));
 	return 1;
 }
 
@@ -146,21 +147,19 @@ int window_poll_events(lua_State *L)
 
 int window_swap_buffers(lua_State *L)
 {
-	void *ptr;
-	hs_parse_args(L, hs_light(ptr));
-	GLFWwindow *win = ptr;
-	glfwSwapBuffers(win);
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	glfwSwapBuffers(*win);
 	return 0;
 }
 
 
 int window_set_framebuffer_size_callback(lua_State *L)
 {
-	void *ptr;
-	int func;
-	hs_parse_args(L, hs_light(ptr), hs_func(func));
-	GLFWwindow *win = ptr;
-	struct window_data *wdata = glfwGetWindowUserPointer(win);
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	luaL_checktype(L, 2, LUA_TFUNCTION);
+	int func = 2;
+
+	struct window_data *wdata = glfwGetWindowUserPointer(*win);
 
 	lua_pushvalue(L, func);
 	wdata->framebuffer_size_callback = hs_rstore(L);
