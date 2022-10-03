@@ -9,6 +9,7 @@
 #include "import/import.h"
 #include "logging/logging.h"
 #include "options/options.h"
+#include "ode/ode_bindings.h"
 
 void print_load_error(lua_State *L, const char *script_file, int error_type);
 
@@ -34,6 +35,7 @@ int main(int argc, char **argv)
 	setup_import(L, honey_index);
 	setup_logging(L, honey_index);
 	setup_window(L, honey_index);
+	setup_ode(L, honey_index);
 	lua_setglobal(L, "honey");
 
 	/* load main script */
