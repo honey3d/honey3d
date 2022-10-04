@@ -3,6 +3,11 @@
 
 #include <lua.h>
 
+
+extern const char *vec3_tname;
+extern const char *mat4_tname;
+
+
 void setup_glm(lua_State *L, int honey_index);
 void setup_vec3(lua_State *L, int glm_tbl);
 void setup_mat4(lua_State *L, int glm_tbl);

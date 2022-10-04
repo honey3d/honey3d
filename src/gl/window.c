@@ -24,11 +24,14 @@ int window_destroy(lua_State *L);
 int window_make_context_current(lua_State *L);
 int window_set_hint(lua_State *L);
 int window_should_close(lua_State *L);
+int window_set_should_close(lua_State *L);
 int window_poll_events(lua_State *L);
 int window_swap_buffers(lua_State *L);
 int window_set_framebuffer_size_callback(lua_State *L);
 int window_get_time(lua_State *L);
 int window_get_key(lua_State *L);
+int window_get_cursor_pos(lua_State *L);
+int window_set_input_mode(lua_State *L);
 
 
 static const char *window_tname = "window";
@@ -55,14 +58,25 @@ void setup_window(lua_State *L, int honey_index)
 		hs_str_cfunc("makeContextCurrent", window_make_context_current),
 		hs_str_cfunc("setHint", window_set_hint),
 		hs_str_cfunc("shouldClose", window_should_close),
+		hs_str_cfunc("setShouldClose", window_set_should_close),
 		hs_str_cfunc("pollEvents", window_poll_events),
 		hs_str_cfunc("swapBuffers", window_swap_buffers),
 		hs_str_cfunc("setFramebufferSizeCallback", window_set_framebuffer_size_callback),
 		hs_str_cfunc("getTime", window_get_time),
 		hs_str_cfunc("getKey", window_get_key),
+		hs_str_cfunc("getCursorPos", window_get_cursor_pos),
+		hs_str_cfunc("setInputMode", window_set_input_mode),
 
 		hs_str_tbl("hintType", hint_types),
 		hs_str_tbl("profileType", profile_types),
+
+		/* input modes */
+		hs_str_int("CURSOR", GLFW_CURSOR),
+
+		/* cursor modes */
+		hs_str_int("CURSOR_NORMAL", GLFW_CURSOR_NORMAL),
+		hs_str_int("CURSOR_HIDDEN", GLFW_CURSOR_HIDDEN),
+		hs_str_int("CURSOR_DISABLED", GLFW_CURSOR_DISABLED),
 
 		/* key states */
 		hs_str_int("PRESS", GLFW_PRESS),
@@ -205,7 +219,7 @@ static void framebuffer_size_callback_(GLFWwindow *win, int width, int height)
 		lua_pushlightuserdata(wdata->L, win);
 		lua_pushinteger(wdata->L, width);
 		lua_pushinteger(wdata->L, height);
-		hs_call(wdata->L, 3, 0);
+		lua_call(wdata->L, 3, 0);
 	}
 }
 
@@ -269,6 +283,16 @@ int window_should_close(lua_State *L)
 }
 
 
+int window_set_should_close(lua_State *L)
+{
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	int value = lua_toboolean(L, 2);
+
+	glfwSetWindowShouldClose(*win, value);
+	return 0;
+}
+
+
 int window_poll_events(lua_State *L)
 {
 	glfwPollEvents();
@@ -311,4 +335,26 @@ int window_get_key(lua_State *L)
 	int key = luaL_checkinteger(L, 2);
 	lua_pushinteger(L, glfwGetKey(*win, key));
 	return 1;
+}
+
+
+int window_get_cursor_pos(lua_State *L)
+{
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	double x, y;
+	glfwGetCursorPos(*win, &x, &y);
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+	return 2;
+}
+
+
+int window_set_input_mode(lua_State *L)
+{
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	int mode = luaL_checkinteger(L, 2);
+	int value = luaL_checkinteger(L, 3);
+
+	glfwSetInputMode(*win, mode, value);
+	return 0;
 }

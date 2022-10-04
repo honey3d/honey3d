@@ -20,9 +20,13 @@ window.makeContextCurrent(w)
 gl.InitGlad()
 gl.Enable(gl.DEPTH_TEST)
 
+
+local projection = honey.glm.mat4()
+honey.glm.perspective(math.rad(45), 800/600, 0.1, 1000, projection)
 window.setFramebufferSizeCallback(w, function(_, width, height)
 	print(string.format("resize: (%d, %d)", width, height))
-	gl.setViewport(0, 0, width, height)
+	gl.Viewport(0, 0, width, height)
+	honey.glm.perspective(math.rad(45), width/height, 0.1, 1000, projection)
 end)
 
 
@@ -84,8 +88,6 @@ local translation = honey.glm.vec3()
 setVector(translation, 0, -1, -6)
 honey.glm.translate(view, translation)
 
-local projection = honey.glm.mat4()
-honey.glm.perspective(math.rad(45), 800/600, 0.1, 1000, projection)
 
 
 --====== main loop ======--
