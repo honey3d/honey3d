@@ -28,6 +28,7 @@ int window_poll_events(lua_State *L);
 int window_swap_buffers(lua_State *L);
 int window_set_framebuffer_size_callback(lua_State *L);
 int window_get_time(lua_State *L);
+int window_get_key(lua_State *L);
 
 
 static const char *window_tname = "window";
@@ -58,9 +59,17 @@ void setup_window(lua_State *L, int honey_index)
 		hs_str_cfunc("swapBuffers", window_swap_buffers),
 		hs_str_cfunc("setFramebufferSizeCallback", window_set_framebuffer_size_callback),
 		hs_str_cfunc("getTime", window_get_time),
+		hs_str_cfunc("getKey", window_get_key),
 
 		hs_str_tbl("hintType", hint_types),
 		hs_str_tbl("profileType", profile_types),
+
+		/* key states */
+		hs_str_int("PRESS", GLFW_PRESS),
+		hs_str_int("RELEASE", GLFW_RELEASE),
+
+		/* key buttons */
+		hs_str_int("KEY_ESCAPE", GLFW_KEY_ESCAPE),
 	);
 	lua_setfield(L, honey_index, "window");
 }
@@ -170,5 +179,14 @@ int window_set_framebuffer_size_callback(lua_State *L)
 int window_get_time(lua_State *L)
 {
 	lua_pushnumber(L, glfwGetTime());
+	return 1;
+}
+
+
+int window_get_key(lua_State *L)
+{
+	GLFWwindow **win = luaL_checkudata(L, 1, window_tname);
+	int key = luaL_checkinteger(L, 2);
+	lua_pushinteger(L, glfwGetKey(*win, key));
 	return 1;
 }

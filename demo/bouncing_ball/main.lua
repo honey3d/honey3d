@@ -98,6 +98,10 @@ local dtAverage = 0
 local dtCount = 0
 
 while not window.shouldClose(w) do
+	if window.getKey(w, window.KEY_ESCAPE) == window.PRESS then
+		break
+	end
+
 	local newTime = window.getTime()
 	local dt = newTime - time
 	dtAverage = dtAverage + dt
