@@ -34,8 +34,9 @@ int main(int argc, char **argv)
 	setup_image(L, honey_index);
 	setup_import(L, honey_index);
 	setup_logging(L, honey_index);
-	setup_window(L, honey_index);
 	setup_ode(L, honey_index);
+	setup_util(L, honey_index);
+	setup_window(L, honey_index);
 	lua_setglobal(L, "honey");
 
 	/* load main script */
