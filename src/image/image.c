@@ -7,6 +7,7 @@
 #include "image.h"
 
 
+int empty(lua_State *L);
 int load_image(lua_State *L);
 int free_image(lua_State *L);
 
@@ -26,6 +27,7 @@ void setup_image(lua_State *L, int honey_index)
 {
 	hs_create_table(L,
 		/* basic images */
+		hs_str_cfunc("null", empty),
 		hs_str_cfunc("load", load_image),
 		hs_str_cfunc("destroy", free_image),
 
@@ -55,6 +57,12 @@ void setup_image(lua_State *L, int honey_index)
 
 
 /* --===== basic images =====-- */
+
+int empty(lua_State *L)
+{
+	lua_pushlightuserdata(L, NULL);
+	return 1;
+}
 
 int load_image(lua_State *L)
 {

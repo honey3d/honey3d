@@ -16,6 +16,8 @@ int gl_program_use(lua_State *L);
 
 int gl_uniform_get_location(lua_State *L);
 int gl_uniform_1i(lua_State *L);
+int gl_uniform_1f(lua_State *L);
+int gl_uniform_3f(lua_State *L);
 int gl_uniform_4f(lua_State *L);
 
 int gl_uniform_matrix_4fv(lua_State *L);
@@ -37,6 +39,8 @@ void setup_shader(lua_State *L, int gl_index)
 
 		hs_str_cfunc("GetUniformLocation", gl_uniform_get_location),
 		hs_str_cfunc("Uniform1i", gl_uniform_1i),
+		hs_str_cfunc("Uniform1f", gl_uniform_1i),
+		hs_str_cfunc("Uniform3f", gl_uniform_1i),
 		hs_str_cfunc("Uniform4f", gl_uniform_4f),
 
 		hs_str_cfunc("UniformMatrix4fv", gl_uniform_matrix_4fv),
@@ -153,6 +157,26 @@ int gl_uniform_1i(lua_State *L)
 	lua_Integer location, v0;
 	hs_parse_args(L, hs_int(location), hs_int(v0));
 	glUniform1i(location, v0);
+	return 0;
+}
+
+
+int gl_uniform_1f(lua_State *L)
+{
+	int location = luaL_checkinteger(L, 1);
+	double value = luaL_checknumber(L, 2);
+	glUniform1f(location, value);
+	return 0;
+}
+
+
+int gl_uniform_3f(lua_State *L)
+{
+	int location = luaL_checkinteger(L, 1);
+	double v0 = luaL_checknumber(L, 2);
+	double v1 = luaL_checknumber(L, 3);
+	double v2 = luaL_checknumber(L, 4);
+	glUniform3f(location, v0, v1, v2);
 	return 0;
 }
 

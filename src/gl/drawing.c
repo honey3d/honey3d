@@ -9,6 +9,9 @@ int gl_draw_arrays(lua_State *L);
 int gl_draw_elements(lua_State *L);
 int gl_set_clear_color(lua_State *L);
 int gl_clear(lua_State *L);
+int gl_gen_framebuffers(lua_State *L);
+int gl_bind_framebuffer(lua_State *L);
+int gl_framebuffer_texture_2d(lua_State *L);
 
 void setup_drawing(lua_State *L, int gl_index)
 {
@@ -77,5 +80,36 @@ int gl_set_viewport(lua_State *L)
 	lua_Integer x, y, w, h;
 	hs_parse_args(L, hs_int(x), hs_int(y), hs_int(w), hs_int(h));
 	glViewport(x, y, w, h);
+	return 0;
+}
+
+
+int gl_gen_framebuffers(lua_State *L)
+{
+	int framebuffer;
+	glGenFramebuffers(1, &framebuffer);
+	lua_pushinteger(L, framebuffer);
+	return 1;
+}
+
+
+int gl_bind_framebuffer(lua_State *L)
+{
+	int target = luaL_checkinteger(L, 1);
+	int framebuffer = luaL_checkinteger(L, 2);
+	glBindFramebuffer(target, framebuffer);
+	return 0;
+}
+
+
+int gl_framebuffer_texture_2d(lua_State *L)
+{
+	int target = luaL_checkinteger(L, 1);
+	int attachment = luaL_checkinteger(L, 2);
+	int textarget = luaL_checkinteger(L, 3);
+	int texture = luaL_checkinteger(L, 4);
+	int level = luaL_checkinteger(L, 5);
+
+	glFramebufferTexture2D(target, attachment, textarget, texture, level);
 	return 0;
 }
