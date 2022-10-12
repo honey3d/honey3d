@@ -25,7 +25,7 @@ gl.Enable(gl.DEPTH_TEST)
 
 window.setFramebufferSizeCallback(w, function(_, width, height)
 	print(string.format("resize: (%d, %d)", width, height))
-	gl.setViewport(0, 0, width, height)
+	gl.Viewport(0, 0, width, height)
 end)
 
 
