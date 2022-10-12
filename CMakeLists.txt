@@ -42,6 +42,7 @@ add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
 add_subdirectory(${LIB_ROOT}/cargs)
 add_subdirectory(${LIB_ROOT}/ode-0.16.1)
 add_subdirectory(${LIB_ROOT}/cairo-1.16.0)
+add_subdirectory(${LIB_ROOT}/pixman-0.40.0)
 
 
 set(HONEY_SOURCE ${SRC_ROOT}/main.c)
