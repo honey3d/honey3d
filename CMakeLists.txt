@@ -11,44 +11,45 @@ find_package(OpenGL REQUIRED)
 set(SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 set(LIB_ROOT ${CMAKE_SOURCE_DIR}/libs)
 
-include_directories(
+set(HONEY_SOURCE ${SRC_ROOT}/main.c)
+add_executable(honey ${HONEY_SOURCE})
+
+target_include_directories(
+	honey PUBLIC
+	${LIB_ROOT}
 	${LIB_ROOT}/lua-5.1.5/src 
 	${CMAKE_SOURCE_DIR}/src
 	${LIB_ROOT}/honeysuckle/src
 	${LIB_ROOT}/glfw-3.3.8/include
 	${LIB_ROOT}/cglm/include
 	${LIB_ROOT}/miniaudio
-	${LIB_ROOT}/assimp/include
-	# needed for assimp's config.h
-	${CMAKE_BINARY_DIR}/libs/assimp/include
+	${LIB_ROOT}/nanovg/src
 )
 
 # disable byte-alignment in cglm
 add_definitions(-DCGLM_ALL_UNALIGNED)
 
 # link to third-party included libraries
-link_directories(
-	${LIB_ROOT}/assimp/lib
+target_link_directories(
+	honey PUBLIC
 	${LIB_ROOT}/honeysuckle
 	${LIB_ROOT}/glfw-3.3.8/src
-	${LIB_ROOT}/cairo-1.16.0/src
 )
 
 add_subdirectory(${LIB_ROOT}/lua-5.1.5)
-add_subdirectory(${LIB_ROOT}/assimp)
 add_subdirectory(${LIB_ROOT}/honeysuckle)
 add_subdirectory(${LIB_ROOT}/cglm)
 add_subdirectory(${LIB_ROOT}/glfw-3.3.8)
 add_subdirectory(${LIB_ROOT}/cargs)
 add_subdirectory(${LIB_ROOT}/ode-0.16.1)
-add_subdirectory(${LIB_ROOT}/cairo-1.16.0)
-add_subdirectory(${LIB_ROOT}/pixman-0.40.0)
+add_subdirectory(${LIB_ROOT}/nanovg)
 
+target_include_directories(
+	honeysuckle PUBLIC
+	${LIB_ROOT}/lua-5.1.5/src 
+)
 
-set(HONEY_SOURCE ${SRC_ROOT}/main.c)
-add_executable(honey ${HONEY_SOURCE})
-
-set(LIBRARIES lua5.1 honeysuckle glfw cargs assimp cairo-static ODE)
+set(LIBRARIES lua5.1 honeysuckle glfw cargs ODE nanovg)
 if (WIN32)
 	set(LIBRARIES ${LIBRARIES} opengl32)
 else()
