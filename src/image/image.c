@@ -2,7 +2,7 @@
 #include <honeysuckle.h>
 #include <cairo/cairo.h>
 /* assimp provides its own stb_image implementation */
-#define STB_IMAGE_IMPLEMENTATION
+/*#define STB_IMAGE_IMPLEMENTATION*/
 #include "stb_image.h"
 #include "image.h"
 
