@@ -2,15 +2,9 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include <honeysuckle.h>
-#include "audio/audio.h"
-#include "gl/gl.h"
-#include "glm/glm.h"
-#include "image/image.h"
-#include "import/import.h"
-#include "logging/logging.h"
-#include "ode/ode_bindings.h"
 #include "options/options.h"
-#include "vector/vector.h"
+#include "modules.h"
+
 
 void print_load_error(lua_State *L, const char *script_file, int error_type);
 
@@ -29,16 +23,9 @@ int main(int argc, char **argv)
 	/* load honey bindings */
 	lua_createtable(L, 0, 2);
 	int honey_index = lua_gettop(L);
-	setup_audio(L, honey_index);
-	setup_gl(L, honey_index);
-	setup_glm(L, honey_index);
-	setup_image(L, honey_index);
-	// setup_import(L, honey_index);
-	setup_logging(L, honey_index);
-	setup_ode(L, honey_index);
-	setup_util(L, honey_index);
-	setup_window(L, honey_index);
-	setup_nvg(L, honey_index);
+	#define X(module) setup_ ## module (L, honey_index);
+	HONEY_MODULES
+	#undef X
 	lua_setglobal(L, "honey");
 
 	/* load main script */

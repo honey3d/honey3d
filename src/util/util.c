@@ -1,6 +1,27 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <honeysuckle.h>
+#include "util.h"
+
+void create_table(lua_State *L, struct honey_tbl_t *tbl)
+{
+	lua_createtable(L, 0, 0);
+	int t = lua_gettop(L);
+
+	for (struct honey_tbl_t *pair = tbl; pair->key != NULL; pair += 1) {
+		if (pair->type == LUA_TNUMBER) {
+			lua_pushinteger(L, pair->value.integer);
+			lua_setfield(L, t, pair->key);
+		}
+		else if (pair->type == LUA_TFUNCTION) {
+			lua_pushcfunction(L, pair->value.function);
+			lua_setfield(L, t, pair->key);
+		}
+		else {
+			/* bad type, ignore */
+		}
+	}
+}
 
 void append_table(lua_State *L, int tbl_a, int tbl_b)
 {
