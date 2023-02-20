@@ -112,8 +112,8 @@ extern const char *nvg_paint_tname;
 	/* text */ \
 	X("CreateFont", nvgCreateFont_bind) \
 	X("CreateFontAtIndex", nvgCreateFontAtIndex_bind) \
-	X("CreateFontMem", nvgCreateFontMem_bind) \
-	X("CreateFontMemAtIndex", nvgCreateFontMemAtIndex_bind) \
+	/* X("CreateFontMem", nvgCreateFontMem_bind) */ \
+	/* X("CreateFontMemAtIndex", nvgCreateFontMemAtIndex_bind) */ \
 	X("FindFont", nvgFindFont_bind) \
 	X("AddFallbackFontId", nvgAddFallbackFontId_bind) \
 	X("AddFallbackFont", nvgAddFallbackFont_bind) \
@@ -130,9 +130,9 @@ extern const char *nvg_paint_tname;
 	X("TextBox", nvgTextBox_bind) \
 	X("TextBounds", nvgTextBounds_bind) \
 	X("TextBoxBounds", nvgTextBoxBounds_bind) \
-	X("TextGlyphPositions", nvgTextGlyphPositions_bind) \
-	X("TextMetrics", nvgTextMetrics_bind) \
-	X("TextBreakLines", nvgTextBreakLines_bind) \
+	/* X("TextGlyphPositions", nvgTextGlyphPositions_bind) */ \
+	/* X("TextMetrics", nvgTextMetrics_bind) */ \
+	/* X("TextBreakLines", nvgTextBreakLines_bind) */ \
 
 	
 /* function declarations */

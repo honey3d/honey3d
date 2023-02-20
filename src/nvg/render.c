@@ -5,10 +5,10 @@
 #include "nvg.h"
 
 
-int	ShapeAntiAlias_bind(lua_State *L)
+int	nvgShapeAntiAlias_bind(lua_State *L)
 {
 	NVGcontext **ctx = luaL_checkudata(L, 1, nvg_ctx_tname);
-	int enabled = luaL_toboolean(L, 2);
+	int enabled = lua_toboolean(L, 2);
 	nvgShapeAntiAlias(*ctx, enabled);
 	return 0;
 }

@@ -7,7 +7,7 @@ local nvg = honey.nvg
 local vg
 
 function honey.init()
-	vg = nvg.Context()
+	vg = nvg.CreateContext()
 end
 
 
@@ -31,7 +31,7 @@ end
 function honey.draw()
 	nvg.BeginFrame(vg, 640, 480, 1.0)
 	nvg.StrokeWidth(vg, 20)
-	nvg.StrokeColor(vg, 1, 0, 0, 1)
+	nvg.StrokeColor(vg, nvg.RGB(1, 0, 0))
 
 	local w = 640
 	local h = 480
