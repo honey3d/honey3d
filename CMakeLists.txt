@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.8)
 project(honey_engine)
 
 if (UNIX)
@@ -49,11 +49,9 @@ target_include_directories(
 	${LIB_ROOT}/lua-5.1.5/src 
 )
 
-set(LIBRARIES lua5.1 honeysuckle glfw cargs ODE nanovg)
-if (WIN32)
-	set(LIBRARIES ${LIBRARIES} opengl32)
-else()
-	set(LIBRARIES ${LIBRARIES} GL dl pthread m)
+set(LIBRARIES lua5.1 honeysuckle glfw cargs ODE nanovg OpenGL::GL)
+if (UNIX)
+	set(LIBRARIES ${LIBRARIES} dl pthread m)
 endif()
 target_link_libraries(honey ${LIBRARIES})
 
