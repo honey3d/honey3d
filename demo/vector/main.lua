@@ -5,9 +5,12 @@ local nvg = honey.nvg
 
 
 local vg
+local papyrus
 
 function honey.init()
 	vg = nvg.CreateContext()
+	papyrus = nvg.CreateFont(vg, "Papyrus", "PAPYRUS.ttf")
+	if (papyrus == -1) then error("failed to find font") end
 end
 
 
@@ -30,8 +33,14 @@ end
 
 function honey.draw()
 	nvg.BeginFrame(vg, 640, 480, 1.0)
+
+	nvg.StrokeColor(vg, nvg.RGBf(1, 1, 1))
+	nvg.FontFace(vg, "Papyrus")
+	nvg.Text(vg, 50, 50, "Hello, world! c:")
+
+
 	nvg.StrokeWidth(vg, 20)
-	nvg.StrokeColor(vg, nvg.RGB(1, 0, 0))
+	nvg.StrokeColor(vg, nvg.RGBf(1, 0, 0))
 
 	local w = 640
 	local h = 480
