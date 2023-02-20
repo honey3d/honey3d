@@ -14,27 +14,44 @@ end
 local b = require 'generate-binding'
 
 
-test("simplest possible binding", function()
-	local binding = b.bind("void some_function();")
-	assert(binding == [[
-int some_function_bind(lua_State *L)
-{
-	some_function();
-	return 0;
-}]])
+test("extract function name from signature", function()
+	local name = b.ExtractFunctionName("int some_name(void *qqq);")
+	assert(name == "some_name")
+	name = b.ExtractFunctionName("float quitGame(int a, int b, int c, int** m);")
+	assert(name == "quitGame")
+	name = b.ExtractFunctionName("void startGame ();")
+	assert(name == "startGame")
 end)
 
 
-test("complicated binding", function()
-	local binding = b.bind("const char * qqq(int a, float q, unsigned char m);")
-	assert(binding == [[
-int qqq_bind(lua_State *L)
-{
-	lua_Integer a = luaL_checkinteger(L, 1);
-	lua_Number q = luaL_checknumber(L, 2);
-	lua_Integer m = luaL_checkinteger(L, 3);
-	const char *result = qqq(a, q, m);
-	lua_pushstring(L, result);
-	return 1;
-}]])
+test("extract function type from signature", function()
+	local ftype = b.ExtractFunctionType("int some_ftype(void *qqq);")
+	assert(ftype == "int")
+	ftype = b.ExtractFunctionType("float quitGame(int a, int b, int c, int** m);")
+	assert(ftype == "float")
+	ftype = b.ExtractFunctionType("void startGame ();")
+	assert(ftype == "void")
+end)
+
+
+test("extract arguments from signature", function()
+	local args = b.ExtractFunctionArgs("int some_args(void *qqq);")
+	assert(args ~= nil)
+	assert(#args == 1)
+	assert(args[1].type == "void *")
+	assert(args[1].name == "qqq")
+
+	args = b.ExtractFunctionArgs("float quitGame(int a, int b, int c, int** m);")
+	assert(#args == 4)
+	assert(args[1].type == "int")
+	assert(args[1].name == "a")
+	assert(args[2].type == "int")
+	assert(args[2].name == "b")
+	assert(args[3].type == "int")
+	assert(args[3].name == "c")
+	assert(args[4].type == "int **")
+	assert(args[4].name == "m")
+
+	args = b.ExtractFunctionArgs("void startGame ();")
+	assert(#args == 0)
 end)
