@@ -13,6 +13,7 @@ function ExtractFunctionType(signature)
 end
 
 
+-- remove whitespace from the start and end of a string
 local function trimWhitespace(s)
 	s = string.gsub(s, "^%s*", "")
 	s = string.gsub(s, "%s+$", "")
@@ -20,6 +21,7 @@ local function trimWhitespace(s)
 end
 
 
+-- get array containing { type, name } tables for each argument in the signature
 function ExtractFunctionArgs(signature)
 	local args = {}
 	local argStr = string.match(signature, "%((.*)%)")
@@ -40,6 +42,8 @@ function ExtractFunctionArgs(signature)
 end
 
 
+-- determine what kind of pointer this type is
+-- (not a pointer? ordinary pointer? double pointer? etc)
 function GetPointerLevel(ctype)
 	local level = 0
 	for _ in string.gmatch(ctype, "%*") do
@@ -49,6 +53,9 @@ function GetPointerLevel(ctype)
 end
 
 
+-- convert a C type to a lua type
+-- also includes "void" and "unknown" bc we need to know those
+-- in some contexts
 function GetLuaType(ctype)
 	-- double (triple, etc) pointers
 	if GetPointerLevel(ctype) > 1 then return "unknown"
@@ -74,6 +81,7 @@ function GetLuaType(ctype)
 end
 
 
+-- create a lua aux lib call to fill the arg value from the lua stack
 function PullArg(arg, index)
 	local ltype = GetLuaType(arg.type)
 
@@ -88,6 +96,7 @@ function PullArg(arg, index)
 end
 
 
+-- call the function and push the return value (if any) to the lua stack
 function Call(ftype, fname, args)
 	local callArgs = "("
 	for index, arg in ipairs(args) do
@@ -115,6 +124,10 @@ function Call(ftype, fname, args)
 end
 
 
+-- generate a complete function definition to bind a C function
+-- into lua
+-- will deliberately generate code that doesn't compile if it's not
+-- sure what to do so that you will *have* to come fix it
 function bind(signature)
 	local ftype = ExtractFunctionType(signature)
 	local fname = ExtractFunctionName(signature)
