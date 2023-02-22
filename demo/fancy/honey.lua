@@ -40,12 +40,14 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+out vec3 pos;
 out vec2 TexCoord;
 
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
     TexCoord = aTexCoord;
+    pos = aPos;
 }
 ]]
 
@@ -53,12 +55,14 @@ local fragmentShaderSource = [[
 #version 330 core
 out vec4 FragColor;
   
+in vec3 pos;
 in vec2 TexCoord;
 
 uniform sampler2D ourTexture;
 
 void main()
 {
+	// FragColor = vec4(pos, 1.0f);
     FragColor = texture(ourTexture, TexCoord);
 }
 ]]
@@ -121,45 +125,77 @@ gl.EnableVertexAttribArray(1)
 
 --===== load mesh from file =====--
 
--- local scene = honey.import.importFile('suzanne.dae')
--- local mesh = scene.meshes[1]
--- local suzanne = {}
--- suzanne.vertices = {}
--- print('mesh.vertices', #mesh.vertices)
--- for i=1,#mesh.vertices do
--- 	local position = mesh.vertices[i]
--- 	local uv = mesh.uvs[1][i]
--- 	table.insert(suzanne.vertices, position.x)
--- 	table.insert(suzanne.vertices, position.y)
--- 	table.insert(suzanne.vertices, position.z)
--- 	table.insert(suzanne.vertices, uv.x)
--- 	table.insert(suzanne.vertices, uv.y)
--- end
--- suzanne.indices = {}
--- for _, face in ipairs(mesh.faces) do
--- 	assert(#face == 3)
--- 	for _, i in ipairs(face) do
--- 		table.insert(suzanne.indices, i)
--- 	end
--- end
--- print('mesh.faces', #mesh.faces)
--- print('suzanne.indices', #suzanne.indices)
--- 
--- suzanne.vertexArr = gl.GenVertexArrays()
--- suzanne.vertexBuf = gl.GenBuffers()
--- suzanne.elementBuf = gl.GenBuffers()
--- 
--- gl.BindVertexArray(suzanne.vertexArr)
--- gl.BindBuffer(gl.ARRAY_BUFFER, suzanne.vertexBuf)
--- gl.BufferData(gl.ARRAY_BUFFER, gl.FLOAT, suzanne.vertices, gl.STATIC_DRAW)
--- 
--- gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, suzanne.elementBuf)
--- gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, gl.UNSIGNED_INT, suzanne.indices, gl.STATIC_DRAW)
--- 
--- gl.VertexAttribPointer(0, 3, false, 5, 0)
--- gl.EnableVertexAttribArray(0)
--- gl.VertexAttribPointer(1, 2, false, 5, 3)
--- gl.EnableVertexAttribArray(1)
+local attrib, shapes, materials = honey.tinyobj.parse_obj('suzanne.obj', 1)
+print(#attrib.vertices)
+print(#attrib.face_num_verts)
+
+print("mesh face_offset", shapes[1].face_offset)
+print("mesh length", shapes[1].length)
+print("#attrib.faces", #attrib.faces)
+print("#attrib.face_num_verts", #attrib.face_num_verts)
+
+local suzanne = {}
+suzanne.vertices = {}
+suzanne.indices = {}
+
+function addVertex(vertex)
+	local pos = 3*vertex.v_idx
+	table.insert(suzanne.vertices, attrib.vertices[pos+1])
+	table.insert(suzanne.vertices, attrib.vertices[pos+2])
+	table.insert(suzanne.vertices, attrib.vertices[pos+3])
+
+	local tex = 3*vertex.vt_idx
+	table.insert(suzanne.vertices, attrib.texcoords[tex+1])
+	table.insert(suzanne.vertices, attrib.texcoords[tex+2])
+
+	table.insert(suzanne.indices, #suzanne.indices)
+end
+
+local start = shapes[1].face_offset
+local finish = start + shapes[1].length
+for i=start,finish-1 do
+	local numVerts = attrib.face_num_verts[i+1]
+	for j=0,numVerts-1 do
+		local vertex = attrib.faces[(3*i)+j+1]
+		addVertex(vertex)
+	end
+end
+
+--for i, vertex in ipairs(suzanne.vertices) do
+--	io.write(tostring(vertex) .. ", ")
+--	if i % 3 == 0 then print() end
+--end
+--print()
+--
+--local indices = {}
+--for i=1,#suzanne.indices do
+--	io.write(tostring(suzanne.indices[i]) .. ", ")
+--	if i % 3 == 0 then print() end
+--end
+--print()
+
+
+print("#suzanne.vertices", #suzanne.vertices)
+print("#suzanne.indices", #suzanne.indices)
+
+
+
+suzanne.vertexArr = gl.GenVertexArrays()
+suzanne.vertexBuf = gl.GenBuffers()
+suzanne.elementBuf = gl.GenBuffers()
+
+gl.BindVertexArray(suzanne.vertexArr)
+gl.BindBuffer(gl.ARRAY_BUFFER, suzanne.vertexBuf)
+gl.BufferData(gl.ARRAY_BUFFER, gl.FLOAT, suzanne.vertices, gl.STATIC_DRAW)
+
+gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, suzanne.elementBuf)
+gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, gl.UNSIGNED_INT, suzanne.indices, gl.STATIC_DRAW)
+
+local size = 5
+gl.VertexAttribPointer(0, 3, false, size, 0)
+gl.EnableVertexAttribArray(0)
+gl.VertexAttribPointer(1, 2, false, size, 3)
+gl.EnableVertexAttribArray(1)
 
 
 --====== load texture ======--
@@ -264,11 +300,11 @@ while not window.shouldClose(w) do
 	gl.UniformMatrix4fv(viewL, false, view)
 	gl.UniformMatrix4fv(projectionL, false, projection)
 
-	gl.BindVertexArray(vertexArray)
-	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)
+	--gl.BindVertexArray(vertexArray)
+	--gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0)
 
-	--gl.BindVertexArray(suzanne.vertexArr)
-	--gl.DrawElements(gl.TRIANGLES, 3*#mesh.faces, gl.UNSIGNED_INT, 0)
+	gl.BindVertexArray(suzanne.vertexArr)
+	gl.DrawElements(gl.TRIANGLES, #suzanne.indices, gl.UNSIGNED_INT, 0)
 
 	window.swapBuffers(w)
 	window.pollEvents()
