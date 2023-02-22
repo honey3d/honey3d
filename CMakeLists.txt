@@ -26,9 +26,6 @@ target_include_directories(
 	${LIB_ROOT}/nanovg/src
 )
 
-# disable byte-alignment in cglm
-add_definitions(-DCGLM_ALL_UNALIGNED)
-
 # link to third-party included libraries
 target_link_directories(
 	honey PUBLIC
