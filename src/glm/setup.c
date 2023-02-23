@@ -10,6 +10,7 @@ const char *glm_mat4_tname = "glm.mat4";
 const char *glm_vec2_tname = "glm.vec2";
 const char *glm_vec3_tname = "glm.vec3";
 const char *glm_vec4_tname = "glm.vec4";
+const char *glm_versor_tname = "glm.versor";
 
 
 void setup_glm(lua_State *L, int honey_index)
