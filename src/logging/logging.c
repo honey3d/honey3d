@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <lua.h>
-#include <honeysuckle.h>
-#include "logging/logging.h"
+#include <lauxlib.h>
+#include "util/util.h"
+#include "logging.h"
 
 int _honey_log_level = HONEY_WARN;
 
 
 #define LUA_LOG(level) \
 int log_ ## level (lua_State *L) { \
-	char *msg; \
-	hs_parse_args(L, hs_str(msg)); \
+	const char *msg = luaL_checkstring(L, 1); \
 	honey_log_ ## level ("%s\n", msg); \
 	return 0; \
 }
@@ -26,15 +26,16 @@ LUA_LOG(trace);
 
 void setup_logging(lua_State *L, int honey_tbl)
 {
-	hs_create_table(L,
-		hs_str_cfunc("fatal", log_fatal),
-		hs_str_cfunc("error", log_error),
-		hs_str_cfunc("warn", log_warn),
-		hs_str_cfunc("info", log_info),
-		hs_str_cfunc("debug", log_debug),
-		hs_str_cfunc("trace", log_trace),
-	);
-
+	struct honey_tbl_t log[] = {
+		H_FUNC("fatal", log_fatal),
+		H_FUNC("error", log_error),
+		H_FUNC("warn", log_warn),
+		H_FUNC("info", log_info),
+		H_FUNC("debug", log_debug),
+		H_FUNC("trace", log_trace),
+		H_END
+	};
+	create_table(L, log);
 	lua_setfield(L, honey_tbl, "log");
 }
 
