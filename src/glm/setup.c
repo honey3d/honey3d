@@ -1,5 +1,6 @@
 #include <lua.h>
 #include <lauxlib.h>
+#include <cglm/version.h>
 #include "util/util.h"
 #include "glm.h"
 
@@ -11,6 +12,15 @@ const char *glm_vec2_tname = "glm.vec2";
 const char *glm_vec3_tname = "glm.vec3";
 const char *glm_vec4_tname = "glm.vec4";
 const char *glm_versor_tname = "glm.versor";
+
+
+int glm_version(lua_State *L)
+{
+	lua_pushinteger(L, CGLM_VERSION_MAJOR);
+	lua_pushinteger(L, CGLM_VERSION_MINOR);
+	lua_pushinteger(L, CGLM_VERSION_PATCH);
+	return 3;
+}
 
 
 void setup_glm(lua_State *L, int honey_index)
@@ -27,6 +37,7 @@ void setup_glm(lua_State *L, int honey_index)
 		#define X(name, func) H_FUNC(name, func),
 		GLM_FUNCTIONS
 		#undef X
+		H_FUNC("version", glm_version),
 		H_END,
 	};
 	create_table(L, glm);
