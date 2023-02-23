@@ -15,8 +15,17 @@ if arg[1] == "-f" then
 
 	f = io.open(arg[2] .. ".bind", "w")
 	for _, sig in ipairs(signatures) do
-		f:write(b.bind(sig))
-		f:write("\n\n\n")
+		local success, binding = pcall(b.bind, sig)
+		if success == false then
+			print(
+				string.format(
+					"bind signature \"%s\" failed: %s", sig, binding
+				)
+			)
+		else
+			f:write(b.bind(sig))
+			f:write("\n\n\n")
+		end
 	end
 	f:close()
 else
