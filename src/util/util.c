@@ -1,6 +1,5 @@
 #include <lua.h>
 #include <lauxlib.h>
-#include <honeysuckle.h>
 #include "util.h"
 
 void create_table(lua_State *L, struct honey_tbl_t *tbl)
@@ -48,10 +47,11 @@ void setup_util(lua_State *L, int honey_tbl)
 	lua_setfield(L, -2, "__gc");
 	lua_pop(L, 1);
 
-	hs_create_table(L,
-		hs_str_cfunc("gc_canary", gc_canary),
-	);
-
+	struct honey_tbl_t util[] = {
+		H_FUNC("gc_canary", gc_canary),
+		H_END,
+	};
+	create_table(L, util);
 	lua_setfield(L, honey_tbl, "util");
 }
 
