@@ -15,6 +15,14 @@ const char *glm_versor_tname = "glm.versor";
 
 void setup_glm(lua_State *L, int honey_index)
 {
+	luaL_newmetatable(L, glm_mat2_tname); lua_pop(L, 1);
+	luaL_newmetatable(L, glm_mat3_tname); lua_pop(L, 1);
+	luaL_newmetatable(L, glm_mat4_tname); lua_pop(L, 1);
+	luaL_newmetatable(L, glm_vec2_tname); lua_pop(L, 1);
+	luaL_newmetatable(L, glm_vec3_tname); lua_pop(L, 1);
+	luaL_newmetatable(L, glm_vec4_tname); lua_pop(L, 1);
+	luaL_newmetatable(L, glm_versor_tname); lua_pop(L, 1);
+
 	struct honey_tbl_t glm[] = {
 		#define X(name, func) H_FUNC(name, func),
 		GLM_FUNCTIONS

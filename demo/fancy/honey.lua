@@ -250,32 +250,32 @@ gl.Uniform1i(gl.GetUniformLocation(shader, 'ourTexture'), 0)
 
 --====== matrices ======--
 
-local model = honey.glm.mat4()
-local axis1 = honey.glm.vec3()
+local model = honey.glm.mat4_create()
+local axis1 = honey.glm.vec3_create()
 honey.glm.vec3_set(axis1, 0, 1.0)
 honey.glm.vec3_set(axis1, 1, 0.0)
 honey.glm.vec3_set(axis1, 2, 0.0)
 
-local axis2 = honey.glm.vec3()
+local axis2 = honey.glm.vec3_create()
 honey.glm.vec3_set(axis2, 0, 0.0)
 honey.glm.vec3_set(axis2, 1, 1.0)
 honey.glm.vec3_set(axis2, 2, 0.0)
 
-local view = honey.glm.mat4()
+local view = honey.glm.mat4_create()
 honey.glm.mat4_identity(view)
-local translation = honey.glm.vec3()
+local translation = honey.glm.vec3_create()
 honey.glm.vec3_set(translation, 0,  0.0)
 honey.glm.vec3_set(translation, 1,  0.0)
 honey.glm.vec3_set(translation, 2, -3.0)
 honey.glm.translate(view, translation)
 
-local projection = honey.glm.mat4()
+local projection = honey.glm.mat4_create()
 honey.glm.perspective(math.rad(45), 800/600, 0.1, 100, projection)
 
 
 --====== main loop ======--
 
-local transform = honey.glm.mat4()
+local transform = honey.glm.mat4_create()
 
 while not window.shouldClose(w) do
 	local time = window.getTime()
