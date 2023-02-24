@@ -22,5 +22,6 @@ struct honey_tbl_t {
 void setup_util(lua_State *L, int honey_tbl);
 void create_table(lua_State *L, struct honey_tbl_t *tbl);
 void append_table(lua_State *L, int tbl_a, int tbl_b);
+int h_call(lua_State *L, int nargs, int nret);
 
 #endif
