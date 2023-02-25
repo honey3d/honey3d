@@ -4,15 +4,21 @@
 #include <lua.h>
 
 
-extern const char *ode_world_tname;
-extern const char *ode_space_tname;
-extern const char *ode_body_tname;
-extern const char *ode_geom_tname;
-extern const char *ode_mass_tname;
-extern const char *ode_joint_group_tname;
-extern const char *ode_joint_tname;
-extern const char *ode_jointgroup_tname;
-extern const char *ode_contact_tname;
+#define ODE_METATABLES \
+	X("ode.WordID", ode_world_tname) \
+	X("ode.SpaceID", ode_space_tname) \
+	X("ode.BodyID", ode_body_tname) \
+	X("ode.GeomID", ode_geom_tname) \
+	X("ode.Mass", ode_mass_tname) \
+	X("ode.JointGroupID", ode_jointgroup_tname) \
+	X("ode.JointID", ode_joint_tname) \
+	X("ode.Contact", ode_contact_tname) \
+	X("ode.TriMeshDataID", ode_trimeshdata_tname) \
+	X("ode.HeightfieldDataID", ode_heightfielddata_tname) \
+
+#define X(name, mt) extern const char *mt;
+ODE_METATABLES
+#undef X
 
 
 void ode_push_world(lua_State *L, dWorldID w);
@@ -384,21 +390,18 @@ void ode_push_space(lua_State *L, dSpaceID s);
 	X("GeomRayGetLength", dGeomRayGetLength_bind) \
 	X("GeomRaySet", dGeomRaySet_bind) \
 	X("GeomRayGet", dGeomRayGet_bind) \
-	X("GeomRaySetParams", dGeomRaySetParams_bind) \
-	X("GeomRayGetParams", dGeomRayGetParams_bind) \
 	X("GeomRaySetClosestHit", dGeomRaySetClosestHit_bind) \
 	X("GeomRayGetClosestHit", dGeomRayGetClosestHit_bind) \
-	X("CreateConvex", dCreateConvex_bind) \
-	X("GeomSetConvex", dGeomSetConvex_bind) \
+	X("dGeomRaySetFirstContact", dGeomRaySetFirstContact_bind) \
+	X("dGeomRayGetFirstContact", dGeomRayGetFirstContact_bind) \
+	X("dGeomRaySetBackfaceCull", dGeomRaySetBackfaceCull_bind) \
+	X("dGeomRayGetBackfaceCull", dGeomRayGetBackfaceCull_bind) \
 	X("GeomTriMeshDataCreate", dGeomTriMeshDataCreate_bind) \
 	X("GeomTriMeshDataDestroy", dGeomTriMeshDataDestroy_bind) \
 	X("GeomTriMeshDataBuild", dGeomTriMeshDataBuild_bind) \
-	X("GeomTriMeshDataBuildSimple", dGeomTriMeshDataBuildSimple_bind) \
 	X("CreateTriMesh", dCreateTriMesh_bind) \
 	X("GeomTriMeshSetData", dGeomTriMeshSetData_bind) \
 	X("GeomTriMeshClearTCCache", dGeomTriMeshClearTCCache_bind) \
-	X("GeomTriMeshGetTriangle", dGeomTriMeshGetTriangle_bind) \
-	X("GeomTriMeshGetPoint", dGeomTriMeshGetPoint_bind) \
 	X("GeomTriMeshEnableTC", dGeomTriMeshEnableTC_bind) \
 	X("GeomTriMeshIsTCEnabled", dGeomTriMeshIsTCEnabled_bind) \
 	X("GeomHeightfieldDataCreate", dGeomHeightfieldDataCreate_bind) \

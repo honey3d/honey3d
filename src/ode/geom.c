@@ -29,6 +29,24 @@ void ode_push_contactgeom(lua_State *L, dContactGeom cg)
 }
 
 
+void ode_push_trimeshdata(lua_State *L, dTriMeshDataID d)
+{
+	dTriMeshDataID *du = lua_newuserdata(L, sizeof(dTriMeshDataID));
+	*du = d;
+	luaL_getmetatable(L, ode_trimeshdata_tname);
+	lua_setmetatable(L, -2);
+}
+
+
+void ode_push_heightfielddata(lua_State *L, dHeightfieldDataID d)
+{
+	dHeightfieldDataID *du = lua_newuserdata(L, sizeof(dHeightfieldDataID));
+	*du = d;
+	luaL_getmetatable(L, ode_heightfielddata_tname);
+	lua_setmetatable(L, -2);
+}
+
+
 int dGeomDestroy_bind(lua_State *L)
 {
 	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
@@ -860,27 +878,6 @@ int dGeomRayGet_bind(lua_State *L)
 }
 
 
-int dGeomRaySetParams_bind(lua_State *L)
-{
-	dGeomID *ray = luaL_checkudata(L, 1, ode_geom_tname);
-	int FirstContact = luaL_checkinteger(L, 2);
-	int BackfaceCull = luaL_checkinteger(L, 3);
-	dGeomRaySetParams(*ray, FirstContact, BackfaceCull);
-	return 0;
-}
-
-
-int dGeomRayGetParams_bind(lua_State *L)
-{
-	dGeomID *ray = luaL_checkudata(L, 1, ode_geom_tname);
-	int FirstContact, BackfaceCull;
-	dGeomRayGetParams(*ray, &FirstContact, &BackfaceCull);
-	lua_pushnumber(L, FirstContact);
-	lua_pushnumber(L, BackfaceCull);
-	return 2;
-}
-
-
 int dGeomRaySetClosestHit_bind(lua_State *L)
 {
 	dGeomID *ray = luaL_checkudata(L, 1, ode_geom_tname);
@@ -899,17 +896,53 @@ int dGeomRayGetClosestHit_bind(lua_State *L)
 }
 
 
-/*int dGeomTriMeshDataCreate_bind(lua_State *L)
+int dGeomRaySetFirstContact_bind(lua_State *L)
+{
+	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
+	int first_contact = luaL_checkinteger(L, 2);
+	dGeomRaySetFirstContact(*g, first_contact);
+	return 0;
+}
+
+
+int dGeomRayGetFirstContact_bind(lua_State *L)
+{
+	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
+	int bind_result = dGeomRayGetFirstContact(*g);
+	lua_pushinteger(L, bind_result);
+	return 1;
+}
+
+
+int dGeomRaySetBackfaceCull_bind(lua_State *L)
+{
+	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
+	int backfaceCull = luaL_checkinteger(L, 2);
+	dGeomRaySetBackfaceCull(*g, backfaceCull);
+	return 0;
+}
+
+
+int dGeomRayGetBackfaceCull_bind(lua_State *L)
+{
+	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
+	int bind_result = dGeomRayGetBackfaceCull(*g);
+	lua_pushinteger(L, bind_result);
+	return 1;
+}
+
+
+int dGeomTriMeshDataCreate_bind(lua_State *L)
 {
 	dTriMeshDataID bind_result = dGeomTriMeshDataCreate();
-	/* push result /
-	return /* count /;
+	ode_push_trimeshdata(L, bind_result);
+	return 1;
 }
 
 
 int dGeomTriMeshDataDestroy_bind(lua_State *L)
 {
-	dTriMeshDataID g = get: dTriMeshDataID
+	dTriMeshDataID *g = luaL_checkudata(L, 1, ode_trimeshdata_tname);
 	dGeomTriMeshDataDestroy(*g);
 	return 0;
 }
@@ -917,27 +950,31 @@ int dGeomTriMeshDataDestroy_bind(lua_State *L)
 
 int dGeomTriMeshDataBuild_bind(lua_State *L)
 {
-	dTriMeshDataID g = get: dTriMeshDataID
-	const void * Vertices = get: const void *
-	int VertexStride = luaL_checkinteger(L, 3);
-	int VertexCount = luaL_checkinteger(L, 4);
-	const void * Indices = get: const void *
-	int IndexCount = luaL_checkinteger(L, 6);
-	int TriStride = luaL_checkinteger(L, 7);
-	const void * Normals = get: const void *
-	dGeomTriMeshDataBuild(*g, Vertices, VertexStride, VertexCount, Indices, IndexCount, TriStride, Normals);
-	return 0;
-}
+	dTriMeshDataID *g = luaL_checkudata(L, 1, ode_trimeshdata_tname);
+	luaL_checktype(L, 2, LUA_TTABLE);
+	luaL_checktype(L, 3, LUA_TTABLE);
+	const int vertex_tbl = 2;
+	const int index_tbl = 3;
 
+	int VertexStride = 3*sizeof(double);
+	int VertexCount = lua_objlen(L, vertex_tbl)/3;
+	double *Vertices = malloc(3 * VertexCount * sizeof(double));
+	if (Vertices == NULL) {
+		return luaL_error(L, "failed to allocate %lu bytes for vertex buffer", VertexCount * sizeof(double));
+	}
+	for (int i=0; i<VertexCount; i++) {
+		lua_rawgeti(L, vertex_tbl, i+1);
+		Vertices[i] = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+	}
 
-int dGeomTriMeshDataBuildSimple_bind(lua_State *L)
-{
-	dTriMeshDataID g = get: dTriMeshDataID
-	const dVector3 * Vertices = get: const dVector3 *
-	int VertexCount = luaL_checkinteger(L, 3);
-	const int * Indices = get: const int *
-	int IndexCount = luaL_checkinteger(L, 5);
-	dGeomTriMeshDataBuildSimple(*g, Vertices, VertexCount, Indices, IndexCount);
+	int IndexCount = lua_objlen(L, index_tbl)/3;
+	int TriStride = 3*sizeof(unsigned int);
+	unsigned int *Indices = malloc(3 * IndexCount * sizeof(unsigned int));
+	if (Indices == NULL) {
+		return luaL_error(L, "failed to allocate %lu bytes for index buffer", IndexCount * sizeof(unsigned int));
+	}
+	dGeomTriMeshDataBuildDouble(*g, Vertices, VertexStride, VertexCount, Indices, IndexCount, TriStride);
 	return 0;
 }
 
@@ -945,21 +982,21 @@ int dGeomTriMeshDataBuildSimple_bind(lua_State *L)
 int dCreateTriMesh_bind(lua_State *L)
 {
 	dSpaceID *space = luaL_checkudata(L, 1, ode_space_tname);
-	dTriMeshDataID Data = get: dTriMeshDataID
-	dTriCallback * Callback = get: dTriCallback *
-	dTriArrayCallback * ArrayCallback = get: dTriArrayCallback *
-	dTriRayCallback * RayCallback = get: dTriRayCallback *
-	dGeomID *bind_result = dCreateTriMesh(*space, Data, Callback, ArrayCallback, RayCallback);
-	/* push result /
-	return /* count /;
+	dTriMeshDataID *Data = luaL_checkudata(L, 2, ode_trimeshdata_tname);
+	dTriCallback * Callback = NULL;
+	dTriArrayCallback * ArrayCallback = NULL;
+	dTriRayCallback * RayCallback = NULL;
+	dGeomID bind_result = dCreateTriMesh(*space, *Data, Callback, ArrayCallback, RayCallback);
+	ode_push_geom(L, bind_result);
+	return 1;
 }
 
 
 int dGeomTriMeshSetData_bind(lua_State *L)
 {
 	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
-	dTriMeshDataID Data = get: dTriMeshDataID
-	dGeomTriMeshSetData(*g, Data);
+	dTriMeshDataID *Data = luaL_checkudata(L, 2, ode_trimeshdata_tname);
+	dGeomTriMeshSetData(*g, *Data);
 	return 0;
 }
 
@@ -968,30 +1005,6 @@ int dGeomTriMeshClearTCCache_bind(lua_State *L)
 {
 	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
 	dGeomTriMeshClearTCCache(*g);
-	return 0;
-}
-
-
-int dGeomTriMeshGetTriangle_bind(lua_State *L)
-{
-	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
-	int Index = luaL_checkinteger(L, 2);
-	dVector3 * v0 = get: dVector3 *
-	dVector3 * v1 = get: dVector3 *
-	dVector3 * v2 = get: dVector3 *
-	dGeomTriMeshGetTriangle(*g, Index, v0, v1, v2);
-	return 0;
-}
-
-
-int dGeomTriMeshGetPoint_bind(lua_State *L)
-{
-	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
-	int Index = luaL_checkinteger(L, 2);
-	dReal u = luaL_checknumber(L, 3);
-	dReal v = luaL_checknumber(L, 4);
-	dVector3 Out = get: dVector3
-	dGeomTriMeshGetPoint(*g, Index, u, v, Out);
 	return 0;
 }
 
@@ -1013,97 +1026,135 @@ int dGeomTriMeshIsTCEnabled_bind(lua_State *L)
 	int bind_result = dGeomTriMeshIsTCEnabled(*g, geomClass);
 	lua_pushinteger(L, bind_result);
 	return 1;
-}*/
+}
 
 
-//int dGeomHeightfieldDataCreate_bind(lua_State *L)
-//{
-//	dHeightfieldDataID bind_result = dGeomHeightfieldDataCreate();
-//	/* push result */
-//	return /* count */;
-//}
-//
-//
-//int dGeomHeightfieldDataDestroy_bind(lua_State *L)
-//{
-//	dHeightfieldDataID d = get: dHeightfieldDataID
-//	dGeomHeightfieldDataDestroy(d);
-//	return 0;
-//}
-//
-//
-//int dGeomHeightfieldDataBuildDouble_bind(lua_State *L)
-//{
-//	dHeightfieldDataID d = get: dHeightfieldDataID
-//	const double * pHeightData = get: const double *
-//	int bCopyHeightData = luaL_checkinteger(L, 3);
-//	dReal width = luaL_checknumber(L, 4);
-//	dReal depth = luaL_checknumber(L, 5);
-//	int widthSamples = luaL_checkinteger(L, 6);
-//	int depthSamples = luaL_checkinteger(L, 7);
-//	dReal scale = luaL_checknumber(L, 8);
-//	dReal offset = luaL_checknumber(L, 9);
-//	dReal thickness = luaL_checknumber(L, 10);
-//	int bWrap = luaL_checkinteger(L, 11);
-//	dGeomHeightfieldDataBuildDouble(d, pHeightData, bCopyHeightData, width, depth, widthSamples, depthSamples, scale, offset, thickness, bWrap);
-//	return 0;
-//}
-//
-//
-//int dGeomHeightfieldDataBuildCallback_bind(lua_State *L)
-//{
-//	dHeightfieldDataID d = get: dHeightfieldDataID
-//	void * pUserData = get: void *
-//	dHeightfieldGetHeight * pCallback = get: dHeightfieldGetHeight *
-//	dReal width = luaL_checknumber(L, 4);
-//	dReal depth = luaL_checknumber(L, 5);
-//	int widthSamples = luaL_checkinteger(L, 6);
-//	int depthSamples = luaL_checkinteger(L, 7);
-//	dReal scale = luaL_checknumber(L, 8);
-//	dReal offset = luaL_checknumber(L, 9);
-//	dReal thickness = luaL_checknumber(L, 10);
-//	int bWrap = luaL_checkinteger(L, 11);
-//	dGeomHeightfieldDataBuildCallback(d, pUserData, pCallback, width, depth, widthSamples, depthSamples, scale, offset, thickness, bWrap);
-//	return 0;
-//}
-//
-//
-//int dGeomHeightfieldDataSetBounds_bind(lua_State *L)
-//{
-//	dHeightfieldDataID d = get: dHeightfieldDataID
-//	dReal min_height = luaL_checknumber(L, 2);
-//	dReal max_height = luaL_checknumber(L, 3);
-//	dGeomHeightfieldDataSetBounds(d, min_height, max_height);
-//	return 0;
-//}
-//
-//
-//int dCreateHeightfield_bind(lua_State *L)
-//{
-//	dSpaceID *space = luaL_checkudata(L, 1, ode_space_tname);
-//	dHeightfieldDataID data = get: dHeightfieldDataID
-//	int bPlaceable = luaL_checkinteger(L, 3);
-//	dGeomID *bind_result = dCreateHeightfield(*space, data, bPlaceable);
-//	/* push result */
-//	return /* count */;
-//}
-//
-//
-//int dGeomHeightfieldSetHeightfieldData_bind(lua_State *L)
-//{
-//	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
-//	dHeightfieldDataID Data = get: dHeightfieldDataID
-//	dGeomHeightfieldSetHeightfieldData(*g, Data);
-//	return 0;
-//}
-//
-//
-//int dGeomHeightfieldGetHeightfieldData_bind(lua_State *L)
-//{
-//	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
-//	dHeightfieldDataID bind_result = dGeomHeightfieldGetHeightfieldData(*g);
-//	/* push result */
-//	return /* count */;
-//}
+int dGeomHeightfieldDataCreate_bind(lua_State *L)
+{
+	dHeightfieldDataID bind_result = dGeomHeightfieldDataCreate();
+	ode_push_heightfielddata(L, bind_result);
+	return 1;
+}
 
 
+int dGeomHeightfieldDataDestroy_bind(lua_State *L)
+{
+	dHeightfieldDataID *d = luaL_checkudata(L, 1, ode_heightfielddata_tname);
+	dGeomHeightfieldDataDestroy(*d);
+	return 0;
+}
+
+
+int dGeomHeightfieldDataBuildDouble_bind(lua_State *L)
+{
+	dHeightfieldDataID *d = luaL_checkudata(L, 1, ode_heightfielddata_tname);
+	luaL_checktype(L, 2, LUA_TTABLE);
+	int data_tbl = 2;
+	dReal width = luaL_checknumber(L, 3);
+	dReal depth = luaL_checknumber(L, 4);
+	int widthSamples = luaL_checkinteger(L, 5);
+	int depthSamples = luaL_checkinteger(L, 6);
+	size_t height_size = widthSamples * depthSamples * sizeof(double);
+	double * pHeightData = malloc(height_size);
+	if (pHeightData == NULL) {
+		return luaL_error(L, "failed to allocate %lu bytes for pHeightData buffer", height_size);
+	}
+
+	/* read data_tbl into pHeightData */
+	for (int y=0; y<depthSamples; y++) {
+		for (int x=0; x<widthSamples; x++) {
+			int index = x + (depthSamples * y);
+			lua_rawgeti(L, data_tbl, index+1);
+			pHeightData[index] = lua_tonumber(L, -1);
+			lua_pop(L, 1);
+		}
+	}
+
+	dReal scale = luaL_checknumber(L, 7);
+	dReal offset = luaL_checknumber(L, 8);
+	dReal thickness = luaL_checknumber(L, 9);
+	int bWrap = luaL_checkinteger(L, 10);
+	dGeomHeightfieldDataBuildDouble(
+		*d, 
+		pHeightData, 1, 
+		width, depth, widthSamples, depthSamples, 
+		scale, offset, thickness, bWrap
+	);
+	return 0;
+}
+
+
+struct hf_data_t {
+	lua_State *L;
+	int ref;
+};
+static dReal hf_callback(void *userdata, int x, int z)
+{
+	struct hf_data_t *d = userdata;
+	lua_State *L = d->L;
+	lua_rawgeti(L, LUA_REGISTRYINDEX, d->ref);
+	lua_pushinteger(L, x);
+	lua_pushinteger(L, z);
+	lua_call(L, 2, 1);
+	dReal result = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+	return result;
+}
+int dGeomHeightfieldDataBuildCallback_bind(lua_State *L)
+{
+	dHeightfieldDataID *d = luaL_checkudata(L, 1, ode_heightfielddata_tname);
+	luaL_checktype(L, 2, LUA_TFUNCTION);
+	lua_pushvalue(L, 2);
+	int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	struct hf_data_t userData = { L, ref };
+	dHeightfieldGetHeight * pCallback = hf_callback;
+	dReal width = luaL_checknumber(L, 3);
+	dReal depth = luaL_checknumber(L, 4);
+	int widthSamples = luaL_checkinteger(L, 5);
+	int depthSamples = luaL_checkinteger(L, 6);
+	dReal scale = luaL_checknumber(L, 7);
+	dReal offset = luaL_checknumber(L, 8);
+	dReal thickness = luaL_checknumber(L, 9);
+	int bWrap = luaL_checkinteger(L, 10);
+	dGeomHeightfieldDataBuildCallback(*d, &userData, pCallback, width, depth, widthSamples, depthSamples, scale, offset, thickness, bWrap);
+	return 0;
+}
+
+
+int dGeomHeightfieldDataSetBounds_bind(lua_State *L)
+{
+	dHeightfieldDataID *d = luaL_checkudata(L, 1, ode_heightfielddata_tname);
+	dReal min_height = luaL_checknumber(L, 2);
+	dReal max_height = luaL_checknumber(L, 3);
+	dGeomHeightfieldDataSetBounds(*d, min_height, max_height);
+	return 0;
+}
+
+
+int dCreateHeightfield_bind(lua_State *L)
+{
+	dSpaceID *space = luaL_checkudata(L, 1, ode_space_tname);
+	dHeightfieldDataID *data = luaL_checkudata(L, 2, ode_heightfielddata_tname);
+	int bPlaceable = luaL_checkinteger(L, 3);
+	dGeomID bind_result = dCreateHeightfield(*space, *data, bPlaceable);
+	ode_push_geom(L, bind_result);
+	return 1;
+}
+
+
+int dGeomHeightfieldSetHeightfieldData_bind(lua_State *L)
+{
+	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
+	dHeightfieldDataID *Data = luaL_checkudata(L, 1, ode_heightfielddata_tname);
+	dGeomHeightfieldSetHeightfieldData(*g, *Data);
+	return 0;
+}
+
+
+int dGeomHeightfieldGetHeightfieldData_bind(lua_State *L)
+{
+	dGeomID *g = luaL_checkudata(L, 1, ode_geom_tname);
+	dHeightfieldDataID bind_result = dGeomHeightfieldGetHeightfieldData(*g);
+	ode_push_heightfielddata(L, bind_result);
+	return 1;
+}

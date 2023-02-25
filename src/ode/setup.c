@@ -9,29 +9,17 @@
 int init_ode(lua_State *L);
 int close_ode(lua_State *L);
 
-
-#define NEW_METATABLE(name) luaL_newmetatable(L, name); lua_pop(L, 1);
-const char *ode_world_tname = "ode.WorldID";
-const char *ode_space_tname = "ode.SpaceID";
-const char *ode_body_tname  = "ode.BodyID";
-const char *ode_geom_tname  = "ode.GeomID";
-const char *ode_mass_tname  = "ode.Mass";
-const char *ode_joint_tname = "ode.JointID";
-const char *ode_jointgroup_tname = "ode.JointGroupID";
-const char *ode_contact_tname = "ode.Contact";
+#define X(name, mt) const char *mt = name;
+ODE_METATABLES
+#undef X
 
 
 void setup_ode(lua_State *L, int honey_tbl)
 {
 	/* setup metatables */
-	NEW_METATABLE(ode_world_tname);
-	NEW_METATABLE(ode_space_tname);
-	NEW_METATABLE(ode_body_tname);
-	NEW_METATABLE(ode_geom_tname);
-	NEW_METATABLE(ode_mass_tname);
-	NEW_METATABLE(ode_joint_tname);
-	NEW_METATABLE(ode_jointgroup_tname);
-	NEW_METATABLE(ode_contact_tname);
+	#define X(name, mt) luaL_newmetatable(L, mt); lua_pop(L, 1);
+	ODE_METATABLES
+	#undef X
 
 	/* create main table */
 	struct honey_tbl_t ode[] = {

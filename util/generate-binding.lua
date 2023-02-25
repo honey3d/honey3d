@@ -69,6 +69,7 @@ function GetLuaType(ctype)
 		-- numbers
 		if     string.match(ctype, "float$") then return "number"
 		elseif string.match(ctype, "double$") then return "number"
+		elseif string.match(ctype, "Real$") then return "number" -- for ode bindings c;
 		-- integers
 		elseif string.match(ctype, "char$") then return "integer"
 		elseif string.match(ctype, "int$") then return "integer"
@@ -87,7 +88,7 @@ function PullArg(arg, index)
 
 	local pull
 	if ltype == "unknown" then
-		pull = string.format("/* get: %s */", arg.type)
+		pull = string.format("get: %s", arg.type)
 	else
 		pull = string.format("luaL_check%s(L, %d);", ltype, index)
 	end
