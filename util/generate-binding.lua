@@ -74,6 +74,9 @@ function GetLuaType(ctype)
 		elseif string.match(ctype, "char$") then return "integer"
 		elseif string.match(ctype, "int$") then return "integer"
 		elseif string.match(ctype, "long$") then return "integer"
+		elseif string.match(ctype, "ma_result$") then return "integer"
+		elseif string.match(ctype, "int32$") then return "integer"
+		elseif string.match(ctype, "int64$") then return "integer"
 		-- void
 		elseif string.match(ctype, "void$") then return "void"
 		-- unknown
