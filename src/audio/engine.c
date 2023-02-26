@@ -29,6 +29,8 @@ int ma_engine_init_bind(lua_State *L)
 	lua_pushinteger(L, result);
 	lua_pushvalue(L, engine_index);
 	lua_remove(L, engine_index);
+	luaL_getmetatable(L, ma_engine_tname);
+	lua_setmetatable(L, -2);
 	return 2;
 }
 
@@ -38,15 +40,6 @@ int ma_engine_uninit_bind(lua_State *L)
 	ma_engine * pEngine = luaL_checkudata(L, 1, ma_engine_tname);
 	ma_engine_uninit(pEngine);
 	return 0;
-}
-
-
-int ma_engine_get_endpoint_bind(lua_State *L)
-{
-	ma_engine * pEngine = luaL_checkudata(L, 1, ma_engine_tname);
-	ma_node* bind_result = ma_engine_get_endpoint(pEngine);
-	ma_push_node(L, bind_result);
-	return 1;
 }
 
 

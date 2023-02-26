@@ -5,4 +5,5 @@ target_sources(honey PUBLIC
 	${CMAKE_CURRENT_LIST_DIR}/setup.c
 	${CMAKE_CURRENT_LIST_DIR}/engine.c
 	${CMAKE_CURRENT_LIST_DIR}/sound.c
+	${CMAKE_CURRENT_LIST_DIR}/sound_group.c
 )

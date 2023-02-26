@@ -4,8 +4,8 @@ local window = honey.window
 
 --===== initialize audio =====--
 
-local engine = honey.audio.engine_init()
-honey.audio.engine_play_sound(engine, 'example_sound.ogg')
+local result, engine = honey.ma.engine_init({})
+honey.ma.engine_play_sound(engine, 'example_sound.ogg', nil)
 
 
 --====== initialize opengl ======--
@@ -314,6 +314,6 @@ end
 
 window.destroy(w)
 gl.Terminate()
-honey.audio.engine_uninit(engine)
+honey.ma.engine_uninit(engine)
 --image.surface_destroy(surface)
 --image.context_destroy(cr)
