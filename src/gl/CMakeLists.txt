@@ -9,12 +9,13 @@ target_sources(honey PUBLIC
 	${GL}/window.c
 	${GL}/texture.c
 	${GL}/gl.c
-	${GL}/glad/glad.c
 )
 
 
 target_sources(test PUBLIC
-	${GL}/glad/glad.c
 	${GL}/gl.test.c
 	${GL}/window.test.c
 )
+
+
+add_subdirectory(glad)

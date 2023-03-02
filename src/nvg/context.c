@@ -1,6 +1,6 @@
 #include <lua.h>
 #include <lauxlib.h>
-#include "gl/glad/glad.h"
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #define NANOVG_GL3_IMPLEMENTATION
 #include <nanovg.h>
